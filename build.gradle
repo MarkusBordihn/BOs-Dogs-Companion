@@ -1,0 +1,134 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.guardsquare:proguard-gradle:7.8.2'
+  }
+}
+
+plugins {
+  id 'java'
+  id 'maven-publish'
+  id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
+}
+
+// Apply external configuration
+apply from: 'gradle/hytale-config.gradle'
+apply from: 'gradle/hytale-tasks.gradle'
+
+group = project.group
+version = project.version
+
+base {
+  archivesName = "${project.mod_id}-hytale-${project.version}"
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+  withSourcesJar()
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  testImplementation platform('org.junit:junit-bom:5.10.0')
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+
+  // Hytale Server dependency
+  compileOnly files(project.findProperty('hytaleServerJar') ?: 'HytaleServer.jar')
+}
+
+if (!file("$projectDir/run").exists()) {
+  file("$projectDir/run").mkdirs()
+}
+
+tasks.register('proguard', proguard.gradle.ProGuardTask) {
+  dependsOn tasks.jar
+
+  // Input JAR
+  injars(tasks.named('jar', Jar).flatMap { it.archiveFile })
+
+  // Output JAR
+  outjars(layout.buildDirectory.file("libs/${project.mod_id}-hytale-${project.version}-minified.jar"))
+
+  // Hytale Server JAR
+  def hytaleJar = file(project.findProperty('hytaleServerJar') ?: 'HytaleServer.jar')
+  if (hytaleJar.exists()) {
+    libraryjars hytaleJar
+  }
+
+  // ProGuard configuration - Maximum obfuscation with precise keeps
+  dontoptimize()
+
+  // Keep only essential runtime attributes
+  keepattributes 'Signature,Exceptions,*Annotation*'
+  keepattributes 'Manifest'
+
+  // Keep enum structure
+  keepclassmembers 'enum * { public static **[] values(); public static ** valueOf(java.lang.String); }'
+
+  // Don't print notes about potential issues
+  dontnote
+
+  // Don't warn about Hytale runtime dependencies
+  dontwarn 'com.hypixel.hytale.**'
+  dontwarn 'javax.annotation.**'
+
+  verbose
+}
+
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'UTF-8'
+  options.incremental = true
+  options.fork = true
+  options.forkOptions.memoryMaximumSize = '2g'
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jar {
+  manifest {
+    attributes([
+        'Specification-Title'   : project.mod_name,
+        'Specification-Vendor'  : project.vendor_name,
+        'Specification-Version' : project.version,
+        'Implementation-Title'  : project.mod_name,
+        'Implementation-Version': project.version,
+        'Implementation-Vendor' : project.vendor_name,
+    ])
+  }
+}
+
+// IntelliJ IDEA run configuration
+def serverRunDir = file("$projectDir/run")
+
+// IntelliJ run configuration using Application (not Gradle task)
+idea {
+  project {
+    settings {
+      runConfigurations {
+        'HytaleServer'(org.jetbrains.gradle.ext.Application) {
+          mainClass = 'com.hypixel.hytale.Main'
+          moduleName = rootProject.name + '.main'
+
+          def hytaleHome = project.findProperty('hytaleHome') ?: 'G:/Hytale/install/release'
+          def patchline = project.findProperty('patchline') ?: 'package/game/latest'
+          def assetsPath = "${hytaleHome}/${patchline}/Assets.zip"
+          def modsPath = file("src/main/").absolutePath
+
+          programParameters = "--allow-op --assets=\"${assetsPath}\" --mods=\"${modsPath}\""
+          workingDirectory = serverRunDir.absolutePath
+
+          shortenCommandLine = 'MANIFEST'
+        }
+      }
+    }
+  }
+}
