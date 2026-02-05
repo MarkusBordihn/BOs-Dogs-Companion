@@ -1,0 +1,132 @@
+{
+  "Type": "Generic",
+  "Appearance": "DogsCompanion",
+  "NameTranslationKey": "server.npcRoles.Dogs_Wild.name",
+  "DefaultNPCAttitude": "Ignore",
+  "DefaultPlayerAttitude": "Neutral",
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxWalkSpeed": 6,
+      "RunThreshold": 0.7,
+      "RunThresholdRange": 0.1,
+      "Gravity": 10,
+      "MaxFallSpeed": 20,
+      "Acceleration": 12
+    }
+  ],
+  "MaxHealth": 20,
+  "Instructions": [
+    {
+      "Instructions": [
+        {
+          "$Comment": "Follow player with CookedBeef or Bone in hand",
+          "Sensor": {
+            "Type": "Player",
+            "Range": 8,
+            "Filters": [
+              {
+                "Type": "ItemInHand",
+                "Items": [
+                  "Food_Wildmeat_Cooked",
+                  "Food_Wildmeat_Raw"
+                ]
+              }
+            ]
+          },
+          "BodyMotion": {
+            "Type": "Seek",
+            "SlowDownDistance": 4,
+            "StopDistance": 2,
+            "RelativeSpeed": 0.6
+          }
+        },
+        {
+          "$Comment": "Wander around naturally",
+          "Sensor": {
+            "Type": "Any"
+          },
+          "BodyMotion": {
+            "Type": "Sequence",
+            "Looped": true,
+            "Motions": [
+              {
+                "Type": "Timer",
+                "Time": [4, 8],
+                "Motion": {
+                  "Type": "WanderInCircle",
+                  "Radius": 10,
+                  "MaxHeadingChange": 60,
+                  "RelativeSpeed": 0.4
+                }
+              },
+              {
+                "Type": "Timer",
+                "Time": [2, 5],
+                "Motion": {
+                  "Type": "Nothing"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "InteractionInstruction": {
+    "Instructions": [
+      {
+        "$Comment": "Wild dog - show taming hint on mouse-over",
+        "Continue": true,
+        "Sensor": {
+          "Type": "Not",
+          "Sensor": {
+            "Type": "DogTamed"
+          }
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.tame",
+            "ShowPrompt": true
+          }
+        ]
+      },
+      {
+        "$Comment": "Handle taming interaction",
+        "Sensor": {
+          "Type": "HasInteracted"
+        },
+        "Actions": [
+          {
+            "Type": "LockOnInteractionTarget"
+          },
+          {
+            "Type": "DogInteractionWild"
+          }
+        ]
+      }
+    ]
+  },
+  "Parameters": {
+    "AttractiveItems": {
+      "Value": [
+        "Food_Wildmeat_Cooked",
+        "Food_Wildmeat_Raw"
+      ],
+      "Description": "Items that attract dogs and make them follow players"
+    },
+    "LovedItems": {
+      "Value": [
+        "Food_Wildmeat_Cooked",
+        "Food_Wildmeat_Raw"
+      ],
+      "Description": "Items that dogs love and will befriend for"
+    },
+    "Appearance": {
+      "Value": "DogsCompanion",
+      "Description": "The dog's model appearance"
+    }
+  }
+}

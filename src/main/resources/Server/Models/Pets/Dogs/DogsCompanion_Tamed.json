@@ -1,0 +1,5 @@
+{
+  "Parent": "DogsCompanion",
+  "Model": "NPC/Pets/Dog/Models/Model.blockymodel",
+  "Texture": "NPC/Pets/Dogs/Models/DogModel_GermanShepherd_Tamed.png"
+}

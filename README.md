@@ -15,7 +15,8 @@ Dogs Companion adds loyal dogs to your world.
 Dogs are active companions designed to support gameplay rather than just decoration.
 They can follow you, guard an area, assist in combat, and react to nearby dangers.
 
-Each dog type has a clear role and behavior, making them useful companions during exploration, base defense, or adventures.
+Each dog type has a clear role and behavior, making them useful companions during exploration, base
+defense, or adventures.
 The mod is designed to be lightweight, intuitive, and easy to integrate into existing worlds.
 
 Works great alongside companion or animal-focused mods, especially Cats.

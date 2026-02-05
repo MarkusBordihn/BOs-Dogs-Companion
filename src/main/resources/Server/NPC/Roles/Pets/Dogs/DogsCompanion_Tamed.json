@@ -1,0 +1,120 @@
+{
+  "Type": "Generic",
+  "Appearance": "DogsCompanion_Tamed",
+  "NameTranslationKey": "server.npcRoles.DogsCompanion_Tamed.name",
+  "DefaultNPCAttitude": "Neutral",
+  "DefaultPlayerAttitude": "Friendly",
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxWalkSpeed": 7,
+      "RunThreshold": 0.7,
+      "RunThresholdRange": 0.1,
+      "Gravity": 10,
+      "MaxFallSpeed": 20,
+      "Acceleration": 12
+    }
+  ],
+  "MaxHealth": 20,
+  "Instructions": [
+    {
+      "Instructions": [
+        {
+          "$Comment": "Default wandering behavior",
+          "Sensor": {
+            "Type": "Any"
+          },
+          "BodyMotion": {
+            "Type": "Sequence",
+            "Looped": true,
+            "Motions": [
+              {
+                "Type": "Timer",
+                "Time": [3, 6],
+                "Motion": {
+                  "Type": "WanderInCircle",
+                  "Radius": 8,
+                  "MaxHeadingChange": 60,
+                  "RelativeSpeed": 0.3
+                }
+              },
+              {
+                "Type": "Timer",
+                "Time": [2, 4],
+                "Motion": {
+                  "Type": "Nothing"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "InteractionInstruction": {
+    "Instructions": [
+      {
+        "$Comment": "Tamed dog + Owner - show owner interaction hint",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "DogTamed"
+            },
+            {
+              "Type": "DogOwner"
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.owner",
+            "ShowPrompt": true
+          }
+        ]
+      },
+      {
+        "$Comment": "Tamed dog + Stranger - no interaction allowed",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "DogTamed"
+            },
+            {
+              "Type": "Not",
+              "Sensor": {
+                "Type": "DogOwner"
+              }
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": false,
+            "ShowPrompt": false
+          }
+        ]
+      },
+      {
+        "$Comment": "Handle owner interactions",
+        "Sensor": {
+          "Type": "HasInteracted"
+        },
+        "Actions": [
+          {
+            "Type": "LockOnInteractionTarget"
+          },
+          {
+            "Type": "DogInteractionOwner"
+          }
+        ]
+      }
+    ]
+  }
+}

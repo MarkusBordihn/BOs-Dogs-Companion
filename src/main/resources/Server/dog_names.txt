@@ -1,0 +1,84 @@
+# Dog Names Configuration
+# Add one name per line. Empty lines and lines starting with # are ignored.
+# These names will be randomly assigned when taming dogs.
+#
+# SECURITY RULES:
+# - Only letters (a-z, A-Z), numbers (0-9), spaces, hyphens (-), apostrophes ('), and dots (.) are allowed
+# - Names must be between 1 and 32 characters long
+# - Invalid names will be skipped and logged as warnings
+
+Abby
+Ace
+Apollo
+Bailey
+Bear
+Bella
+Bonnie
+Bruno
+Buddy
+Buster
+Charlie
+Chloe
+Coco
+Cooper
+Daisy
+Diesel
+Duke
+Ellie
+Finn
+Ginger
+Gizmo
+Gunner
+Harley
+Hazel
+Honey
+Hunter
+Ivy
+Jack
+Jax
+Koda
+Layla
+Leo
+Lily
+Loki
+Lucky
+Luna
+Maggie
+Marley
+Max
+Maya
+Molly
+Moose
+Murphy
+Nala
+Odin
+Oliver
+Oscar
+Penny
+Pepper
+Piper
+Ranger
+Rex
+Riley
+Rocky
+Rosie
+Roxy
+Ruby
+Rusty
+Sadie
+Samson
+Sarge
+Scout
+Shadow
+Shelby
+Sophie
+Stella
+Tank
+Thor
+Toby
+Tucker
+Willow
+Winston
+Zeke
+Zeus
+Zoe

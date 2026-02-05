@@ -1,0 +1,70 @@
+{
+  "Model": "NPC/Pets/Dog/Models/Model.blockymodel",
+  "Texture": "NPC/Pets/Dogs/Models/DogModel_GermanShepherd.png",
+  "EyeHeight": 0.8,
+  "HitBox": {
+    "Max": {
+      "X": 0.35,
+      "Y": 1.0,
+      "Z": 0.35
+    },
+    "Min": {
+      "X": -0.35,
+      "Y": 0,
+      "Z": -0.35
+    }
+  },
+  "AnimationSets": {
+    "Idle": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Idle.blockyanim"
+        }
+      ]
+    },
+    "Walk": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Walk.blockyanim"
+        }
+      ]
+    },
+    "WalkBackward": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Walk_Backward.blockyanim"
+        }
+      ]
+    },
+    "Run": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Run.blockyanim"
+        }
+      ]
+    },
+    "Jump": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Jump.blockyanim",
+          "BlendingDuration": 0.1,
+          "Priority": 1
+        }
+      ]
+    },
+    "Sit": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Idles/Sit.blockyanim"
+        }
+      ]
+    },
+    "Sleep": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Sleep.blockyanim"
+        }
+      ]
+    }
+  }
+}

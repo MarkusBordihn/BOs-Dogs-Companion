@@ -1,0 +1,11 @@
+hint.tame=Tame with Wild Meat (cooked or raw) [{key}]
+hint.owner=Interact with your dog [{key}]
+taming.success=You have tamed a dog! Meet %dogName%!
+taming.failed=The dog is not interested...
+taming.limit_reached=You already have %current% dogs (limit: %limit%)
+interaction.sit=Your dog is now sitting
+interaction.follow=Your dog is now following you
+commands.error.not_owner=%name% belongs to %owner%
+commands.error.no_dog=No dog found. Look at a dog and try again.
+commands.error.not_owned=This dog doesn't have an owner.
+commands.name.success=Renamed %name% to %newName%!
