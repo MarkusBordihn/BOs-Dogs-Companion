@@ -17,18 +17,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dogscompanion.data;
+package de.markusbordihn.dogscompanion.interaction;
 
-import com.hypixel.hytale.codec.codecs.EnumCodec;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.role.Role;
+import java.util.logging.Level;
 
-public enum DogState {
-  SITTING,
-  SLEEPING,
-  FOLLOWING,
-  WANDERING,
-  PLAYING,
-  WAITING,
-  ATTACKING;
+public class InteractionOwner {
 
-  public static final EnumCodec<DogState> CODEC = new EnumCodec<>(DogState.class);
+  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+  public static boolean handle(
+      Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
+    
+    LOGGER.at(Level.INFO).log(
+        "OWNER: Petting Interaction - Dog petted by owner %s",
+        player != null ? player.getDisplayName() : "unknown");
+
+    // Trigger brief happy/play animation when petted
+    role.getStateSupport().setState(entityRef, "Pet", "Playing", store);
+
+    return false;
+  }
 }

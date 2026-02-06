@@ -1,13 +1,19 @@
 {
   "Type": "Generic",
-  "Appearance": "DogsCompanion_Tamed",
-  "NameTranslationKey": "server.npcRoles.DogsCompanion_Tamed.name",
-  "DefaultNPCAttitude": "Neutral",
+  "StartState": "Pet",
+  "DefaultSubState": "Default",
+  "Appearance": {
+    "Compute": "Appearance"
+  },
+  "NameTranslationKey": {
+    "Compute": "NameTranslationKey"
+  },
+  "DefaultNPCAttitude": "Friendly",
   "DefaultPlayerAttitude": "Friendly",
   "MotionControllerList": [
     {
       "Type": "Walk",
-      "MaxWalkSpeed": 7,
+      "MaxWalkSpeed": 8,
       "RunThreshold": 0.7,
       "RunThresholdRange": 0.1,
       "Gravity": 10,
@@ -20,33 +26,284 @@
     {
       "Instructions": [
         {
-          "$Comment": "Default wandering behavior",
+          "$Comment": "Dog is tamed - use substates for different behaviors",
           "Sensor": {
-            "Type": "Any"
+            "Type": "State",
+            "State": "Pet"
           },
-          "BodyMotion": {
-            "Type": "Sequence",
-            "Looped": true,
-            "Motions": [
-              {
-                "Type": "Timer",
-                "Time": [3, 6],
-                "Motion": {
-                  "Type": "WanderInCircle",
-                  "Radius": 8,
-                  "MaxHeadingChange": 60,
-                  "RelativeSpeed": 0.3
-                }
+          "Instructions": [
+            {
+              "$Comment": "Sitting behavior - stays still in sitting pose",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Sitting"
               },
-              {
-                "Type": "Timer",
-                "Time": [2, 4],
-                "Motion": {
-                  "Type": "Nothing"
+              "Actions": [
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Sit",
+                  "Slot": "Action"
                 }
+              ],
+              "BodyMotion": {
+                "Type": "Nothing"
               }
-            ]
-          }
+            },
+            {
+              "$Comment": "Sleeping behavior - rests on ground",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Sleeping"
+              },
+              "Actions": [
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Sleep",
+                  "Slot": "Action"
+                }
+              ],
+              "BodyMotion": {
+                "Type": "Nothing"
+              }
+            },
+            {
+              "$Comment": "Playing behavior - playful movement, auto-returns to default after timeout",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Playing"
+              },
+              "ActionsBlocking": true,
+              "Actions": [
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Jump",
+                  "Slot": "Action"
+                },
+                {
+                  "Type": "Timeout",
+                  "Delay": [3, 6],
+                  "Action": {
+                    "Type": "State",
+                    "State": ".Default"
+                  }
+                }
+              ],
+              "BodyMotion": {
+                "Type": "WanderInCircle",
+                "Radius": 3,
+                "RelativeSpeed": 0.8
+              }
+            },
+            {
+              "$Comment": "Attacking behavior - attacks commanded target",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Attacking"
+              },
+              "Instructions": [
+                {
+                  "$Comment": "Chase and attack target",
+                  "Sensor": {
+                    "Type": "Target",
+                    "TargetSlot": "LockedTarget",
+                    "Range": 20
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Run",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Seek",
+                    "SlowDownDistance": 4,
+                    "StopDistance": 2,
+                    "RelativeSpeed": 1.0
+                  },
+                  "HeadMotion": {
+                    "Type": "Watch"
+                  }
+                },
+                {
+                  "$Comment": "Execute attack when in range",
+                  "Sensor": {
+                    "Type": "Target",
+                    "TargetSlot": "LockedTarget",
+                    "Range": 2.5
+                  },
+                  "ActionsBlocking": true,
+                  "Actions": [
+                    {
+                      "Type": "Attack",
+                      "Attack": "Root_NPC_Attack_Melee",
+                      "AttackPauseRange": [1.5, 2]
+                    },
+                    {
+                      "Type": "Timeout",
+                      "Delay": [1, 1.5]
+                    }
+                  ]
+                },
+                {
+                  "$Comment": "No target found - go back to default behavior",
+                  "Sensor": {
+                    "Type": "Any"
+                  },
+                  "Actions": [
+                    {
+                      "Type": "State",
+                      "State": ".Default"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "$Comment": "Waiting behavior - stands still and watches",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Waiting"
+              },
+              "Actions": [
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Idle",
+                  "Slot": "Action"
+                }
+              ],
+              "BodyMotion": {
+                "Type": "Nothing"
+              }
+            },
+            {
+              "$Comment": "Wandering behavior - walks around freely",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Wandering"
+              },
+              "Instructions": [
+                {
+                  "$Comment": "Reset animation first",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ]
+                },
+                {
+                  "Sensor": {
+                    "Type": "Any"
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Sequence",
+                    "Looped": true,
+                    "Motions": [
+                      {
+                        "Type": "Timer",
+                        "Time": [3, 6],
+                        "Motion": {
+                          "Type": "WanderInCircle",
+                          "Radius": 10,
+                          "MaxHeadingChange": 60,
+                          "RelativeSpeed": 0.5
+                        }
+                      },
+                      {
+                        "Type": "Timer",
+                        "Time": [2, 4],
+                        "Motion": {
+                          "Type": "Nothing"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "$Comment": "Default following behavior - follows owner with pauses",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Default"
+              },
+              "Instructions": [
+                {
+                  "$Comment": "Reset animation first when entering this state",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ]
+                },
+                {
+                  "$Comment": "Follow owner player within range",
+                  "Sensor": {
+                    "Type": "Player",
+                    "Range": 18,
+                    "LockOnTarget": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Seek",
+                    "SlowDownDistance": 5,
+                    "StopDistance": 3,
+                    "RelativeSpeed": 0.9
+                  }
+                },
+                {
+                  "$Comment": "Teleport to player if too far away (outside seek range)",
+                  "Sensor": {
+                    "Type": "Target"
+                  },
+                  "BodyMotion": {
+                    "Type": "Teleport"
+                  }
+                }
+              ]
+            },
+            {
+              "$Comment": "State setter declarations for validation - never executed",
+              "Sensor": {
+                "Type": "Flag",
+                "Name": "_VALIDATION_ONLY_NEVER_SET"
+              },
+              "Actions": [
+                {"Type": "State", "State": ".Default"},
+                {"Type": "State", "State": ".Sitting"},
+                {"Type": "State", "State": ".Sleeping"},
+                {"Type": "State", "State": ".Playing"},
+                {"Type": "State", "State": ".Attacking"},
+                {"Type": "State", "State": ".Waiting"},
+                {"Type": "State", "State": ".Wandering"}
+              ]
+            }
+          ]
         }
       ]
     }
@@ -77,7 +334,7 @@
         ]
       },
       {
-        "$Comment": "Tamed dog + Stranger - no interaction allowed",
+        "$Comment": "Tamed dog + Stranger - show stranger interaction hint (cannot interact)",
         "Continue": true,
         "Sensor": {
           "Type": "And",
@@ -96,15 +353,27 @@
         "Actions": [
           {
             "Type": "SetInteractable",
-            "Interactable": false,
-            "ShowPrompt": false
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.stranger",
+            "ShowPrompt": true
+          },
+          {
+            "Type": "DogInteractionStranger"
           }
         ]
       },
       {
         "$Comment": "Handle owner interactions",
         "Sensor": {
-          "Type": "HasInteracted"
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "HasInteracted"
+            },
+            {
+              "Type": "DogOwner"
+            }
+          ]
         },
         "Actions": [
           {
@@ -116,5 +385,18 @@
         ]
       }
     ]
+  },
+  "NameTranslationKey": {
+    "Compute": "NameTranslationKey"
+  },
+  "Parameters": {
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.DogsCompanion_Tamed.name",
+      "Description": "Translation key for dog name display"
+    },
+    "Appearance": {
+      "Value": "DogsCompanion_Tamed",
+      "Description": "The dog's model appearance"
+    }
   }
 }

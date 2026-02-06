@@ -1,6 +1,6 @@
 {
   "Model": "NPC/Pets/Dog/Models/Model.blockymodel",
-  "Texture": "NPC/Pets/Dogs/Models/DogModel_GermanShepherd.png",
+  "Texture": "NPC/Pets/Dog/Models/Texture.png",
   "EyeHeight": 0.8,
   "HitBox": {
     "Max": {

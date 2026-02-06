@@ -33,6 +33,8 @@ import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
@@ -328,6 +330,66 @@ public class DogsManager extends RefSystem<EntityStore> {
       @Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
     UUID dogUuid = getUuid(dogRef, store);
     return dogUuid != null ? getDogData(dogUuid, store) : null;
+  }
+
+  @Nonnull
+  public java.util.Collection<DogDataEntry> getDogDataByOwner(
+      @Nonnull UUID ownerUuid, @Nonnull Store<EntityStore> store) {
+    DogsCompanionDataResource resource =
+        store.getResource(DogsCompanionDataResource.getResourceType());
+    if (resource == null) {
+      return Collections.emptyList();
+    }
+    return resource.getDogsByOwner(ownerUuid);
+  }
+
+  public void releaseOwnership(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
+    UUID dogUuid = getUuid(dogRef, store);
+    if (dogUuid == null) {
+      LOGGER.at(Level.WARNING).log("Cannot release ownership - dog has no UUID");
+      return;
+    }
+
+    // Remove owner component
+    store.removeComponent(dogRef, DogOwnerComponent.getComponentType());
+
+    // Update persistent data
+    DogsCompanionDataResource resource =
+        store.getResource(DogsCompanionDataResource.getResourceType());
+    if (resource != null) {
+      DogDataEntry dogDataEntry = resource.getDog(dogUuid);
+      if (dogDataEntry != null) {
+        resource.updateDog(dogUuid, dogDataEntry.withOwner(null, null));
+      }
+    }
+  }
+
+  public void updateDogUuid(
+      @Nonnull UUID oldUuid, @Nonnull UUID newUuid, @Nonnull Store<EntityStore> store) {
+    DogsCompanionDataResource resource =
+        store.getResource(DogsCompanionDataResource.getResourceType());
+    if (resource != null) {
+      DogDataEntry dogData = resource.getDog(oldUuid);
+      if (dogData != null) {
+        resource.removeDog(oldUuid);
+        resource.addDog(dogData.withUuid(newUuid).withStatus(DogStatus.SPAWNED));
+      }
+    }
+  }
+
+  public boolean isDogAliveInWorld(@Nonnull UUID dogUuid, @Nonnull Store<EntityStore> store) {
+    Ref<EntityStore> dogRef = getDogByUuid(dogUuid, store);
+    if (dogRef == null) {
+      return false;
+    }
+
+    EntityStatMap entityStatMap = store.getComponent(dogRef, EntityStatMap.getComponentType());
+    if (entityStatMap == null) {
+      return false;
+    }
+
+    var healthStat = entityStatMap.get(DefaultEntityStatTypes.getHealth());
+    return healthStat != null && healthStat.get() > 0;
   }
 
   @Nullable

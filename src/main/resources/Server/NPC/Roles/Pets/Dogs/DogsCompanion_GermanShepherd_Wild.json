@@ -1,0 +1,15 @@
+{
+  "Type": "Variant",
+  "Reference": "DogsCompanion_Wild",
+  "Modify": {
+    "Appearance": "DogsCompanion_GermanShepherd",
+    "NameTranslationKey": {
+      "Compute": "NameTranslationKey"
+    }
+  },
+  "Parameters": {
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.DogsCompanion_GermanShepherd_Wild.name"
+    }
+  }
+}

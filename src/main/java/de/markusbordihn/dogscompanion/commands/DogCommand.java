@@ -30,6 +30,7 @@ import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
+import de.markusbordihn.dogscompanion.permission.PermissionManager;
 import java.util.Optional;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -124,5 +125,9 @@ public abstract class DogCommand extends AbstractWorldCommand {
     }
 
     return "Dog";
+  }
+
+  protected int getDogLimit(@Nonnull CommandContext context) {
+    return PermissionManager.getDogLimit(context);
   }
 }

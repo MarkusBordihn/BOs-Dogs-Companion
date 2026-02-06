@@ -23,12 +23,15 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderSupport;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.npc.role.Role;
 import com.hypixel.hytale.server.npc.sensorinfo.InfoProvider;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.interaction.ItemInteractionOwner;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
@@ -87,12 +90,7 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         LOGGER.at(Level.FINE).log("Player is not the owner");
         return false;
       }
-      // Only allow interaction with empty hand
-      if (getHeldItem(player) != null) {
-        LOGGER.at(Level.FINE).log("Player is holding an item");
-        return false;
-      }
-      LOGGER.at(Level.INFO).log("Owner can interact with dog (empty hand)");
+      LOGGER.at(Level.INFO).log("Owner can interact with dog");
       return true;
     }
 
@@ -103,6 +101,20 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         InfoProvider infoProvider,
         double deltaTime,
         Store<EntityStore> store) {
+      Player player = getPlayerFromInfoProvider(role, infoProvider, store);
+      if (player == null) {
+        LOGGER.at(Level.WARNING).log("No player found in execute");
+        return false;
+      }
+
+      ItemStack heldItem = getHeldItem(player);
+
+      if (heldItem != null) {
+        LOGGER.at(Level.INFO).log(
+            "Owner holding item: %s - routing to item interaction", heldItem.getItemId());
+        return ItemInteractionOwner.handle(entityRef, role, store, player, heldItem);
+      }
+
       DogStateComponent stateComponent =
           store.getComponent(entityRef, DogStateComponent.getComponentType());
 
@@ -113,12 +125,20 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
 
       DogState currentState = stateComponent.getState();
       DogState newState = currentState == DogState.SITTING ? DogState.FOLLOWING : DogState.SITTING;
+      String newSubState = (newState == DogState.SITTING) ? "Sitting" : "Default";
 
-      LOGGER.at(Level.INFO).log("Dog state change: %s -> %s", currentState, newState);
+      LOGGER.at(Level.INFO).log(
+          "Dog state change: %s -> %s (substate: %s)", currentState, newState, newSubState);
 
-      // Update state via DogsManager to persist it
       de.markusbordihn.dogscompanion.manager.DogsManager.getInstance()
           .updateDogState(entityRef, newState, store);
+
+      NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
+      if (npcEntity != null && npcEntity.getRole() != null) {
+        npcEntity.getRole().getStateSupport().setState(entityRef, "Pet", newSubState, store);
+      } else {
+        LOGGER.at(Level.WARNING).log("NPCEntity or Role not found - state update incomplete");
+      }
 
       return true;
     }

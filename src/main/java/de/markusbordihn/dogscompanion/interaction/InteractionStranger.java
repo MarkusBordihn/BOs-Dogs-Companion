@@ -17,18 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dogscompanion.data;
+package de.markusbordihn.dogscompanion.interaction;
 
-import com.hypixel.hytale.codec.codecs.EnumCodec;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.role.Role;
+import java.util.logging.Level;
 
-public enum DogState {
-  SITTING,
-  SLEEPING,
-  FOLLOWING,
-  WANDERING,
-  PLAYING,
-  WAITING,
-  ATTACKING;
+public class InteractionStranger {
 
-  public static final EnumCodec<DogState> CODEC = new EnumCodec<>(DogState.class);
+  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
+  public static boolean handle(
+      Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
+    LOGGER.at(Level.INFO).log("STRANGER: Interaction blocked for dog - player is not the owner");
+    
+    // Send a message to the player indicating they cannot interact with this dog
+    // (Message sending will be added in translation system)
+    
+    return false; // Prevent interaction
+  }
 }

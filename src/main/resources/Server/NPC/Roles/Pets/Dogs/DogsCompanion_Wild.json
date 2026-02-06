@@ -1,7 +1,11 @@
 {
   "Type": "Generic",
-  "Appearance": "DogsCompanion",
-  "NameTranslationKey": "server.npcRoles.Dogs_Wild.name",
+  "Appearance": {
+    "Compute": "Appearance"
+  },
+  "NameTranslationKey": {
+    "Compute": "NameTranslationKey"
+  },
   "DefaultNPCAttitude": "Ignore",
   "DefaultPlayerAttitude": "Neutral",
   "MotionControllerList": [
@@ -127,6 +131,10 @@
     "Appearance": {
       "Value": "DogsCompanion",
       "Description": "The dog's model appearance"
+    },
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.Dogs_Wild.name",
+      "Description": "Translation key for dog name display"
     }
   }
 }

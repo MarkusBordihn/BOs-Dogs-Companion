@@ -1,0 +1,38 @@
+# Dog Commands
+attack.success=%name% is attacking!
+attack.no_target=No target found. Look at an entity to attack.
+attack.invalid_target=Invalid attack target
+follow.success=%name% is now following you
+follow.re_triggered=%name% is already following - teleporting to you
+follow.re_triggered.hint=If your dog is stuck, use /dog wait then /dog follow
+name.success=Renamed %name% to %newName%!
+play.success=%name% is playing!
+sit.success=%name% is now sitting
+sleep.success=%name% is sleeping
+wait.success=%name% is now waiting
+wander.success=%name% is now wandering freely
+
+spawn.not_implemented=Spawn command is not yet implemented
+spawn.no_match=No despawned dogs found matching '{filter}'
+spawn.no_despawned=All your dogs are already spawned!
+spawn.success=Successfully spawned {count} dog(s)!
+spawn.failed=Failed to spawn dogs
+despawn.success=%name% has been despawned
+despawn.info=Your dog is safe and can be respawned later with /dog spawn
+
+release.success=You have released %name%. They are now wild.
+
+owner.wild=This dog is wild and has no owner
+owner.info=%name% belongs to %owner%
+
+list.header=Your dogs:
+list.entry=- %name% (%state%)
+list.none=You don't have any dogs yet
+
+error.not_owner=%name% belongs to %owner%
+error.no_dog=No dog found. Look at a dog and try again.
+error.not_owned=This dog doesn't have an owner.
+error.player_only=This command can only be used by players
+error.no_uuid=Unable to get player UUID
+error.player_pos_not_found=Unable to find your position
+error.release_failed=Failed to release dog ownership

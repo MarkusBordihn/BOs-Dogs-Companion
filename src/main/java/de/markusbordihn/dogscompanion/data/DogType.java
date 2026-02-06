@@ -20,24 +20,70 @@
 package de.markusbordihn.dogscompanion.data;
 
 import com.hypixel.hytale.codec.codecs.EnumCodec;
+import java.util.Locale;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public enum DogType {
-  COMPANION,
-  WILD,
-  UNKNOWN;
+  UNKNOWN("", ""),
+  GENERIC_DOG("DogsCompanion_Tamed", "DogsCompanion_Wild"),
+  GERMAN_SHEPHERD("DogsCompanion_GermanShepherd_Tamed", "DogsCompanion_GermanShepherd_Wild");
 
   public static final EnumCodec<DogType> CODEC = new EnumCodec<>(DogType.class);
 
-  public static DogType fromRoleName(String roleName) {
-    if (roleName == null) {
+  private final String tamedRoleName;
+  private final String wildRoleName;
+
+  DogType(String tamedRoleName, String wildRoleName) {
+    this.tamedRoleName = tamedRoleName;
+    this.wildRoleName = wildRoleName;
+  }
+
+  @Nonnull
+  public static DogType fromRoleName(@Nullable String roleName) {
+    if (roleName == null || roleName.isEmpty()) {
       return UNKNOWN;
     }
-    if (roleName.contains("Tamed")) {
-      return COMPANION;
-    }
-    if (roleName.contains("Wild")) {
-      return WILD;
+    for (DogType type : values()) {
+      if (type.tamedRoleName.equals(roleName) || type.wildRoleName.equals(roleName)) {
+        return type;
+      }
     }
     return UNKNOWN;
+  }
+
+  public static DogType fromString(String type) {
+    if (type == null || type.isEmpty()) {
+      return UNKNOWN;
+    }
+    try {
+      return DogType.valueOf(type.toUpperCase(Locale.ROOT).replace(" ", "_"));
+    } catch (IllegalArgumentException e) {
+      return UNKNOWN;
+    }
+  }
+
+  @Nonnull
+  public String getTamedRoleName() {
+    return tamedRoleName;
+  }
+
+  @Nonnull
+  public String getWildRoleName() {
+    return wildRoleName;
+  }
+
+  @Nonnull
+  public String getRoleName(boolean isTamed) {
+    return isTamed ? tamedRoleName : wildRoleName;
+  }
+
+  @Override
+  public String toString() {
+    if (this == UNKNOWN) {
+      return "Unknown";
+    }
+    String name = name().toLowerCase(Locale.ROOT).replace("_", " ");
+    return Character.toUpperCase(name.charAt(0)) + name.substring(1);
   }
 }

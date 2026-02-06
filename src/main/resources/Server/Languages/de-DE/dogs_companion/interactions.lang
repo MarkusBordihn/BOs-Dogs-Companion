@@ -1,0 +1,13 @@
+# Item Interactions
+item.unknown=Dein Hund schnuppert neugierig am Gegenstand, ist aber nicht interessiert
+item.unknown.named=%dogName% schnuppert neugierig am Gegenstand, ist aber nicht interessiert
+
+# Taming
+taming.success=Du hast einen Hund gezähmt! Triff %dogName%!
+taming.failed=Der Hund ist nicht interessiert...
+taming.limit_reached=Du hast bereits %current% Hunde (Limit: %limit%)
+
+# Hints
+hint.tame=Mit Wildem Fleisch (gekocht oder roh) zähmen [{key}]
+hint.owner=Interagiere mit deinem Hund [{key}]
+hint.stranger=Dieser Hund gehört %owner%

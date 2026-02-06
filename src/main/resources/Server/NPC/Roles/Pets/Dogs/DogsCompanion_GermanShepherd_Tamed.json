@@ -1,0 +1,15 @@
+{
+  "Type": "Variant",
+  "Reference": "DogsCompanion_Tamed",
+  "Modify": {
+    "Appearance": "DogsCompanion_GermanShepherd_Tamed",
+    "NameTranslationKey": {
+      "Compute": "NameTranslationKey"
+    }
+  },
+  "Parameters": {
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.DogsCompanion_GermanShepherd_Tamed.name"
+    }
+  }
+}

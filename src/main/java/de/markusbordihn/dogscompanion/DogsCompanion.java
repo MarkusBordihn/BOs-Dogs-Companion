@@ -32,6 +32,7 @@ import com.hypixel.hytale.server.npc.instructions.Action;
 import com.hypixel.hytale.server.npc.instructions.Sensor;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionBase;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionOwner;
+import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionStranger;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionWild;
 import de.markusbordihn.dogscompanion.commands.DogCommands;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
@@ -40,6 +41,7 @@ import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsDogTamed;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsOwner;
+import de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerAttacked;
 import de.markusbordihn.dogscompanion.world.storage.DogsCompanionDataResource;
 import java.util.logging.Level;
 
@@ -49,7 +51,11 @@ public class DogsCompanion extends JavaPlugin {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
   private static final Class<? extends BuilderActionDogInteractionBase>[] DOG_INTERACTION_BUILDERS =
-      new Class[] {BuilderActionDogInteractionWild.class, BuilderActionDogInteractionOwner.class};
+      new Class[] {
+        BuilderActionDogInteractionWild.class,
+        BuilderActionDogInteractionOwner.class,
+        BuilderActionDogInteractionStranger.class
+      };
 
   private static DogsCompanion instance;
   public ComponentType<EntityStore, DogOwnerComponent> dogOwnerComponentType;
@@ -129,6 +135,14 @@ public class DogsCompanion extends JavaPlugin {
     } catch (Exception e) {
       LOGGER.at(Level.SEVERE).log(
           "Failed to register sensor: %s", BuilderSensorIsOwner.SENSOR_ID, e);
+    }
+
+    try {
+      sensorFactory.add(BuilderSensorOwnerAttacked.BUILDER_ID, BuilderSensorOwnerAttacked::new);
+      LOGGER.at(Level.INFO).log("Registered sensor: %s", BuilderSensorOwnerAttacked.BUILDER_ID);
+    } catch (Exception e) {
+      LOGGER.at(Level.SEVERE).log(
+          "Failed to register sensor: %s", BuilderSensorOwnerAttacked.BUILDER_ID, e);
     }
 
     sensorsRegistered = true;

@@ -35,6 +35,7 @@ import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.data.DogType;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
 import java.util.Random;
@@ -45,7 +46,6 @@ public class InteractionTaming {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
   private static final Random RANDOM = new Random();
   private static final double BASE_TAMING_CHANCE = 0.20;
-  private static final String TAMED_ROLE_NAME = "DogsCompanion_Tamed";
 
   public static boolean handle(
       Ref<EntityStore> entityRef,
@@ -124,24 +124,28 @@ public class InteractionTaming {
     NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
     if (npcEntity != null) {
       try {
-        int tamedRoleIndex = NPCPlugin.get().getIndex(TAMED_ROLE_NAME);
-        if (tamedRoleIndex < 0) {
-          LOGGER.at(Level.WARNING).log(
-              "Failed to find role index for DogsCompanion_Tamed (index=%d)", tamedRoleIndex);
+        Role currentRole = npcEntity.getRole();
+        if (currentRole == null) {
+          LOGGER.at(Level.WARNING).log("Failed to request role change: currentRole is null");
         } else {
-          Role currentRole = npcEntity.getRole();
-          if (currentRole != null) {
-            RoleChangeSystem.requestRoleChange(
-                entityRef, currentRole, tamedRoleIndex, true, null, null, store);
-            LOGGER.at(Level.INFO).log(
-                "Dog role change requested from %s to %s", currentRole, TAMED_ROLE_NAME);
-          } else {
+          DogType dogType = DogType.fromRoleName(currentRole.getRoleName());
+          String tamedRoleName = dogType.getTamedRoleName();
+          
+          if (tamedRoleName.isEmpty()) {
             LOGGER.at(Level.WARNING).log(
-                "Failed to request role change: role=%s, index=%d", currentRole, tamedRoleIndex);
+                "Failed to get tamed role name for DogType %s", dogType);
+          } else if (NPCPlugin.get().getIndex(tamedRoleName) < 0) {
+            LOGGER.at(Level.WARNING).log(
+                "Failed to find role index for %s", tamedRoleName);
+          } else {
+            RoleChangeSystem.requestRoleChange(
+                entityRef, currentRole, NPCPlugin.get().getIndex(tamedRoleName), true, null, null, store);
+            LOGGER.at(Level.INFO).log(
+                "Dog role change requested from %s to %s", currentRole.getRoleName(), tamedRoleName);
           }
         }
       } catch (Exception e) {
-        LOGGER.at(Level.SEVERE).log("Failed to change dog role to Dogs_Tamed", e);
+        LOGGER.at(Level.SEVERE).log("Failed to change dog role", e);
       }
     }
 
