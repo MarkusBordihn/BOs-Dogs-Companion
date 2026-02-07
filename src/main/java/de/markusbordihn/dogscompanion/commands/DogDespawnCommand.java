@@ -29,7 +29,6 @@ import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrapp
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.manager.DogsManager;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
@@ -48,8 +47,7 @@ final class DogDespawnCommand extends DogCommand {
 
     if (entityRefOpt.isEmpty()) {
       context.sendMessage(
-          Message.translation("dogs_companion.commands.error.no_dog")
-              .color(Constants.COLOR_ERROR));
+          Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_ERROR));
       return;
     }
 
@@ -59,8 +57,6 @@ final class DogDespawnCommand extends DogCommand {
     }
 
     String dogName = getDogDisplayName(entityRef, store);
-    
-    // Remove the entity from the world
     store.removeEntity(entityRef, RemoveReason.REMOVE);
 
     context.sendMessage(
@@ -68,7 +64,6 @@ final class DogDespawnCommand extends DogCommand {
             .param("name", dogName)
             .color(Constants.COLOR_SUCCESS));
     context.sendMessage(
-        Message.translation("dogs_companion.commands.despawn.info")
-            .color(Constants.COLOR_INFO));
+        Message.translation("dogs_companion.commands.despawn.info").color(Constants.COLOR_INFO));
   }
 }

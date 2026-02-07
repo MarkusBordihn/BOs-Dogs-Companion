@@ -30,6 +30,7 @@ import com.hypixel.hytale.server.npc.corecomponents.SensorBase;
 import com.hypixel.hytale.server.npc.corecomponents.builders.BuilderSensorBase;
 import com.hypixel.hytale.server.npc.instructions.Sensor;
 import com.hypixel.hytale.server.npc.role.Role;
+import com.hypixel.hytale.server.npc.sensorinfo.InfoProvider;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
@@ -83,13 +84,13 @@ public class BuilderSensorOwnerAttacked extends BuilderSensorBase {
         return false;
       }
 
-      // TODO: Implement owner damage detection when Hytale API supports damage events
+      // Owner damage detection not yet implemented - waiting for Hytale API damage events
       LOGGER.at(Level.FINE).log("OwnerAttacked sensor not yet implemented");
       return false;
     }
 
     @Override
-    public com.hypixel.hytale.server.npc.sensorinfo.InfoProvider getSensorInfo() {
+    public InfoProvider getSensorInfo() {
       return null;
     }
   }

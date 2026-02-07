@@ -28,7 +28,10 @@ public enum DogState {
   WANDERING,
   PLAYING,
   WAITING,
-  ATTACKING;
+  ATTACKING,
+  STRIKING,
+  DEFENSE,
+  OFFENSE;
 
   public static final EnumCodec<DogState> CODEC = new EnumCodec<>(DogState.class);
 }

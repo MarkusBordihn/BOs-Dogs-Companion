@@ -1,35 +1,38 @@
 # Dog Commands
-attack.success=%name% greift an!
+attack.success={name} greift an!
 attack.no_target=Kein Ziel gefunden. Schaue auf eine Entität zum Angreifen.
 attack.invalid_target=Ungültiges Angriffsziel
-follow.success=%name% folgt dir jetzt
-follow.re_triggered=%name% folgt bereits - teleportiere zu dir
+attack.cannot_attack_dog=Dein Hund kann keinen anderen Hund angreifen!
+attack.cannot_attack_owner=Dein Hund kann dich nicht angreifen!
+attack.target_dead=Das Ziel ist bereits tot
+follow.success={name} eilt an deine Seite!
+follow.re_triggered={name} folgt bereits - teleportiere zu dir
 follow.re_triggered.hint=Wenn dein Hund feststeckt, benutze /dog wait und dann /dog follow
-name.success=%name% wurde in %newName% umbenannt!
-play.success=%name% spielt!
-sit.success=%name% sitzt jetzt
-sleep.success=%name% schläft
-wait.success=%name% wartet jetzt
-wander.success=%name% wandert jetzt frei umher
+name.success={name} wurde in {newName} umbenannt!
+play.success={name} hat eine Menge Spaß!
+sit.success={name} setzt sich gehorsam hin
+sleep.success={name} schläft
+wait.success={name} wartet geduldig
+wander.success={name} wandert jetzt frei umher
 
 spawn.not_implemented=Spawn-Befehl ist noch nicht implementiert
 spawn.no_match=Keine despawnten Hunde gefunden, die '{filter}' entsprechen
 spawn.no_despawned=Alle deine Hunde sind bereits gespawnt!
 spawn.success={count} Hund(e) erfolgreich gespawnt!
 spawn.failed=Spawnen der Hunde fehlgeschlagen
-despawn.success=%name% wurde despawned
+despawn.success={name} wurde despawned
 despawn.info=Dein Hund ist sicher und kann später mit /dog spawn respawned werden
 
-release.success=Du hast %name% freigelassen. Er ist jetzt wild.
+release.success=Du hast {name} in die Wildnis entlassen. Möge er frei umherstreifen!
 
 owner.wild=Dieser Hund ist wild und hat keinen Besitzer
-owner.info=%name% gehört %owner%
+owner.info={name} gehört {owner}
 
 list.header=Deine Hunde:
-list.entry=- %name% (%state%)
-list.none=Du hast noch keine Hunde
+list.entry=- {name} ({state})
+list.none=Noch keine Hunde-Gefährten. Zähme einen wilden Hund um dein Rudel zu starten!
 
-error.not_owner=%name% gehört %owner%
+error.not_owner={name} gehört {owner}
 error.no_dog=Kein Hund gefunden. Schaue einen Hund an und versuche es erneut.
 error.not_owned=Dieser Hund hat keinen Besitzer.
 error.player_only=Dieser Befehl kann nur von Spielern verwendet werden

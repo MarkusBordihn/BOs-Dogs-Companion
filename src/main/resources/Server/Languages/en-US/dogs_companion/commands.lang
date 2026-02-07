@@ -1,35 +1,38 @@
 # Dog Commands
-attack.success=%name% is attacking!
+attack.success={name} is attacking!
 attack.no_target=No target found. Look at an entity to attack.
 attack.invalid_target=Invalid attack target
-follow.success=%name% is now following you
-follow.re_triggered=%name% is already following - teleporting to you
+attack.cannot_attack_dog=Your dog cannot attack another dog!
+attack.cannot_attack_owner=Your dog cannot attack you!
+attack.target_dead=Target is already dead
+follow.success={name} bounds to your side!
+follow.re_triggered={name} is already following - teleporting to you
 follow.re_triggered.hint=If your dog is stuck, use /dog wait then /dog follow
-name.success=Renamed %name% to %newName%!
-play.success=%name% is playing!
-sit.success=%name% is now sitting
-sleep.success=%name% is sleeping
-wait.success=%name% is now waiting
-wander.success=%name% is now wandering freely
+name.success=Renamed {name} to {newName}!
+play.success={name} is having a blast!
+sit.success={name} sits obediently
+sleep.success={name} is sleeping
+wait.success={name} waits patiently
+wander.success={name} is now wandering freely
 
 spawn.not_implemented=Spawn command is not yet implemented
 spawn.no_match=No despawned dogs found matching '{filter}'
 spawn.no_despawned=All your dogs are already spawned!
 spawn.success=Successfully spawned {count} dog(s)!
 spawn.failed=Failed to spawn dogs
-despawn.success=%name% has been despawned
+despawn.success={name} has been despawned
 despawn.info=Your dog is safe and can be respawned later with /dog spawn
 
-release.success=You have released %name%. They are now wild.
+release.success=You've released {name} into the wild. May they roam free!
 
 owner.wild=This dog is wild and has no owner
-owner.info=%name% belongs to %owner%
+owner.info={name} belongs to {owner}
 
 list.header=Your dogs:
-list.entry=- %name% (%state%)
-list.none=You don't have any dogs yet
+list.entry=- {name} ({state})
+list.none=No canine companions yet. Tame a wild dog to start your pack!
 
-error.not_owner=%name% belongs to %owner%
+error.not_owner={name} belongs to {owner}
 error.no_dog=No dog found. Look at a dog and try again.
 error.not_owned=This dog doesn't have an owner.
 error.player_only=This command can only be used by players

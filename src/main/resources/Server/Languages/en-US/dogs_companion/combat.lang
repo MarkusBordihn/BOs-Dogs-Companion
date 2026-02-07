@@ -1,0 +1,3 @@
+# Dog Combat Messages
+attacking={dog} is attacking {target}!
+defeated={dog} defeated {target}!

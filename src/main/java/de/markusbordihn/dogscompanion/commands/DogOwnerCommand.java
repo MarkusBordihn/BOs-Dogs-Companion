@@ -46,8 +46,7 @@ final class DogOwnerCommand extends DogCommand {
 
     if (entityRefOpt.isEmpty()) {
       context.sendMessage(
-          Message.translation("dogs_companion.commands.error.no_dog")
-              .color(Constants.COLOR_ERROR));
+          Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_ERROR));
       return;
     }
 

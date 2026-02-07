@@ -32,9 +32,7 @@ import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.npc.role.Role;
 import com.hypixel.hytale.server.npc.systems.RoleChangeSystem;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
-import de.markusbordihn.dogscompanion.component.DogStateComponent;
-import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.component.DogTamingProgressComponent;
 import de.markusbordihn.dogscompanion.data.DogType;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
@@ -45,7 +43,9 @@ import java.util.logging.Level;
 public class InteractionTaming {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
   private static final Random RANDOM = new Random();
-  private static final double BASE_TAMING_CHANCE = 0.20;
+  private static final int MIN_REQUIRED_FEEDINGS = 2;
+  private static final int MAX_REQUIRED_FEEDINGS = 5;
+  private static final long FEEDING_COOLDOWN_MS = 4000;
 
   public static boolean handle(
       Ref<EntityStore> entityRef,
@@ -80,46 +80,73 @@ public class InteractionTaming {
     int currentDogCount = dogsManager.getDogCountByOwner(playerUUID, store);
     if (currentDogCount >= Constants.DEFAULT_DOG_LIMIT) {
       player.sendMessage(
-          Message.translation("dogs_companion.taming.limit_reached")
+          Message.translation("dogs_companion.interactions.taming.limit_reached")
               .param("current", String.valueOf(currentDogCount))
               .param("limit", String.valueOf(Constants.DEFAULT_DOG_LIMIT))
               .color(Constants.COLOR_ERROR));
       return false;
     }
 
-    if (RANDOM.nextDouble() >= BASE_TAMING_CHANCE) {
+    DogTamingProgressComponent progressComponent =
+        store.getComponent(entityRef, DogTamingProgressComponent.getComponentType());
+
+    if (progressComponent == null || !progressComponent.hasProgress()) {
+      progressComponent =
+          new DogTamingProgressComponent(
+              MIN_REQUIRED_FEEDINGS
+                  + RANDOM.nextInt(MAX_REQUIRED_FEEDINGS - MIN_REQUIRED_FEEDINGS + 1));
+      store.putComponent(
+          entityRef, DogTamingProgressComponent.getComponentType(), progressComponent);
+      LOGGER.at(Level.INFO).log(
+          "Started taming progress - requires %d feedings",
+          progressComponent.getRequiredFeedings());
+    }
+
+    if (progressComponent.hasProgress()
+        && System.currentTimeMillis() - progressComponent.getLastFedTimestamp()
+            < FEEDING_COOLDOWN_MS) {
       player.sendMessage(
-          Message.translation("dogs_companion.taming.failed").color(Constants.COLOR_WARNING));
-      consumeItem(player, heldItem);
+          Message.translation("dogs_companion.interactions.taming.cooldown")
+              .color(Constants.COLOR_WARNING));
       return true;
     }
 
+    progressComponent.incrementFeeding();
+    store.putComponent(entityRef, DogTamingProgressComponent.getComponentType(), progressComponent);
+    consumeItem(player, heldItem);
+
+    LOGGER.at(Level.INFO).log(
+        "Dog fed by %s: %d/%d",
+        username, progressComponent.getFeedingCount(), progressComponent.getRequiredFeedings());
+
+    if (progressComponent.isComplete()) {
+      completeTaming(
+          entityRef, role, store, player, playerUUID, username, itemName, progressComponent);
+      return true;
+    }
+
+    player.sendMessage(
+        Message.translation("dogs_companion.interactions.taming.in_progress")
+            .param(
+                "remaining",
+                String.valueOf(
+                    progressComponent.getRequiredFeedings() - progressComponent.getFeedingCount()))
+            .color(Constants.COLOR_INFO));
+
+    return true;
+  }
+
+  private static void completeTaming(
+      Ref<EntityStore> entityRef,
+      Role role,
+      Store<EntityStore> store,
+      Player player,
+      UUID playerUUID,
+      String username,
+      String itemName,
+      DogTamingProgressComponent progressComponent) {
+
     String dogName = DogsNamesManager.getRandomName();
-
-    // Set dog name in nameplate
-    com.hypixel.hytale.server.core.entity.nameplate.Nameplate nameplate =
-        store.ensureAndGetComponent(
-            entityRef,
-            com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType());
-    nameplate.setText(dogName);
-
-    // Set owner component with PLAYER name, not dog name
-    DogOwnerComponent ownerComponent =
-        store.getComponent(entityRef, DogOwnerComponent.getComponentType());
-    if (ownerComponent == null) {
-      ownerComponent = new DogOwnerComponent();
-      store.addComponent(entityRef, DogOwnerComponent.getComponentType(), ownerComponent);
-    }
-    ownerComponent.setOwner(playerUUID, username);
-
-    DogStateComponent stateComponent =
-        store.getComponent(entityRef, DogStateComponent.getComponentType());
-    if (stateComponent == null) {
-      stateComponent = new DogStateComponent(DogState.FOLLOWING);
-      store.addComponent(entityRef, DogStateComponent.getComponentType(), stateComponent);
-    } else {
-      stateComponent.setState(DogState.FOLLOWING);
-    }
 
     NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
     if (npcEntity != null) {
@@ -128,20 +155,26 @@ public class InteractionTaming {
         if (currentRole == null) {
           LOGGER.at(Level.WARNING).log("Failed to request role change: currentRole is null");
         } else {
-          DogType dogType = DogType.fromRoleName(currentRole.getRoleName());
-          String tamedRoleName = dogType.getTamedRoleName();
-          
+          String tamedRoleName = DogType.fromRoleName(currentRole.getRoleName()).getTamedRoleName();
+
           if (tamedRoleName.isEmpty()) {
             LOGGER.at(Level.WARNING).log(
-                "Failed to get tamed role name for DogType %s", dogType);
+                "Failed to get tamed role name for DogType %s",
+                DogType.fromRoleName(currentRole.getRoleName()));
           } else if (NPCPlugin.get().getIndex(tamedRoleName) < 0) {
-            LOGGER.at(Level.WARNING).log(
-                "Failed to find role index for %s", tamedRoleName);
+            LOGGER.at(Level.WARNING).log("Failed to find role index for %s", tamedRoleName);
           } else {
             RoleChangeSystem.requestRoleChange(
-                entityRef, currentRole, NPCPlugin.get().getIndex(tamedRoleName), true, null, null, store);
+                entityRef,
+                currentRole,
+                NPCPlugin.get().getIndex(tamedRoleName),
+                true,
+                null,
+                null,
+                store);
             LOGGER.at(Level.INFO).log(
-                "Dog role change requested from %s to %s", currentRole.getRoleName(), tamedRoleName);
+                "Dog role change requested from %s to %s",
+                currentRole.getRoleName(), tamedRoleName);
           }
         }
       } catch (Exception e) {
@@ -149,22 +182,21 @@ public class InteractionTaming {
       }
     }
 
-    // Register dog with DogsManager
     DogsManager.getInstance().assignOwner(entityRef, playerUUID, username, dogName, store);
+    store.removeComponent(entityRef, DogTamingProgressComponent.getComponentType());
 
     player.sendMessage(
-        Message.translation("dogs_companion.taming.success")
+        Message.translation("dogs_companion.interactions.taming.success")
             .param("item", itemName)
             .param("dogName", dogName)
             .color(Constants.COLOR_SUCCESS));
 
-    consumeItem(player, heldItem);
-
     LOGGER.at(Level.INFO).log(
         "Dog successfully tamed by player %s with item %s (dogs: %d/%d)",
-        username, itemName, currentDogCount + 1, Constants.DEFAULT_DOG_LIMIT);
-
-    return true;
+        username,
+        itemName,
+        DogsManager.getInstance().getDogCountByOwner(playerUUID, store),
+        Constants.DEFAULT_DOG_LIMIT);
   }
 
   private static boolean isTamingItem(String itemName) {
@@ -184,16 +216,19 @@ public class InteractionTaming {
       return;
     }
 
-    int slot = inventory.getActiveHotbarSlot();
-    ItemStack currentItem = inventory.getHotbar().getItemStack((short) slot);
+    ItemStack currentItem =
+        inventory.getHotbar().getItemStack((short) inventory.getActiveHotbarSlot());
     if (currentItem != null && currentItem.getItemId().equals(heldItem.getItemId())) {
       int newQuantity = currentItem.getQuantity() - 1;
       if (newQuantity <= 0) {
-        inventory.getHotbar().removeItemStackFromSlot((short) slot);
+        inventory.getHotbar().removeItemStackFromSlot((short) inventory.getActiveHotbarSlot());
       } else {
         inventory
             .getHotbar()
-            .setItemStackForSlot((short) slot, currentItem.withQuantity(newQuantity), false);
+            .setItemStackForSlot(
+                (short) inventory.getActiveHotbarSlot(),
+                currentItem.withQuantity(newQuantity),
+                false);
       }
     }
   }

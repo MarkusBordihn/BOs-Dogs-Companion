@@ -65,6 +65,24 @@
           "Animation": "NPC/Pets/Dog/Animations/Sleep.blockyanim"
         }
       ]
+    },
+    "Bite": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Attacks/Bite.blockyanim",
+          "BlendingDuration": 0.1,
+          "Priority": 1
+        }
+      ]
+    },
+    "Bite_Move": {
+      "Animations": [
+        {
+          "Animation": "NPC/Pets/Dog/Animations/Attacks/Bite_Move.blockyanim",
+          "BlendingDuration": 0.1,
+          "Priority": 1
+        }
+      ]
     }
   }
 }

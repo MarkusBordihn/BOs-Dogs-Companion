@@ -26,10 +26,10 @@ import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
-import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import javax.annotation.Nonnull;
@@ -70,12 +70,10 @@ final class DogNameCommand extends DogCommand {
       return;
     }
 
-    // Set Nameplate for nametag
-    Nameplate nameplate = store.ensureAndGetComponent(entityRef, Nameplate.getComponentType());
-    String formerDogName = nameplate.getText();
-    nameplate.setText(dogName);
+    DogNameComponent nameComponent =
+        store.getComponent(entityRef, DogNameComponent.getComponentType());
+    String formerDogName = (nameComponent != null) ? nameComponent.getName() : null;
 
-    // Update DogsCompanionDataResource
     DogsManager.getInstance().updateDogName(entityRef, dogName, store);
 
     context.sendMessage(

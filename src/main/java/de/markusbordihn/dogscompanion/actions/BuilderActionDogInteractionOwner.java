@@ -32,6 +32,7 @@ import com.hypixel.hytale.server.npc.sensorinfo.InfoProvider;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.interaction.ItemInteractionOwner;
+import de.markusbordihn.dogscompanion.manager.DogsManager;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
@@ -90,7 +91,7 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         LOGGER.at(Level.FINE).log("Player is not the owner");
         return false;
       }
-      LOGGER.at(Level.INFO).log("Owner can interact with dog");
+      LOGGER.at(Level.FINE).log("Owner can interact with dog");
       return true;
     }
 
@@ -110,7 +111,7 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
       ItemStack heldItem = getHeldItem(player);
 
       if (heldItem != null) {
-        LOGGER.at(Level.INFO).log(
+        LOGGER.at(Level.FINE).log(
             "Owner holding item: %s - routing to item interaction", heldItem.getItemId());
         return ItemInteractionOwner.handle(entityRef, role, store, player, heldItem);
       }
@@ -127,11 +128,10 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
       DogState newState = currentState == DogState.SITTING ? DogState.FOLLOWING : DogState.SITTING;
       String newSubState = (newState == DogState.SITTING) ? "Sitting" : "Default";
 
-      LOGGER.at(Level.INFO).log(
+      LOGGER.at(Level.FINE).log(
           "Dog state change: %s -> %s (substate: %s)", currentState, newState, newSubState);
 
-      de.markusbordihn.dogscompanion.manager.DogsManager.getInstance()
-          .updateDogState(entityRef, newState, store);
+      DogsManager.getInstance().updateDogState(entityRef, newState, store);
 
       NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
       if (npcEntity != null && npcEntity.getRole() != null) {

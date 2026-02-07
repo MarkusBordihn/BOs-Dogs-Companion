@@ -33,6 +33,8 @@ import javax.annotation.Nonnull;
 public class DogStateComponent implements Component<EntityStore> {
 
   public static final String STATE_TAG = "State";
+  public static final String PREVIOUS_STATE_TAG = "PreviousState";
+  public static final String LAST_ATTACK_TIME_TAG = "LastAttackTime";
 
   private static final EnumCodec<DogState> STATE_CODEC = new EnumCodec<>(DogState.class);
 
@@ -41,16 +43,31 @@ public class DogStateComponent implements Component<EntityStore> {
       BuilderCodec.builder(DogStateComponent.class, DogStateComponent::new)
           .append(
               new KeyedCodec<>(STATE_TAG, STATE_CODEC),
-              (component, value) -> component.data = component.data.withState(value),
+              (component, value) -> component.data = component.data.withStateNoPrevious(value),
               component -> component.data.state())
           .documentation("The current state of the dog (SITTING, FOLLOWING).")
+          .add()
+          .append(
+              new KeyedCodec<>(PREVIOUS_STATE_TAG, STATE_CODEC),
+              (component, value) -> {
+                if (value != null) {
+                  component.data = new DogStateData(component.data.state(), value);
+                }
+              },
+              component ->
+                  component.data.previousState() != null
+                      ? component.data.previousState()
+                      : component.data.state())
+          .documentation("The previous state before entering ATTACKING mode.")
           .add()
           .build();
 
   @Nonnull private DogStateData data;
+  private Long lastAttackTime;
 
   public DogStateComponent() {
     this.data = DogStateData.defaultState();
+    this.lastAttackTime = null;
   }
 
   public DogStateComponent(@Nonnull DogStateData data) {
@@ -81,6 +98,14 @@ public class DogStateComponent implements Component<EntityStore> {
 
   public void setState(@Nonnull DogState state) {
     this.data = data.withState(state);
+  }
+
+  public Long getLastAttackTime() {
+    return lastAttackTime;
+  }
+
+  public void setLastAttackTime(Long lastAttackTime) {
+    this.lastAttackTime = lastAttackTime;
   }
 
   @Override

@@ -1,13 +1,21 @@
 # Item Interactions
 item.unknown=Your dog sniffs the item curiously but isn't interested
-item.unknown.named=%dogName% sniffs the item curiously but isn't interested
+item.unknown.named={dogName} sniffs the item curiously but isn't interested
+
+# State Cycling
+state.passive={dogName} relaxes into passive mode (will follow peacefully)
+state.defense={dogName} stands ready to defend you!
+state.offense={dogName} prepares for combat at your side!
+state.sitting={dogName} sits down
 
 # Taming
-taming.success=You have tamed a dog! Meet %dogName%!
+taming.success=A new friendship begins! Meet {dogName}!
 taming.failed=The dog is not interested...
-taming.limit_reached=You already have %current% dogs (limit: %limit%)
+taming.limit_reached=You already have {current} dogs (limit: {limit})
+taming.in_progress=The dog wags its tail... almost there! ({remaining} more needed)
+taming.cooldown=The dog needs a moment to digest. Try again soon!
 
 # Hints
-hint.tame=Tame with Wild Meat (cooked or raw) [{key}]
-hint.owner=Interact with your dog [{key}]
-hint.stranger=This dog belongs to %owner%
+hint.tame=Wild Meat might earn this dog's trust [{key}]
+hint.owner=Give your companion a command [{key}]
+hint.stranger=This dog belongs to {owner}

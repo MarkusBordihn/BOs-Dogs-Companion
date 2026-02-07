@@ -20,21 +20,36 @@
 package de.markusbordihn.dogscompanion.data;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public record DogStateData(@Nonnull DogState state) {
+public record DogStateData(@Nonnull DogState state, @Nullable DogState previousState) {
+
+  public DogStateData(@Nonnull DogState state) {
+    this(state, null);
+  }
 
   @Nonnull
   public static DogStateData defaultState() {
-    return new DogStateData(DogState.FOLLOWING);
+    return new DogStateData(DogState.FOLLOWING, null);
   }
 
   @Nonnull
   public static DogStateData of(@Nonnull DogState state) {
-    return new DogStateData(state);
+    return new DogStateData(state, null);
   }
 
   @Nonnull
   public DogStateData withState(@Nonnull DogState newState) {
-    return new DogStateData(newState);
+    return new DogStateData(newState, this.state);
+  }
+
+  @Nonnull
+  public DogStateData withStateNoPrevious(@Nonnull DogState newState) {
+    return new DogStateData(newState, this.previousState);
+  }
+
+  @Nonnull
+  public DogState getStateOrPrevious() {
+    return previousState != null ? previousState : DogState.FOLLOWING;
   }
 }

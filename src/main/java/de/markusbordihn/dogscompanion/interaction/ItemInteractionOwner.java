@@ -50,12 +50,7 @@ public class ItemInteractionOwner {
           "Food_Wild_Meat_Cooked");
 
   private static final Set<String> TOY_ITEMS =
-      Set.of(
-          "Item_Stick",
-          "Stick",
-          "Dog_Ball",
-          "Dog_Toy",
-          "Item_Ball");
+      Set.of("Item_Stick", "Stick", "Dog_Ball", "Dog_Toy", "Item_Ball");
 
   public static boolean handle(
       Ref<EntityStore> entityRef,

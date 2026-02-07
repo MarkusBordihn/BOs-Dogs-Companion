@@ -83,7 +83,8 @@ final class DogFollowCommand extends DogCommand {
         }
       } else {
         context.sendMessage(
-            Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_INFO));
+            Message.translation("dogs_companion.commands.error.no_dog")
+                .color(Constants.COLOR_INFO));
       }
     } else {
       context.sendMessage(

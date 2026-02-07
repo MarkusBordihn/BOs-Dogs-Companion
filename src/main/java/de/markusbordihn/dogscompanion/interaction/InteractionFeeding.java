@@ -42,12 +42,10 @@ public class InteractionFeeding {
       boolean isOwner) {
     String itemName = heldItem != null ? heldItem.getItemId() : null;
     String interactionType = isOwner ? "FEEDING: By Owner" : "FEEDING: By Stranger";
-    
+
     LOGGER.at(Level.INFO).log(
         "%s - Dog fed with %s by player %s",
-        interactionType,
-        itemName,
-        player != null ? player.getDisplayName() : "unknown");
+        interactionType, itemName, player != null ? player.getDisplayName() : "unknown");
 
     role.getStateSupport().setState(entityRef, "Pet", "Playing", store);
 

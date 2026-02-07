@@ -1,13 +1,21 @@
 # Item Interactions
 item.unknown=Dein Hund schnuppert neugierig am Gegenstand, ist aber nicht interessiert
-item.unknown.named=%dogName% schnuppert neugierig am Gegenstand, ist aber nicht interessiert
+item.unknown.named={dogName} schnuppert neugierig am Gegenstand, ist aber nicht interessiert
+
+# State Cycling
+state.passive={dogName} entspannt sich in den passiven Modus (wird friedlich folgen)
+state.defense={dogName} steht bereit dich zu verteidigen!
+state.offense={dogName} bereitet sich auf den Kampf an deiner Seite vor!
+state.sitting={dogName} setzt sich hin
 
 # Taming
-taming.success=Du hast einen Hund gezähmt! Triff %dogName%!
+taming.success=Eine neue Freundschaft beginnt! Triff {dogName}!
 taming.failed=Der Hund ist nicht interessiert...
-taming.limit_reached=Du hast bereits %current% Hunde (Limit: %limit%)
+taming.limit_reached=Du hast bereits {current} Hunde (Limit: {limit})
+taming.in_progress=Der Hund wedelt mit dem Schwanz... fast geschafft! (noch {remaining} benötigt)
+taming.cooldown=Der Hund braucht einen Moment zum Verdauen. Versuch es gleich nochmal!
 
 # Hints
-hint.tame=Mit Wildem Fleisch (gekocht oder roh) zähmen [{key}]
-hint.owner=Interagiere mit deinem Hund [{key}]
-hint.stranger=Dieser Hund gehört %owner%
+hint.tame=Wildes Fleisch könnte das Vertrauen dieses Hundes gewinnen [{key}]
+hint.owner=Gib deinem Gefährten einen Befehl [{key}]
+hint.stranger=Dieser Hund gehört {owner}

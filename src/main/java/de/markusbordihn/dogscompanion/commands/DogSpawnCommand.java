@@ -34,13 +34,12 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
-import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogDataEntry;
 import de.markusbordihn.dogscompanion.data.DogType;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -61,9 +60,8 @@ final class DogSpawnCommand extends DogCommand {
   }
 
   private static boolean matchesFilter(@Nonnull DogDataEntry dog, @Nonnull String filterLower) {
-    return dog.uuid().toString().toLowerCase(java.util.Locale.ROOT).contains(filterLower)
-        || (dog.name() != null
-            && dog.name().toLowerCase(java.util.Locale.ROOT).contains(filterLower));
+    return dog.uuid().toString().toLowerCase(Locale.ROOT).contains(filterLower)
+        || (dog.name() != null && dog.name().toLowerCase(Locale.ROOT).contains(filterLower));
   }
 
   @Override
@@ -94,25 +92,24 @@ final class DogSpawnCommand extends DogCommand {
         Ref<EntityStore> dogInWorld = dogsManager.getDogByUuid(dog.uuid(), store);
         if (dogInWorld != null
             && dogsManager.isDogAliveInWorld(dog.uuid(), store)
-            && matchesFilter(dog, filterLower)) {
-          if (dogInWorld.isValid()) {
-            TransformComponent dogTransform =
-                store.getComponent(dogInWorld, TransformComponent.getComponentType());
-            if (dogTransform != null) {
-              Ref<EntityStore> playerRef = store.getExternalData().getRefFromUUID(playerUuid);
-              if (playerRef != null && playerRef.isValid()) {
-                TransformComponent playerTransform =
-                    store.getComponent(playerRef, TransformComponent.getComponentType());
-                if (playerTransform != null) {
-                  Vector3d playerPos = playerTransform.getPosition();
-                  dogTransform.setPosition(playerPos);
+            && matchesFilter(dog, filterLower)
+            && dogInWorld.isValid()) {
+          TransformComponent dogTransform =
+              store.getComponent(dogInWorld, TransformComponent.getComponentType());
+          if (dogTransform != null) {
+            Ref<EntityStore> playerRef = store.getExternalData().getRefFromUUID(playerUuid);
+            if (playerRef != null && playerRef.isValid()) {
+              TransformComponent playerTransform =
+                  store.getComponent(playerRef, TransformComponent.getComponentType());
+              if (playerTransform != null) {
+                Vector3d playerPos = playerTransform.getPosition();
+                dogTransform.setPosition(playerPos);
 
-                  String dogName = dog.name() != null ? dog.name() : "Dog";
-                  context.sendMessage(
-                      Message.raw("The dog " + dogName + " has been teleported to you!")
-                          .color(Constants.COLOR_SUCCESS));
-                  return;
-                }
+                String dogName = dog.name() != null ? dog.name() : "Dog";
+                context.sendMessage(
+                    Message.raw("The dog " + dogName + " has been teleported to you!")
+                        .color(Constants.COLOR_SUCCESS));
+                return;
               }
             }
           }
@@ -168,10 +165,9 @@ final class DogSpawnCommand extends DogCommand {
       return;
     }
 
-    Vector3d playerPos = playerTransform.getPosition();
     int spawnedCount = 0;
     for (DogDataEntry dogData : despawnedDogs) {
-      Vector3d spawnPos = calculateSpawnPosition(dogData, playerPos);
+      Vector3d spawnPos = calculateSpawnPosition(dogData, playerTransform.getPosition());
       if (spawnDog(dogData, spawnPos, world, store)) {
         spawnedCount++;
       }
@@ -251,33 +247,14 @@ final class DogSpawnCommand extends DogCommand {
 
       Ref<EntityStore> dogRef = spawnResult.left();
 
-      // Update UUID, if needed
+      // Update UUID if needed
       UUID newEntityUuid = dogsManager.getUuid(dogRef, store);
       if (newEntityUuid != null && !newEntityUuid.equals(dogData.uuid())) {
         dogsManager.updateDogUuid(dogData.uuid(), newEntityUuid, store);
       }
 
-      // Set owner
-      if (dogData.ownerUuid() != null) {
-        DogOwnerComponent ownerComponent =
-            new DogOwnerComponent(dogData.ownerUuid(), dogData.ownerName());
-        store.putComponent(dogRef, DogOwnerComponent.getComponentType(), ownerComponent);
-      }
-
-      // Set name in Nameplate
-      if (dogData.name() != null && !dogData.name().isEmpty()) {
-        store
-            .ensureAndGetComponent(
-                dogRef,
-                com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType())
-            .setText(dogData.name());
-      }
-
-      // Set state
-      if (dogData.state() != null) {
-        DogStateComponent stateComponent = new DogStateComponent(dogData.state());
-        store.putComponent(dogRef, DogStateComponent.getComponentType(), stateComponent);
-      }
+      // Apply all dog data (owner, name, state) using DogsManager
+      dogsManager.applyDogDataToEntity(dogRef, dogData, store);
 
       return true;
     } catch (Exception e) {

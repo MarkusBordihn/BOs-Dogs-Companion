@@ -29,6 +29,7 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractWorldC
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.permission.PermissionManager;
 import java.util.Optional;
@@ -112,16 +113,13 @@ public abstract class DogCommand extends AbstractWorldCommand {
   @Nonnull
   protected String getDogDisplayName(
       @Nonnull Ref<EntityStore> entityRef, @Nonnull Store<EntityStore> store) {
-    com.hypixel.hytale.server.core.entity.nameplate.Nameplate nameplate =
-        store.getComponent(
-            entityRef,
-            com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType());
+    DogNameComponent nameComponent =
+        store.getComponent(entityRef, DogNameComponent.getComponentType());
 
-    if (nameplate != null) {
-      String dogName = nameplate.getText();
-      if (dogName != null && !dogName.isEmpty()) {
-        return dogName;
-      }
+    if (nameComponent != null
+        && nameComponent.getName() != null
+        && !nameComponent.getName().isEmpty()) {
+      return nameComponent.getName();
     }
 
     return "Dog";

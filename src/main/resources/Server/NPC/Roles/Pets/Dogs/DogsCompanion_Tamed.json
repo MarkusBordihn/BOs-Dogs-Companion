@@ -38,16 +38,37 @@
                 "Type": "State",
                 "State": ".Sitting"
               },
-              "Actions": [
+              "Instructions": [
                 {
-                  "Type": "PlayAnimation",
-                  "Animation": "Sit",
-                  "Slot": "Action"
+                  "$Comment": "Show particle when entering sitting state",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Hearts_Subtle"
+                    }
+                  ]
+                },
+                {
+                  "Sensor": {
+                    "Type": "Any"
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Sit",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Nothing"
+                  }
                 }
-              ],
-              "BodyMotion": {
-                "Type": "Nothing"
-              }
+              ]
             },
             {
               "$Comment": "Sleeping behavior - rests on ground",
@@ -60,6 +81,10 @@
                   "Type": "PlayAnimation",
                   "Animation": "Sleep",
                   "Slot": "Action"
+                },
+                {
+                  "Type": "PlaySound",
+                  "SoundEventId": "SFX_Wolf_Sleep"
                 }
               ],
               "BodyMotion": {
@@ -95,12 +120,68 @@
               }
             },
             {
+              "$Comment": "Striking behavior - brief strike animation and sound when damage is applied",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Striking"
+              },
+              "ActionsBlocking": true,
+              "Actions": [
+                {
+                  "Type": "SpawnParticles",
+                  "Offset": [0.0, 0.8, -0.7],
+                  "ParticleSystem": "Impact_Blade_01"
+                },
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Bite",
+                  "Slot": "Action"
+                },
+                {
+                  "Type": "PlaySound",
+                  "SoundEventId": "SFX_Wolf_Alerted"
+                },
+                {
+                  "Type": "Timeout",
+                  "Delay": [1.0, 1.0],
+                  "Action": {
+                    "Type": "State",
+                    "State": ".Attacking"
+                  }
+                }
+              ],
+              "BodyMotion": {
+                "Type": "Nothing"
+              }
+            },
+            {
               "$Comment": "Attacking behavior - attacks commanded target",
               "Sensor": {
                 "Type": "State",
                 "State": ".Attacking"
               },
               "Instructions": [
+                {
+                  "$Comment": "Attack timeout - return to previous state after 30 seconds",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Alerted"
+                    },
+                    {
+                      "Type": "Timeout",
+                      "Delay": [30, 30],
+                      "Action": {
+                        "Type": "DogReturnToPreviousState"
+                      }
+                    }
+                  ]
+                },
                 {
                   "$Comment": "Chase and attack target",
                   "Sensor": {
@@ -126,34 +207,31 @@
                   }
                 },
                 {
-                  "$Comment": "Execute attack when in range",
+                  "$Comment": "Attack when in melee range - plays attack animation",
                   "Sensor": {
                     "Type": "Target",
                     "TargetSlot": "LockedTarget",
                     "Range": 2.5
                   },
-                  "ActionsBlocking": true,
                   "Actions": [
                     {
-                      "Type": "Attack",
-                      "Attack": "Root_NPC_Attack_Melee",
-                      "AttackPauseRange": [1.5, 2]
-                    },
-                    {
-                      "Type": "Timeout",
-                      "Delay": [1, 1.5]
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
                     }
-                  ]
+                  ],
+                  "BodyMotion": {
+                    "Type": "Nothing"
+                  }
                 },
                 {
-                  "$Comment": "No target found - go back to default behavior",
+                  "$Comment": "Target lost or dead - return to previous state",
                   "Sensor": {
                     "Type": "Any"
                   },
                   "Actions": [
                     {
-                      "Type": "State",
-                      "State": ".Default"
+                      "Type": "DogReturnToPreviousState"
                     }
                   ]
                 }
@@ -165,16 +243,37 @@
                 "Type": "State",
                 "State": ".Waiting"
               },
-              "Actions": [
+              "Instructions": [
                 {
-                  "Type": "PlayAnimation",
-                  "Animation": "Idle",
-                  "Slot": "Action"
+                  "$Comment": "Show particle when entering waiting state",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Hearts"
+                    }
+                  ]
+                },
+                {
+                  "Sensor": {
+                    "Type": "Any"
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Nothing"
+                  }
                 }
-              ],
-              "BodyMotion": {
-                "Type": "Nothing"
-              }
+              ]
             },
             {
               "$Comment": "Wandering behavior - walks around freely",
@@ -230,6 +329,122 @@
                         }
                       }
                     ]
+                  }
+                }
+              ]
+            },
+            {
+              "$Comment": "Defense mode - follows owner and auto-attacks when owner is damaged",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Defense"
+              },
+              "Instructions": [
+                {
+                  "$Comment": "Reset animation when entering defense mode",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Question"
+                    },
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ]
+                },
+                {
+                  "$Comment": "Follow owner player within range",
+                  "Sensor": {
+                    "Type": "Player",
+                    "Range": 18,
+                    "LockOnTarget": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Seek",
+                    "SlowDownDistance": 5,
+                    "StopDistance": 3,
+                    "RelativeSpeed": 0.9
+                  }
+                },
+                {
+                  "$Comment": "Teleport to player if too far away",
+                  "Sensor": {
+                    "Type": "Target"
+                  },
+                  "BodyMotion": {
+                    "Type": "Teleport"
+                  }
+                }
+              ]
+            },
+            {
+              "$Comment": "Offense mode - follows owner and assists when owner attacks",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Offense"
+              },
+              "Instructions": [
+                {
+                  "$Comment": "Reset animation when entering offense mode",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Alerted"
+                    },
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ]
+                },
+                {
+                  "$Comment": "Follow owner player within range",
+                  "Sensor": {
+                    "Type": "Player",
+                    "Range": 18,
+                    "LockOnTarget": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Seek",
+                    "SlowDownDistance": 5,
+                    "StopDistance": 3,
+                    "RelativeSpeed": 0.9
+                  }
+                },
+                {
+                  "$Comment": "Teleport to player if too far away",
+                  "Sensor": {
+                    "Type": "Target"
+                  },
+                  "BodyMotion": {
+                    "Type": "Teleport"
                   }
                 }
               ]
@@ -299,8 +514,11 @@
                 {"Type": "State", "State": ".Sleeping"},
                 {"Type": "State", "State": ".Playing"},
                 {"Type": "State", "State": ".Attacking"},
+                {"Type": "State", "State": ".Striking"},
                 {"Type": "State", "State": ".Waiting"},
-                {"Type": "State", "State": ".Wandering"}
+                {"Type": "State", "State": ".Wandering"},
+                {"Type": "State", "State": ".Defense"},
+                {"Type": "State", "State": ".Offense"}
               ]
             }
           ]
@@ -380,14 +598,11 @@
             "Type": "LockOnInteractionTarget"
           },
           {
-            "Type": "DogInteractionOwner"
+            "Type": "DogCycleState"
           }
         ]
       }
     ]
-  },
-  "NameTranslationKey": {
-    "Compute": "NameTranslationKey"
   },
   "Parameters": {
     "NameTranslationKey": {

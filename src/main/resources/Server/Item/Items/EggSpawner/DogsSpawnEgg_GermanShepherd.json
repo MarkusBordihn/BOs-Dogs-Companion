@@ -10,7 +10,7 @@
       "Interactions": [
         {
           "Type": "SpawnNPC",
-          "EntityId": "DogsCompanion_Wild",
+          "EntityId": "DogsCompanion_GermanShepherd_Wild",
           "Next": {
             "Type": "ModifyInventory",
             "AdjustHeldItemQuantity": -1

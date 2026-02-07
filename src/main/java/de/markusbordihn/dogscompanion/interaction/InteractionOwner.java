@@ -33,7 +33,7 @@ public class InteractionOwner {
 
   public static boolean handle(
       Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
-    
+
     LOGGER.at(Level.INFO).log(
         "OWNER: Petting Interaction - Dog petted by owner %s",
         player != null ? player.getDisplayName() : "unknown");

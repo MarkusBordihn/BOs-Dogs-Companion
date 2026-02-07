@@ -25,10 +25,15 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
+import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
+import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import javax.annotation.Nonnull;
@@ -69,21 +74,92 @@ final class DogAttackCommand extends DogCommand {
       return;
     }
 
+    // Validate target is not another dog
+    DogStateComponent targetDogState =
+        store.getComponent(targetRef, DogStateComponent.getComponentType());
+    if (targetDogState != null) {
+      context.sendMessage(
+          Message.translation("dogs_companion.commands.attack.cannot_attack_dog")
+              .color(Constants.COLOR_ERROR));
+      return;
+    }
+
+    // Check if target is alive
+    EntityStatMap targetStats = store.getComponent(targetRef, EntityStatMap.getComponentType());
+    if (targetStats != null) {
+      var healthStat = targetStats.get(DefaultEntityStatTypes.getHealth());
+      if (healthStat != null && healthStat.get() <= 0) {
+        context.sendMessage(
+            Message.translation("dogs_companion.commands.attack.target_dead")
+                .color(Constants.COLOR_ERROR));
+        return;
+      }
+    }
+
     DogsManager.getInstance().updateDogState(dogRef, DogState.ATTACKING, store);
 
     NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
     if (npcEntity != null && npcEntity.getRole() != null) {
-      npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", "Attacking", store);
       npcEntity.getRole().getMarkedEntitySupport().setMarkedEntity("LockedTarget", targetRef);
+      npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", "Attacking", store);
 
-      String dogName = getDogDisplayName(dogRef, store);
+      // Notify owner that dog is attacking
+      String targetName = getTargetName(targetRef, store);
+      DogsManager.getInstance()
+          .sendMessageToOwner(
+              dogRef,
+              store,
+              Message.translation("dogs_companion.combat.attacking")
+                  .param("dog", getDogDisplayName(dogRef, store))
+                  .param("target", targetName)
+                  .color(Constants.COLOR_INFO));
+
       context.sendMessage(
           Message.translation("dogs_companion.commands.attack.success")
-              .param("name", dogName)
+              .param("name", getDogDisplayName(dogRef, store))
               .color(Constants.COLOR_SUCCESS));
     } else {
       context.sendMessage(
           Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_INFO));
     }
+  }
+
+  @Nonnull
+  private String getTargetName(
+      @Nonnull Ref<EntityStore> targetRef, @Nonnull Store<EntityStore> store) {
+
+    if (targetRef == null || !targetRef.isValid()) {
+      return "target";
+    }
+
+    // Try DogNameComponent first (for other dogs)
+    DogNameComponent dogNameComponent =
+        store.getComponent(targetRef, DogNameComponent.getComponentType());
+    if (dogNameComponent != null
+        && dogNameComponent.getName() != null
+        && !dogNameComponent.getName().isEmpty()) {
+      return dogNameComponent.getName();
+    }
+
+    // Try DisplayNameComponent (for NPCs and players)
+    DisplayNameComponent displayNameComponent =
+        store.getComponent(targetRef, DisplayNameComponent.getComponentType());
+    if (displayNameComponent != null && displayNameComponent.getDisplayName() != null) {
+      String displayName = displayNameComponent.getDisplayName().getRawText();
+      if (displayName != null && !displayName.isEmpty()) {
+        return displayName;
+      }
+    }
+
+    // Try NPCEntity role name as fallback
+    NPCEntity npcEntity = store.getComponent(targetRef, NPCEntity.getComponentType());
+    if (npcEntity != null && npcEntity.getRole() != null) {
+      String roleName = npcEntity.getRole().getRoleName();
+      if (roleName != null && !roleName.isEmpty()) {
+        return roleName;
+      }
+    }
+
+    return "target";
   }
 }

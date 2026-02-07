@@ -31,7 +31,7 @@ public final class DogCommands extends AbstractCommandCollection {
     this.addSubCommand(new DogNameCommand());
     this.addSubCommand(new DogListCommand());
     this.addSubCommand(new DogOwnerCommand());
-    
+
     // Behavior commands
     this.addSubCommand(new DogSitCommand());
     this.addSubCommand(new DogFollowCommand());
@@ -39,10 +39,10 @@ public final class DogCommands extends AbstractCommandCollection {
     this.addSubCommand(new DogWanderCommand());
     this.addSubCommand(new DogPlayCommand());
     this.addSubCommand(new DogSleepCommand());
-    
+
     // Combat commands
     this.addSubCommand(new DogAttackCommand());
-    
+
     // Lifecycle commands
     this.addSubCommand(new DogSpawnCommand());
     this.addSubCommand(new DogDespawnCommand());

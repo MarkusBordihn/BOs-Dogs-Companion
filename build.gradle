@@ -56,6 +56,10 @@ tasks.register('proguard', proguard.gradle.ProGuardTask) {
   // Output JAR
   outjars(layout.buildDirectory.file("libs/${project.mod_id}-hytale-${project.version}-minified.jar"))
 
+  // Library JARs - Java runtime and Hytale Server
+  libraryjars "${System.getProperty('java.home')}/jmods/java.base.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
+  libraryjars "${System.getProperty('java.home')}/jmods/java.logging.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
+
   // Hytale Server JAR
   def hytaleJar = file(project.findProperty('hytaleServerJar') ?: 'HytaleServer.jar')
   if (hytaleJar.exists()) {
@@ -69,8 +73,60 @@ tasks.register('proguard', proguard.gradle.ProGuardTask) {
   keepattributes 'Signature,Exceptions,*Annotation*'
   keepattributes 'Manifest'
 
+  // Keep main plugin class and components/systems
+  keep 'public class de.markusbordihn.dogscompanion.DogsCompanion extends com.hypixel.hytale.server.core.plugin.JavaPlugin { public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.component.DogOwnerComponent { public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.component.DogStateComponent { public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.component.DogNameComponent { public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.component.DogTamingProgressComponent { public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.systems.DogOffenseSystem { public <init>(...); }'
+  keep 'public class de.markusbordihn.dogscompanion.systems.DogDefenseSystem { public <init>(...); }'
+  keep 'public class de.markusbordihn.dogscompanion.systems.DogCombatDamageSystem { public <init>(...); }'
+  keep 'public class de.markusbordihn.dogscompanion.manager.DogsManager { public <init>(...); }'
+  keep 'public class de.markusbordihn.dogscompanion.manager.DogsNamesManager { public protected *; }'
+
+  // Keep resource classes
+  keep 'public class de.markusbordihn.dogscompanion.world.storage.DogsCompanionDataResource { public protected *; }'
+
+  // Keep data classes and enums
+  keep 'public enum de.markusbordihn.dogscompanion.data.DogState { *; }'
+  keep 'public enum de.markusbordihn.dogscompanion.data.DogStatus { *; }'
+  keep 'public enum de.markusbordihn.dogscompanion.data.DogType { *; }'
+
+  // Keep data records (records are final classes that extend java.lang.Record)
+  keep 'public final class de.markusbordihn.dogscompanion.data.DogDataEntry { public protected *; }'
+  keep 'public final class de.markusbordihn.dogscompanion.data.DogOwnerData { public protected *; }'
+  keep 'public final class de.markusbordihn.dogscompanion.data.DogStateData { public protected *; }'
+
+  // Keep Action builders (registered via reflection in Main.java)
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionWild { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionWild$ActionDogInteractionWild { public <init>(...); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionOwner { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionOwner$ActionDogInteractionOwner { public <init>(...); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionStranger { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionStranger$ActionDogInteractionStranger { public <init>(...); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogCycleState { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogCycleState$ActionDogCycleState { public <init>(...); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogReturnToPreviousState { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.actions.BuilderActionDogReturnToPreviousState$ActionDogReturnToPreviousState { public <init>(...); public protected *; }'
+  keep 'public abstract class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionBase { public protected *; }'
+  keep 'public abstract class de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionBase$ActionDogInteractionBase { public <init>(...); public protected *; }'
+
+  // Keep Sensor builders (registered via reflection in Main.java)
+  keep 'public class de.markusbordihn.dogscompanion.sensors.BuilderSensorIsDogTamed { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.sensors.BuilderSensorIsDogTamed$SensorIsDogTamed { public <init>(...); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.sensors.BuilderSensorIsOwner { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.sensors.BuilderSensorIsOwner$SensorIsOwner { public <init>(...); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerAttacked { public <init>(); public protected *; }'
+  keep 'public class de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerAttacked$SensorOwnerAttacked { public <init>(...); public protected *; }'
+
   // Keep enum structure
   keepclassmembers 'enum * { public static **[] values(); public static ** valueOf(java.lang.String); }'
+
+  // Keep all command classes (used by Hytale Command System)
+  keep 'public class de.markusbordihn.dogscompanion.commands.DogCommands extends com.hypixel.hytale.server.core.command.system.basecommands.** { public protected *; }'
+  keep 'public abstract class de.markusbordihn.dogscompanion.commands.DogCommand extends com.hypixel.hytale.server.core.command.system.basecommands.** { public protected *; }'
+  keep 'class de.markusbordihn.dogscompanion.commands.*Command extends de.markusbordihn.dogscompanion.commands.DogCommand { public protected *; }'
 
   // Don't print notes about potential issues
   dontnote

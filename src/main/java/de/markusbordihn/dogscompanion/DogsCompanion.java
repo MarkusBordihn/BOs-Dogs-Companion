@@ -30,18 +30,25 @@ import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderFactory;
 import com.hypixel.hytale.server.npc.instructions.Action;
 import com.hypixel.hytale.server.npc.instructions.Sensor;
+import de.markusbordihn.dogscompanion.actions.BuilderActionDogCycleState;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionBase;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionOwner;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionStranger;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionWild;
+import de.markusbordihn.dogscompanion.actions.BuilderActionDogReturnToPreviousState;
 import de.markusbordihn.dogscompanion.commands.DogCommands;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
+import de.markusbordihn.dogscompanion.component.DogTamingProgressComponent;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsDogTamed;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsOwner;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerAttacked;
+import de.markusbordihn.dogscompanion.systems.DogCombatDamageSystem;
+import de.markusbordihn.dogscompanion.systems.DogDefenseSystem;
+import de.markusbordihn.dogscompanion.systems.DogOffenseSystem;
 import de.markusbordihn.dogscompanion.world.storage.DogsCompanionDataResource;
 import java.util.logging.Level;
 
@@ -59,8 +66,10 @@ public class DogsCompanion extends JavaPlugin {
 
   private static DogsCompanion instance;
   public ComponentType<EntityStore, DogOwnerComponent> dogOwnerComponentType;
+  public ComponentType<EntityStore, DogNameComponent> dogNameComponentType;
   public ResourceType<EntityStore, DogsCompanionDataResource> dogsDataResourceType;
   public ComponentType<EntityStore, DogStateComponent> dogStateComponentType;
+  public ComponentType<EntityStore, DogTamingProgressComponent> dogTamingProgressComponentType;
   private boolean actionsRegistered = false;
   private boolean sensorsRegistered = false;
 
@@ -105,6 +114,23 @@ public class DogsCompanion extends JavaPlugin {
         LOGGER.at(Level.SEVERE).log(
             "Failed to register action builder: %s", builderClass.getSimpleName(), e);
       }
+    }
+
+    // Register custom combat actions
+    try {
+      actionFactory.add("DogCycleState", BuilderActionDogCycleState::new);
+      LOGGER.at(Level.INFO).log("Registered action: DogCycleState");
+      registeredCount++;
+    } catch (Exception e) {
+      LOGGER.at(Level.SEVERE).log("Failed to register action: DogCycleState", e);
+    }
+
+    try {
+      actionFactory.add("DogReturnToPreviousState", BuilderActionDogReturnToPreviousState::new);
+      LOGGER.at(Level.INFO).log("Registered action: DogReturnToPreviousState");
+      registeredCount++;
+    } catch (Exception e) {
+      LOGGER.at(Level.SEVERE).log("Failed to register action: DogReturnToPreviousState", e);
     }
 
     LOGGER.at(Level.INFO).log("Registered %d dog interaction actions", registeredCount);
@@ -162,9 +188,18 @@ public class DogsCompanion extends JavaPlugin {
     dogOwnerComponentType =
         getEntityStoreRegistry()
             .registerComponent(DogOwnerComponent.class, "DogOwner", DogOwnerComponent.CODEC);
+    dogNameComponentType =
+        getEntityStoreRegistry()
+            .registerComponent(DogNameComponent.class, "DogName", DogNameComponent.CODEC);
     dogStateComponentType =
         getEntityStoreRegistry()
             .registerComponent(DogStateComponent.class, "DogState", DogStateComponent.CODEC);
+    dogTamingProgressComponentType =
+        getEntityStoreRegistry()
+            .registerComponent(
+                DogTamingProgressComponent.class,
+                "DogTamingProgress",
+                DogTamingProgressComponent.CODEC);
 
     LOGGER.at(Level.INFO).log("Registering dog resources...");
     dogsDataResourceType =
@@ -177,6 +212,11 @@ public class DogsCompanion extends JavaPlugin {
 
     LOGGER.at(Level.INFO).log("Registering dogs manager...");
     getEntityStoreRegistry().registerSystem(new DogsManager(dogStateComponentType));
+
+    LOGGER.at(Level.INFO).log("Registering dog combat systems...");
+    getEntityStoreRegistry().registerSystem(new DogDefenseSystem());
+    getEntityStoreRegistry().registerSystem(new DogOffenseSystem());
+    getEntityStoreRegistry().registerSystem(new DogCombatDamageSystem());
 
     LOGGER.at(Level.INFO).log("Initializing dog names manager...");
     DogsNamesManager.initialize();

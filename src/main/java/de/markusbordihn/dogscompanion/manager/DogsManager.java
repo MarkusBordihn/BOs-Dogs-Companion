@@ -30,19 +30,23 @@ import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogDataEntry;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.data.DogStatus;
 import de.markusbordihn.dogscompanion.data.DogType;
+import de.markusbordihn.dogscompanion.utils.DogNameplateUtils;
 import de.markusbordihn.dogscompanion.world.storage.DogsCompanionDataResource;
 import java.util.Collections;
 import java.util.HashMap;
@@ -86,6 +90,19 @@ public class DogsManager extends RefSystem<EntityStore> {
     UUID entityUuid = getUuid(ref, store);
     if (entityUuid != null) {
       dogRefCache.put(entityUuid, ref);
+
+      DogNameComponent nameComponent = store.getComponent(ref, DogNameComponent.getComponentType());
+      if (nameComponent == null) {
+        Nameplate nameplate = store.getComponent(ref, Nameplate.getComponentType());
+        if (nameplate != null && nameplate.getText() != null && !nameplate.getText().isEmpty()) {
+          String baseName = DogNameplateUtils.getBaseNameFromNameplate(nameplate.getText());
+          commandBuffer.addComponent(
+              ref, DogNameComponent.getComponentType(), new DogNameComponent(baseName));
+          LOGGER.at(Level.INFO).log(
+              "Migrated dog name '%s' to DogNameComponent for UUID %s", baseName, entityUuid);
+        }
+      }
+
       DogOwnerComponent ownerComponent =
           store.getComponent(ref, DogOwnerComponent.getComponentType());
       if (ownerComponent != null) {
@@ -96,6 +113,18 @@ public class DogsManager extends RefSystem<EntityStore> {
           LOGGER.at(Level.INFO).log(
               "Auto-registered missing dog entry for UUID %s (Owner: %s)",
               entityUuid, ownerComponent.getOwnerName());
+        }
+      }
+
+      // Restore NPC state based on DogStateComponent after entity load
+      if (reason == AddReason.LOAD) {
+        DogStateComponent stateComponent =
+            store.getComponent(ref, DogStateComponent.getComponentType());
+        if (stateComponent != null) {
+          DogState dogState = stateComponent.getState();
+          applyNpcStateFromDogState(ref, dogState, store);
+          LOGGER.at(Level.FINE).log(
+              "Restored NPC state for dog %s (DogState: %s)", entityUuid, dogState);
         }
       }
     }
@@ -209,8 +238,9 @@ public class DogsManager extends RefSystem<EntityStore> {
     UUID ownerUuid = ownerComponent != null ? ownerComponent.getOwnerUUID() : null;
     String ownerName = ownerComponent != null ? ownerComponent.getOwnerName() : null;
 
-    Nameplate nameplate = store.getComponent(dogRef, Nameplate.getComponentType());
-    String dogName = nameplate != null ? nameplate.getText() : null;
+    DogNameComponent nameComponent =
+        store.getComponent(dogRef, DogNameComponent.getComponentType());
+    String dogName = nameComponent != null ? nameComponent.getName() : null;
 
     DogStateComponent stateComponent =
         store.getComponent(dogRef, DogStateComponent.getComponentType());
@@ -263,7 +293,9 @@ public class DogsManager extends RefSystem<EntityStore> {
         dogRef, DogOwnerComponent.getComponentType(), new DogOwnerComponent(ownerUuid, ownerName));
 
     if (dogName != null && !dogName.isEmpty()) {
-      store.ensureAndGetComponent(dogRef, Nameplate.getComponentType()).setText(dogName);
+      store.putComponent(
+          dogRef, DogNameComponent.getComponentType(), new DogNameComponent(dogName));
+      DogNameplateUtils.updateNameplateWithState(dogRef, dogName, store);
     }
 
     store.putComponent(
@@ -280,6 +312,12 @@ public class DogsManager extends RefSystem<EntityStore> {
     if (dogUuid == null) {
       return;
     }
+
+    DogNameComponent nameComponent =
+        store.ensureAndGetComponent(dogRef, DogNameComponent.getComponentType());
+    nameComponent.setName(dogName);
+
+    DogNameplateUtils.updateNameplateWithState(dogRef, dogName, store);
 
     DogsCompanionDataResource resource =
         store.getResource(DogsCompanionDataResource.getResourceType());
@@ -300,7 +338,21 @@ public class DogsManager extends RefSystem<EntityStore> {
       return;
     }
 
-    store.putComponent(dogRef, DogStateComponent.getComponentType(), new DogStateComponent(state));
+    DogStateComponent stateComponent =
+        store.getComponent(dogRef, DogStateComponent.getComponentType());
+    if (stateComponent == null) {
+      stateComponent = new DogStateComponent(state);
+    } else {
+      stateComponent.setState(state);
+    }
+    store.putComponent(dogRef, DogStateComponent.getComponentType(), stateComponent);
+
+    DogNameComponent nameComponent =
+        store.getComponent(dogRef, DogNameComponent.getComponentType());
+    if (nameComponent != null) {
+      String dogName = nameComponent.getName();
+      DogNameplateUtils.updateNameplateWithState(dogRef, dogName, store);
+    }
 
     DogsCompanionDataResource resource =
         store.getResource(DogsCompanionDataResource.getResourceType());
@@ -309,6 +361,50 @@ public class DogsManager extends RefSystem<EntityStore> {
       if (dogDataEntry != null) {
         resource.updateDog(dogUuid, dogDataEntry.withState(state));
       }
+    }
+  }
+
+  public void applyDogDataToEntity(
+      @Nonnull Ref<EntityStore> dogRef,
+      @Nonnull DogDataEntry dogData,
+      @Nonnull Store<EntityStore> store) {
+
+    if (dogData.ownerUuid() != null) {
+      DogOwnerComponent ownerComponent =
+          new DogOwnerComponent(dogData.ownerUuid(), dogData.ownerName());
+      store.putComponent(dogRef, DogOwnerComponent.getComponentType(), ownerComponent);
+    }
+
+    if (dogData.name() != null && !dogData.name().isEmpty()) {
+      store.putComponent(
+          dogRef, DogNameComponent.getComponentType(), new DogNameComponent(dogData.name()));
+      DogNameplateUtils.updateNameplateWithState(dogRef, dogData.name(), store);
+    }
+
+    if (dogData.state() != null) {
+      DogStateComponent stateComponent = new DogStateComponent(dogData.state());
+      store.putComponent(dogRef, DogStateComponent.getComponentType(), stateComponent);
+      applyNpcStateFromDogState(dogRef, dogData.state(), store);
+    }
+  }
+
+  public void applyNpcStateFromDogState(
+      @Nonnull Ref<EntityStore> dogRef,
+      @Nonnull DogState dogState,
+      @Nonnull Store<EntityStore> store) {
+
+    NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
+    if (npcEntity != null && npcEntity.getRole() != null) {
+      String npcState =
+          switch (dogState) {
+            case SITTING -> "Sitting";
+            case FOLLOWING -> "Default";
+            case ATTACKING -> "Attacking";
+            case STRIKING -> "Attacking";
+            case WANDERING -> "Default";
+            default -> "Default";
+          };
+      npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", npcState, store);
     }
   }
 
@@ -343,7 +439,8 @@ public class DogsManager extends RefSystem<EntityStore> {
     return resource.getDogsByOwner(ownerUuid);
   }
 
-  public void releaseOwnership(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
+  public void releaseOwnership(
+      @Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
     UUID dogUuid = getUuid(dogRef, store);
     if (dogUuid == null) {
       LOGGER.at(Level.WARNING).log("Cannot release ownership - dog has no UUID");
@@ -390,6 +487,32 @@ public class DogsManager extends RefSystem<EntityStore> {
 
     var healthStat = entityStatMap.get(DefaultEntityStatTypes.getHealth());
     return healthStat != null && healthStat.get() > 0;
+  }
+
+  @Nullable
+  public Ref<EntityStore> getOwnerRef(
+      @Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
+    DogOwnerComponent ownerComponent =
+        store.getComponent(dogRef, DogOwnerComponent.getComponentType());
+    if (ownerComponent == null || ownerComponent.getOwnerUUID() == null) {
+      return null;
+    }
+    return store.getExternalData().getRefFromUUID(ownerComponent.getOwnerUUID());
+  }
+
+  public void sendMessageToOwner(
+      @Nonnull Ref<EntityStore> dogRef,
+      @Nonnull Store<EntityStore> store,
+      @Nonnull Message message) {
+    Ref<EntityStore> ownerRef = getOwnerRef(dogRef, store);
+    if (ownerRef == null || !ownerRef.isValid()) {
+      return;
+    }
+
+    Player player = store.getComponent(ownerRef, Player.getComponentType());
+    if (player != null) {
+      player.sendMessage(message);
+    }
   }
 
   @Nullable
