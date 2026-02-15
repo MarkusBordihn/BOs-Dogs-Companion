@@ -1,0 +1,15 @@
+{
+  "Type": "Variant",
+  "Reference": "DogsCompanion_Wild",
+  "Modify": {
+    "Appearance": "DogsCompanion_ShibaInu",
+    "NameTranslationKey": {
+      "Compute": "NameTranslationKey"
+    }
+  },
+  "Parameters": {
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.DogsCompanion_ShibaInu_Wild.name"
+    }
+  }
+}

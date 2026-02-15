@@ -28,7 +28,7 @@ powerful allies for exploration, dungeon raids, and base defense.
 
 ### Working Features
 
-* Multiple dog breeds: Generic Dog, German Shepherd (more breeds planned)
+* Multiple dog breeds: Generic Dog, German Shepherd, Shiba Inu (more breeds planned)
 * Taming system using raw or cooked meat
 * Automatic dog naming with unique names for each dog
 * Full command-based interaction via `/dog`
@@ -57,6 +57,7 @@ Use the NPC spawn command to create dogs:
 ```unix
 /npc spawn DogsCompanion_Wild
 /npc spawn DogsCompanion_GermanShepherd_Wild
+/npc spawn DogsCompanion_ShibaInu_Wild
 ```
 
 #### Option 2: Spawn Eggs
@@ -65,6 +66,7 @@ Each breed also has a spawn egg:
 
 * `Egg_Spawner_DogsCompanion` – Generic Dog
 * `Egg_Spawner_DogsCompanion_GermanShepherd` – German Shepherd
+* `Egg_Spawner_DogsCompanion_ShibaInu` – Shiba Inu
 
 > **Note:** Natural spawning is planned for a future update.
 

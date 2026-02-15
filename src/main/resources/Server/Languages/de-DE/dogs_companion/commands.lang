@@ -10,6 +10,7 @@ follow.re_triggered={name} folgt bereits - teleportiere zu dir
 follow.re_triggered.hint=Wenn dein Hund feststeckt, benutze /dog wait und dann /dog follow
 name.success={name} wurde in {newName} umbenannt!
 play.success={name} hat eine Menge Spaß!
+search.success={name} sucht und spürt!
 sit.success={name} setzt sich gehorsam hin
 sleep.success={name} schläft
 wait.success={name} wartet geduldig

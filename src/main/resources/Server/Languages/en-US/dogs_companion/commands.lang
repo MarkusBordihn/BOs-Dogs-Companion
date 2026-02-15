@@ -10,6 +10,7 @@ follow.re_triggered={name} is already following - teleporting to you
 follow.re_triggered.hint=If your dog is stuck, use /dog wait then /dog follow
 name.success=Renamed {name} to {newName}!
 play.success={name} is having a blast!
+search.success={name} is searching and tracking!
 sit.success={name} sits obediently
 sleep.success={name} is sleeping
 wait.success={name} waits patiently

@@ -1,7 +1,7 @@
 {
   "Group": "MarkusBordihn",
   "Name": "Dogs Companion",
-  "Version": "1.0.0",
+  "Version": "1.1.0",
   "Description": "Adds dogs as useful companions with guarding and support behavior.",
   "Authors": [
     {

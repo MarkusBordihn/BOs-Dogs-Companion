@@ -36,6 +36,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -292,14 +293,14 @@ public class DogsManager extends RefSystem<EntityStore> {
     store.putComponent(
         dogRef, DogOwnerComponent.getComponentType(), new DogOwnerComponent(ownerUuid, ownerName));
 
+    store.putComponent(
+        dogRef, DogStateComponent.getComponentType(), new DogStateComponent(DogState.FOLLOWING));
+
     if (dogName != null && !dogName.isEmpty()) {
       store.putComponent(
           dogRef, DogNameComponent.getComponentType(), new DogNameComponent(dogName));
       DogNameplateUtils.updateNameplateWithState(dogRef, dogName, store);
     }
-
-    store.putComponent(
-        dogRef, DogStateComponent.getComponentType(), new DogStateComponent(DogState.FOLLOWING));
 
     registerDog(dogRef, store);
   }
@@ -375,16 +376,16 @@ public class DogsManager extends RefSystem<EntityStore> {
       store.putComponent(dogRef, DogOwnerComponent.getComponentType(), ownerComponent);
     }
 
-    if (dogData.name() != null && !dogData.name().isEmpty()) {
-      store.putComponent(
-          dogRef, DogNameComponent.getComponentType(), new DogNameComponent(dogData.name()));
-      DogNameplateUtils.updateNameplateWithState(dogRef, dogData.name(), store);
-    }
-
     if (dogData.state() != null) {
       DogStateComponent stateComponent = new DogStateComponent(dogData.state());
       store.putComponent(dogRef, DogStateComponent.getComponentType(), stateComponent);
       applyNpcStateFromDogState(dogRef, dogData.state(), store);
+    }
+
+    if (dogData.name() != null && !dogData.name().isEmpty()) {
+      store.putComponent(
+          dogRef, DogNameComponent.getComponentType(), new DogNameComponent(dogData.name()));
+      DogNameplateUtils.updateNameplateWithState(dogRef, dogData.name(), store);
     }
   }
 
@@ -485,7 +486,7 @@ public class DogsManager extends RefSystem<EntityStore> {
       return false;
     }
 
-    var healthStat = entityStatMap.get(DefaultEntityStatTypes.getHealth());
+    EntityStatValue healthStat = entityStatMap.get(DefaultEntityStatTypes.getHealth());
     return healthStat != null && healthStat.get() > 0;
   }
 

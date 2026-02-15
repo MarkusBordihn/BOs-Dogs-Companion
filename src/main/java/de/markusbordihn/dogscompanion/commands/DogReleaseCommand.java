@@ -29,6 +29,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
@@ -43,7 +44,7 @@ final class DogReleaseCommand extends DogCommand {
   @Override
   protected void execute(
       @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
-    var entityRefOpt = getEntityFromArgument(this.entityArg, store, context);
+    Optional<Ref<EntityStore>> entityRefOpt = getEntityFromArgument(this.entityArg, store, context);
 
     if (entityRefOpt.isEmpty()) {
       context.sendMessage(

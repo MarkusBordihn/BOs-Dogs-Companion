@@ -150,6 +150,7 @@ public class BuilderActionDogReturnToPreviousState extends BuilderActionBase {
         case PLAYING -> "Playing";
         case WAITING -> "Waiting";
         case WANDERING -> "Wandering";
+        case SEARCHING -> "Searching";
         case DEFENSE -> "Defense";
         case OFFENSE -> "Offense";
         case ATTACKING -> "Attacking";

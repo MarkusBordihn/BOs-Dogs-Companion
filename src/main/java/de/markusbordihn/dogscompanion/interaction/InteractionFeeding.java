@@ -47,7 +47,7 @@ public class InteractionFeeding {
         "%s - Dog fed with %s by player %s",
         interactionType, itemName, player != null ? player.getDisplayName() : "unknown");
 
-    role.getStateSupport().setState(entityRef, "Pet", "Playing", store);
+    role.getStateSupport().setState(entityRef, "Pet", "Feeding", store);
 
     InventoryHelper.consumeActiveHotbarItem(player, heldItem);
 

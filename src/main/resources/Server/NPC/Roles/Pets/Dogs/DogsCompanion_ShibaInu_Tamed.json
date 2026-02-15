@@ -1,0 +1,15 @@
+{
+  "Type": "Variant",
+  "Reference": "DogsCompanion_Tamed",
+  "Modify": {
+    "Appearance": "DogsCompanion_ShibaInu_Tamed",
+    "NameTranslationKey": {
+      "Compute": "NameTranslationKey"
+    }
+  },
+  "Parameters": {
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.DogsCompanion_ShibaInu_Tamed.name"
+    }
+  }
+}

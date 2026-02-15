@@ -28,6 +28,7 @@ public enum DogState {
   WANDERING,
   PLAYING,
   WAITING,
+  SEARCHING,
   ATTACKING,
   STRIKING,
   DEFENSE,

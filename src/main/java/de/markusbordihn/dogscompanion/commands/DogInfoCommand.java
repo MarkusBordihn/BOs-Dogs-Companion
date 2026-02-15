@@ -30,6 +30,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.data.DogDataEntry;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 
@@ -45,7 +46,7 @@ final class DogInfoCommand extends DogCommand {
   protected void execute(
       @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
 
-    var entityOpt = getEntityFromArgument(this.entityArg, store, context);
+    Optional<Ref<EntityStore>> entityOpt = getEntityFromArgument(this.entityArg, store, context);
     if (entityOpt.isEmpty()) {
       context.sendMessage(Message.raw("No entity in view.").color(Constants.COLOR_ERROR));
       context.sendMessage(

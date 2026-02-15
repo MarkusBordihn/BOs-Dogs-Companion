@@ -27,6 +27,7 @@ import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
 import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -87,7 +88,7 @@ final class DogAttackCommand extends DogCommand {
     // Check if target is alive
     EntityStatMap targetStats = store.getComponent(targetRef, EntityStatMap.getComponentType());
     if (targetStats != null) {
-      var healthStat = targetStats.get(DefaultEntityStatTypes.getHealth());
+      EntityStatValue healthStat = targetStats.get(DefaultEntityStatTypes.getHealth());
       if (healthStat != null && healthStat.get() <= 0) {
         context.sendMessage(
             Message.translation("dogs_companion.commands.attack.target_dead")

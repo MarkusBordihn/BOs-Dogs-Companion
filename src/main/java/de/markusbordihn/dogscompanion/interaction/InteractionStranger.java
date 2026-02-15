@@ -35,6 +35,8 @@ public class InteractionStranger {
       Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
     LOGGER.at(Level.INFO).log("STRANGER: Interaction blocked for dog - player is not the owner");
 
+    role.getStateSupport().setState(entityRef, "Pet", "Rejection", store);
+
     // Send a message to the player indicating they cannot interact with this dog
     // (Message sending will be added in translation system)
 

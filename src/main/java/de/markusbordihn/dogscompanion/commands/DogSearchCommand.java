@@ -27,16 +27,18 @@ import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
+import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.manager.DogsManager;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
-final class DogOwnerCommand extends DogCommand {
+final class DogSearchCommand extends DogCommand {
   @Nonnull private final EntityWrappedArg entityArg;
 
-  public DogOwnerCommand() {
-    super("owner", "Shows ownership information for a dog");
+  public DogSearchCommand() {
+    super("search", "Makes your dog search and track");
     this.entityArg = this.withOptionalArg("entity", "The dog entity", ArgTypes.ENTITY_ID);
   }
 
@@ -45,29 +47,29 @@ final class DogOwnerCommand extends DogCommand {
       @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
     Optional<Ref<EntityStore>> entityRefOpt = getEntityFromArgument(this.entityArg, store, context);
 
-    if (entityRefOpt.isEmpty()) {
+    if (entityRefOpt.isPresent()) {
+      Ref<EntityStore> entityRef = entityRefOpt.get();
+      if (!checkOwnership(entityRef, store, context)) {
+        return;
+      }
+
+      DogsManager.getInstance().updateDogState(entityRef, DogState.SEARCHING, store);
+
+      NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
+      if (npcEntity != null && npcEntity.getRole() != null) {
+        npcEntity.getRole().getStateSupport().setState(entityRef, "Pet", "Searching", store);
+        context.sendMessage(
+            Message.translation("dogs_companion.commands.search.success")
+                .param("name", getDogDisplayName(entityRef, store))
+                .color(Constants.COLOR_SUCCESS));
+      } else {
+        context.sendMessage(
+            Message.translation("dogs_companion.commands.error.no_dog")
+                .color(Constants.COLOR_INFO));
+      }
+    } else {
       context.sendMessage(
           Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_ERROR));
-      return;
     }
-
-    Ref<EntityStore> entityRef = entityRefOpt.get();
-    DogOwnerComponent ownerComponent =
-        store.getComponent(entityRef, DogOwnerComponent.getComponentType());
-
-    if (ownerComponent == null || !ownerComponent.hasOwner()) {
-      context.sendMessage(
-          Message.translation("dogs_companion.commands.owner.wild").color(Constants.COLOR_INFO));
-      return;
-    }
-
-    String dogName = getDogDisplayName(entityRef, store);
-    String ownerName = ownerComponent.getOwnerName();
-
-    context.sendMessage(
-        Message.translation("dogs_companion.commands.owner.info")
-            .param("name", dogName)
-            .param("owner", ownerName != null ? ownerName : "Unknown")
-            .color(Constants.COLOR_INFO));
   }
 }

@@ -1,7 +1,9 @@
-npcRoles.Dogs_Wild.name=Wild Dog
-npcRoles.Dogs_Tamed.name=Companion Dog
+npcRoles.DogsCompanion_Wild.name=Wild Dog
+npcRoles.DogsCompanion_Tamed.name=Companion Dog
 npcRoles.DogsCompanion_GermanShepherd_Wild.name=Wild German Shepherd
 npcRoles.DogsCompanion_GermanShepherd_Tamed.name=German Shepherd
+npcRoles.DogsCompanion_ShibaInu_Wild.name=Wild Shiba Inu
+npcRoles.DogsCompanion_ShibaInu_Tamed.name=Shiba Inu
 
 items.dogs_companion.egg_spawner_dogs.name=Dog Spawner Egg
 items.dogs_companion.egg_spawner_dogs.description=Summon your future loyal companion! Feed this wild dog to earn its trust and friendship. Once tamed, it will follow you anywhere, protect you in battle, and become your most faithful friend.

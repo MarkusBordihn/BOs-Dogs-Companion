@@ -39,6 +39,7 @@ public final class DogCommands extends AbstractCommandCollection {
     this.addSubCommand(new DogWanderCommand());
     this.addSubCommand(new DogPlayCommand());
     this.addSubCommand(new DogSleepCommand());
+    this.addSubCommand(new DogSearchCommand());
 
     // Combat commands
     this.addSubCommand(new DogAttackCommand());

@@ -56,6 +56,7 @@ public class InteractionTaming {
     String itemName = heldItem != null ? heldItem.getItemId() : null;
 
     if (!isTamingItem(itemName)) {
+      role.getStateSupport().setState(entityRef, "Wild", "Rejection", store);
       return false;
     }
 
@@ -105,6 +106,7 @@ public class InteractionTaming {
     if (progressComponent.hasProgress()
         && System.currentTimeMillis() - progressComponent.getLastFedTimestamp()
             < FEEDING_COOLDOWN_MS) {
+      role.getStateSupport().setState(entityRef, "Wild", "Rejection", store);
       player.sendMessage(
           Message.translation("dogs_companion.interactions.taming.cooldown")
               .color(Constants.COLOR_WARNING));
@@ -114,6 +116,8 @@ public class InteractionTaming {
     progressComponent.incrementFeeding();
     store.putComponent(entityRef, DogTamingProgressComponent.getComponentType(), progressComponent);
     consumeItem(player, heldItem);
+
+    role.getStateSupport().setState(entityRef, "Wild", "Feeding", store);
 
     LOGGER.at(Level.INFO).log(
         "Dog fed by %s: %d/%d",
@@ -156,7 +160,6 @@ public class InteractionTaming {
           LOGGER.at(Level.WARNING).log("Failed to request role change: currentRole is null");
         } else {
           String tamedRoleName = DogType.fromRoleName(currentRole.getRoleName()).getTamedRoleName();
-
           if (tamedRoleName.isEmpty()) {
             LOGGER.at(Level.WARNING).log(
                 "Failed to get tamed role name for DogType %s",

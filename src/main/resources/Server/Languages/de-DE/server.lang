@@ -1,7 +1,9 @@
-npcRoles.Dogs_Wild.name=Wilder Hund
-npcRoles.Dogs_Tamed.name=Begleithund
+npcRoles.DogsCompanion_Wild.name=Wilder Hund
+npcRoles.DogsCompanion_Tamed.name=Begleithund
 npcRoles.DogsCompanion_GermanShepherd_Wild.name=Wilder Schäferhund
 npcRoles.DogsCompanion_GermanShepherd_Tamed.name=Schäferhund
+npcRoles.DogsCompanion_ShibaInu_Wild.name=Wilder Shiba Inu
+npcRoles.DogsCompanion_ShibaInu_Tamed.name=Shiba Inu
 
 items.dogs_companion.egg_spawner_dogs.name=Hunde Spawn Ei
 items.dogs_companion.egg_spawner_dogs.description=Beschwöre deinen zukünftigen treuen Begleiter! Füttere diesen wilden Hund, um sein Vertrauen und seine Freundschaft zu gewinnen. Einmal gezähmt, wird er dir überall hin folgen, dich im Kampf beschützen und dein treuester Freund werden.

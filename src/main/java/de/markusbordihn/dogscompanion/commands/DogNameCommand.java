@@ -32,6 +32,7 @@ import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 
 final class DogNameCommand extends DogCommand {
@@ -48,7 +49,7 @@ final class DogNameCommand extends DogCommand {
   protected void execute(
       @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
     String dogName = this.nameArg.get(context);
-    var entityOpt = getEntityFromArgument(this.entityArg, store, context);
+    Optional<Ref<EntityStore>> entityOpt = getEntityFromArgument(this.entityArg, store, context);
 
     if (entityOpt.isEmpty()) {
       context.sendMessage(

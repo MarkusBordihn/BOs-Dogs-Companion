@@ -27,7 +27,8 @@ import javax.annotation.Nullable;
 public enum DogType {
   UNKNOWN("", ""),
   GENERIC_DOG("DogsCompanion_Tamed", "DogsCompanion_Wild"),
-  GERMAN_SHEPHERD("DogsCompanion_GermanShepherd_Tamed", "DogsCompanion_GermanShepherd_Wild");
+  GERMAN_SHEPHERD("DogsCompanion_GermanShepherd_Tamed", "DogsCompanion_GermanShepherd_Wild"),
+  SHIBA_INU("DogsCompanion_ShibaInu_Tamed", "DogsCompanion_ShibaInu_Wild");
 
   public static final EnumCodec<DogType> CODEC = new EnumCodec<>(DogType.class);
 

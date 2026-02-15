@@ -1,5 +1,7 @@
 {
   "Type": "Generic",
+  "StartState": "Wild",
+  "DefaultSubState": "Default",
   "Appearance": {
     "Compute": "Appearance"
   },
@@ -24,55 +26,160 @@
     {
       "Instructions": [
         {
-          "$Comment": "Follow player with CookedBeef or Bone in hand",
+          "$Comment": "Dog is not tamed yet - wanders and seeks food",
           "Sensor": {
-            "Type": "Player",
-            "Range": 8,
-            "Filters": [
-              {
-                "Type": "ItemInHand",
-                "Items": [
-                  "Food_Wildmeat_Cooked",
-                  "Food_Wildmeat_Raw"
-                ]
-              }
-            ]
+            "Type": "State",
+            "State": "Wild"
           },
-          "BodyMotion": {
-            "Type": "Seek",
-            "SlowDownDistance": 4,
-            "StopDistance": 2,
-            "RelativeSpeed": 0.6
-          }
-        },
-        {
-          "$Comment": "Wander around naturally",
-          "Sensor": {
-            "Type": "Any"
-          },
-          "BodyMotion": {
-            "Type": "Sequence",
-            "Looped": true,
-            "Motions": [
-              {
-                "Type": "Timer",
-                "Time": [4, 8],
-                "Motion": {
-                  "Type": "WanderInCircle",
-                  "Radius": 10,
-                  "MaxHeadingChange": 60,
-                  "RelativeSpeed": 0.4
-                }
+          "Instructions": [
+            {
+              "$Comment": "Default wild state - seek food or wander",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Default"
               },
-              {
-                "Type": "Timer",
-                "Time": [2, 5],
-                "Motion": {
-                  "Type": "Nothing"
+              "Instructions": [
+                {
+                  "$Comment": "Follow player with CookedBeef or Bone in hand",
+                  "Sensor": {
+                    "Type": "Player",
+                    "Range": 8,
+                    "Filters": [
+                      {
+                        "Type": "ItemInHand",
+                        "Items": [
+                          "Food_Wildmeat_Cooked",
+                          "Food_Wildmeat_Raw"
+                        ]
+                      }
+                    ]
+                  },
+                  "BodyMotion": {
+                    "Type": "Seek",
+                    "SlowDownDistance": 4,
+                    "StopDistance": 2,
+                    "RelativeSpeed": 0.6
+                  }
+                },
+                {
+                  "$Comment": "Wander around naturally",
+                  "Sensor": {
+                    "Type": "Any"
+                  },
+                  "BodyMotion": {
+                    "Type": "Sequence",
+                    "Looped": true,
+                    "Motions": [
+                      {
+                        "Type": "Timer",
+                        "Time": [4, 8],
+                        "Motion": {
+                          "Type": "WanderInCircle",
+                          "Radius": 10,
+                          "MaxHeadingChange": 60,
+                          "RelativeSpeed": 0.4
+                        }
+                      },
+                      {
+                        "Type": "Timer",
+                        "Time": [2, 5],
+                        "Motion": {
+                          "Type": "Nothing"
+                        }
+                      }
+                    ]
+                  }
                 }
+              ]
+            },
+            {
+              "$Comment": "Feeding state - eating animation with hearts",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Feeding"
+              },
+              "ActionsBlocking": true,
+              "Actions": [
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Sit",
+                  "Slot": "Action"
+                },
+                {
+                  "Type": "PlaySound",
+                  "SoundEventId": "SFX_Wolf_Sleep"
+                },
+                {
+                  "Type": "SpawnParticles",
+                  "Offset": [0, 0.5, 0],
+                  "ParticleSystem": "Food_Eat"
+                },
+                {
+                  "Type": "SpawnParticles",
+                  "Offset": [0, 0.5, 0],
+                  "ParticleSystem": "Hearts_Subtle"
+                },
+                {
+                  "Type": "Timeout",
+                  "Delay": [2, 2],
+                  "Action": {
+                    "Type": "State",
+                    "State": ".Default"
+                  }
+                }
+              ],
+              "BodyMotion": {
+                "Type": "Nothing"
               }
-            ]
-          }
+            },
+            {
+              "$Comment": "Rejection state - refuses interaction",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Rejection"
+              },
+              "ActionsBlocking": true,
+              "Actions": [
+                {
+                  "Type": "PlaySound",
+                  "SoundEventId": "SFX_Wolf_Alerted"
+                },
+                {
+                  "Type": "PlayAnimation",
+                  "Animation": "Idle",
+                  "Slot": "Action"
+                },
+                {
+                  "Type": "SpawnParticles",
+                  "Offset": [0, 0.6, 0],
+                  "ParticleSystem": "Angry"
+                },
+                {
+                  "Type": "Timeout",
+                  "Delay": [1.5, 1.5],
+                  "Action": {
+                    "Type": "State",
+                    "State": ".Default"
+                  }
+                }
+              ],
+              "BodyMotion": {
+                "Type": "Nothing"
+              }
+            },
+            {
+              "$Comment": "State setter declarations for validation - never executed",
+              "Sensor": {
+                "Type": "Flag",
+                "Name": "_VALIDATION_ONLY_NEVER_SET"
+              },
+              "Actions": [
+                {"Type": "State", "State": ".Default"},
+                {"Type": "State", "State": ".Feeding"},
+                {"Type": "State", "State": ".Rejection"}
+              ]
+            }
+          ]
         }
       ]
     }

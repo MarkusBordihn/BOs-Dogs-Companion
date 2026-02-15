@@ -43,6 +43,7 @@ public class DogNameplateUtils {
   private static final String SYMBOL_PLAYING = "[PLAY]";
   private static final String SYMBOL_WAITING = "[WAIT]";
   private static final String SYMBOL_WANDERING = "[---]";
+  private static final String SYMBOL_SEARCHING = "[?]";
 
   public static void updateNameplateWithState(
       @Nonnull Ref<EntityStore> dogRef,
@@ -91,6 +92,7 @@ public class DogNameplateUtils {
       case PLAYING -> SYMBOL_PLAYING;
       case WAITING -> SYMBOL_WAITING;
       case WANDERING -> SYMBOL_WANDERING;
+      case SEARCHING -> SYMBOL_SEARCHING;
       case FOLLOWING -> SYMBOL_PASSIVE;
     };
   }
