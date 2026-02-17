@@ -10,6 +10,11 @@
   },
   "DefaultNPCAttitude": "Friendly",
   "DefaultPlayerAttitude": "Friendly",
+  "DeathAnimationTime": 1.5,
+  "ApplySeparation": true,
+  "SeparationDistance": 1,
+  "SeparationWeight": 1,
+  "KnockbackScale": 0.5,
   "MotionControllerList": [
     {
       "Type": "Walk",
@@ -18,13 +23,38 @@
       "RunThresholdRange": 0.1,
       "Gravity": 10,
       "MaxFallSpeed": 20,
-      "Acceleration": 12
+      "Acceleration": 12,
+      "DescentAnimationType": "Fall",
+      "DescentSteepness": 2.5,
+      "DescentBlending": 1,
+      "JumpDescentSteepness": 8,
+      "JumpHeight": 0.1,
+      "MaxClimbHeight": 1
     }
   ],
-  "MaxHealth": 20,
+  "MaxHealth": 60,
   "Instructions": [
     {
       "Instructions": [
+        {
+          "$Comment": "React to damage with hurt animation",
+          "Continue": true,
+          "Sensor": {
+            "Type": "Damage"
+          },
+          "ActionsBlocking": true,
+          "Actions": [
+            {
+              "Type": "PlayAnimation",
+              "Animation": "Hurt",
+              "Slot": "Status"
+            },
+            {
+              "Type": "Timeout",
+              "Delay": [0.5, 0.5]
+            }
+          ]
+        },
         {
           "$Comment": "Dog is tamed - use substates for different behaviors",
           "Sensor": {
@@ -173,7 +203,7 @@
                 },
                 {
                   "Type": "PlayAnimation",
-                  "Animation": "Idle",
+                  "Animation": "Alerted",
                   "Slot": "Action"
                 },
                 {
@@ -479,7 +509,7 @@
               },
               "Instructions": [
                 {
-                  "$Comment": "Reset animation when entering defense mode",
+                  "$Comment": "Alert animation when entering defense mode",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -492,8 +522,12 @@
                     },
                     {
                       "Type": "PlayAnimation",
-                      "Animation": "Idle",
-                      "Slot": "Action"
+                      "Animation": "Alerted",
+                      "Slot": "Status"
+                    },
+                    {
+                      "Type": "PlaySound",
+                      "SoundEventId": "SFX_Wolf_Alerted"
                     }
                   ]
                 },
@@ -516,6 +550,9 @@
                     "SlowDownDistance": 5,
                     "StopDistance": 3,
                     "RelativeSpeed": 0.9
+                  },
+                  "HeadMotion": {
+                    "Type": "Watch"
                   }
                 },
                 {
@@ -537,7 +574,7 @@
               },
               "Instructions": [
                 {
-                  "$Comment": "Reset animation when entering offense mode",
+                  "$Comment": "Alert animation when entering offense mode",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -550,8 +587,12 @@
                     },
                     {
                       "Type": "PlayAnimation",
-                      "Animation": "Idle",
-                      "Slot": "Action"
+                      "Animation": "Alerted",
+                      "Slot": "Status"
+                    },
+                    {
+                      "Type": "PlaySound",
+                      "SoundEventId": "SFX_Wolf_Alerted"
                     }
                   ]
                 },
@@ -574,6 +615,9 @@
                     "SlowDownDistance": 5,
                     "StopDistance": 3,
                     "RelativeSpeed": 0.9
+                  },
+                  "HeadMotion": {
+                    "Type": "Watch"
                   }
                 },
                 {
@@ -588,14 +632,14 @@
               ]
             },
             {
-              "$Comment": "Default following behavior - follows owner with pauses",
+              "$Comment": "Default following behavior - follows owner with pauses and idle wag",
               "Sensor": {
                 "Type": "State",
                 "State": ".Default"
               },
               "Instructions": [
                 {
-                  "$Comment": "Reset animation first when entering this state",
+                  "$Comment": "Wag tail when idling near owner",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -603,7 +647,7 @@
                   "Actions": [
                     {
                       "Type": "PlayAnimation",
-                      "Animation": "Idle",
+                      "Animation": "Wag",
                       "Slot": "Action"
                     }
                   ]
@@ -615,18 +659,14 @@
                     "Range": 18,
                     "LockOnTarget": true
                   },
-                  "Actions": [
-                    {
-                      "Type": "PlayAnimation",
-                      "Animation": "Idle",
-                      "Slot": "Action"
-                    }
-                  ],
                   "BodyMotion": {
                     "Type": "Seek",
                     "SlowDownDistance": 5,
                     "StopDistance": 3,
                     "RelativeSpeed": 0.9
+                  },
+                  "HeadMotion": {
+                    "Type": "Watch"
                   }
                 },
                 {

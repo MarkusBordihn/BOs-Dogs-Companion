@@ -1,6 +1,12 @@
 # 🐕 Dogs Companion – Loyal Combat Companions
 
+[![CurseForge](https://cf.way2muchnoise.eu/title/1453431.svg)](https://www.curseforge.com/hytale/mods/dogs-companion)
+[![CurseForge Downloads](https://cf.way2muchnoise.eu/full_1453431_downloads.svg)](https://www.curseforge.com/hytale/mods/dogs-companion)
 [![🎮 Use Hytale Creator Code Kaworru](https://img.shields.io/badge/%20Use%20Hytale%20Creator%20Code-Kaworru-orange)](https://hytale.com/)
+
+[![Report an Issue](https://img.shields.io/badge/Report%20Issue%20%2F%20Bug%20%2F%20Feature%20Request-grey?logo=github)](https://github.com/MarkusBordihn/BOs-Dogs-Companion/issues)
+[![Open Issues](https://img.shields.io/github/issues/MarkusBordihn/BOs-Dogs-Companion?logo=github&color=red)](https://github.com/MarkusBordihn/BOs-Dogs-Companion/issues?q=is%3Aopen)
+[![Closed Issues](https://img.shields.io/github/issues-closed/MarkusBordihn/BOs-Dogs-Companion?logo=github)](https://github.com/MarkusBordihn/BOs-Dogs-Companion/issues?q=is%3Aclosed)
 
 ⚠️ **BETA VERSION**  This is a beta version, several features are still work in progress.
 
@@ -50,9 +56,7 @@ powerful allies for exploration, dungeon raids, and base defense.
 
 ### How to Get a Dog
 
-#### Option 1: Manual Spawning (Testing)
-
-Use the NPC spawn command to create dogs:
+**Manual Spawning:** Use the NPC spawn command to create dogs:
 
 ```unix
 /npc spawn DogsCompanion_Wild
@@ -60,9 +64,7 @@ Use the NPC spawn command to create dogs:
 /npc spawn DogsCompanion_ShibaInu_Wild
 ```
 
-#### Option 2: Spawn Eggs
-
-Each breed also has a spawn egg:
+**Spawn Eggs:** Each breed has a spawn egg:
 
 * `Egg_Spawner_DogsCompanion` – Generic Dog
 * `Egg_Spawner_DogsCompanion_GermanShepherd` – German Shepherd
@@ -72,34 +74,16 @@ Each breed also has a spawn egg:
 
 ### How to Tame a Dog
 
-1. **Switch to Survival or Adventure mode or enable "Allow NPC Detection" in Creative mode**
-   ⚠️ Dogs cannot be tamed while in Creative mode by default!
+1. Get meat (Raw Wildmeat or Cooked Wildmeat)
+2. Hold meat and approach a wild dog
+3. Press F (interact) on the dog multiple times - requires 2-5 feedings (random)
+4. Your dog gets an automatic unique name (e.g., "Max", "Buddy", "Rex")
 
-   **Creative Mode Users:** Enable **"Allow NPC Detection"** in the **Creative Mode Quick Settings**
-   (press TAB or the quick settings key) to interact with dogs in Creative mode.
-
-2. Obtain meat
-   Supported types: Raw Wildmeat (`Food_Wildmeat_Raw`), Cooked Wildmeat (`Food_Wildmeat_Cooked`)
-
-3. Spawn a wild dog using `/npc spawn DogsCompanion_Wild` or spawn eggs
-
-4. Approach the wild dog with meat in your hand
-   The dog will notice you're holding food
-
-5. Press F (interact key) on the dog while holding meat multiple times
-   The dog requires 2-5 feedings to be tamed (random). Each feeding consumes one piece of meat.
-
-6. Success! The dog is now tamed, automatically named, and will follow you
-   Your new companion receives a unique name like "Max", "Buddy", or "Rex"
-
-**Important Interaction Rules:**
-
-* **Wrong items** – Offering non-food items to wild dogs may upset them
-* **Feeding** – Tamed dogs can be fed meat to keep them happy (meat gets consumed)
-* **Mode cycling** – Press F (interact) with your tamed dog using an empty hand to cycle combat
-  modes (Following → Defense → Offense → Sitting)
-* **Creative mode block** – Players in Creative mode cannot tame or interact with dogs to prevent
-  exploits
+**Tips:**
+* Enable "Allow NPC Detection" in Creative Mode Quick Settings (TAB) to interact in Creative
+* Tamed dogs can be fed meat to keep them happy
+* Use empty hand to cycle combat modes (press F)
+* Wrong items may upset wild dogs
 
 ### Combat System
 
@@ -185,42 +169,24 @@ Commands work by looking at your tamed dog or by providing its entity ID:
 
 **Tip:** For best results, look directly at your dog when using commands.
 
-## 🔐 Permissions & LuckPerms
+## 🔐 Permissions
 
-The plugin includes built-in support for both Hytale's permission system and LuckPerms.
+The plugin supports both Hytale's permission system and LuckPerms.
 
-### Hytale permissions
-
-Hytale evaluates permissions on the player by checking assigned groups and user entries.
-If a permission node is granted via a group or directly on a user, the command becomes usable.
-Permissions are additive, so a user inherits group permissions and can receive additional nodes.
-
-**Quick setup with Hytale permissions:**
-
-1. Run `/commands dump` as op to generate a full command list.
-2. Open `commands.dump.json` and search for `/dog` commands.
-3. Add the relevant permissions (e.g., `markusbordihn.dogs.command.dog`,
-   `markusbordihn.dogs.command.dog.follow`, `markusbordihn.dogs.command.dog.attack`) to a group or
-   user.
-
-The group or user can now use those commands without a server restart.
-
-### Default Dog Limit
-
-Players can own up to 16 dogs by default. Server admins can adjust this limit using permissions.
+**Default Dog Limit:** Players can own up to 16 dogs. Admins can adjust this using permissions like `markusbordihn.dogs.limit.8` or `markusbordihn.dogs.limit.unlimited`.
 
 ## ⚠️ Known Limitations
 
 ### Important Notes
 
 * **No UI menu**
-  The interactive menu is currently not implemented and may be added in a later version.
+  The interactive menu is temporarily disabled and will return in a later version.
 
 * **Natural spawning**
   Wild dogs do not yet spawn naturally in the world. Use spawn commands or spawn eggs.
 
 * **Limited breed variety**
-  Currently only 2 dog breeds are available. More breeds are planned for future updates.
+  Currently only 3 dog breeds are available. More breeds are planned for future updates.
 
 ## 🚧 Planned Features
 
@@ -258,11 +224,30 @@ Backup this file to preserve your dogs when moving worlds.
 ## 🔗 Related Plugins
 
 **🐱 Cats Companion**
-Looking for peaceful companions? Check out the Cats Companion plugin for decorative feline friends
-that don't participate in combat. Cats are perfect for base decoration and roleplay, while dogs are
-designed for active gameplay and combat support.
 
-See: https://www.curseforge.com/hytale/mods/cats
+Looking for peaceful companions? Check out the Cats Companion plugin! While dogs are perfect for combat and protection, cats are designed for peaceful companionship with decorative features, natural spawning, and playful interactions.
+
+👉 [Download Cats Companion](https://www.curseforge.com/hytale/mods/cats)
+
+## 📜 License
+
+**This project is open source under the MIT License.**
+
+⚠️ **Important:** The license applies **only to the source code** in this repository.
+
+**Assets are excluded from the license:**
+
+* 3D models (`.bbmodel` files)
+* Textures and images
+* Sounds and music
+* Animations
+* Other creative/artistic content
+
+**These assets may not be redistributed, modified, or used in other projects without permission.**
+
+For the full license text, see [LICENSE.md](LICENSE.md).
+
+---
 
 Enjoy your new canine companions. 🐕
 

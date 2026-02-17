@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Mod Documentation
+    url: https://github.com/MarkusBordihn/BOs-Dogs-Companion/blob/hytale/README.md
+    about: Read the documentation before filing an issue.
+  - name: 🐞 Bug Tracker
+    url: https://github.com/MarkusBordihn/BOs-Dogs-Companion/issues?q=label%3Abug
+    about: Check for existing bug reports to avoid duplicates.
+  - name: 💥 Crash Tracker
+    url: https://github.com/MarkusBordihn/BOs-Dogs-Companion/issues?q=label%3Acrash
+    about: Check for existing crash reports to avoid duplicates.
+  - name: 🎮 CurseForge Page
+    url: https://www.curseforge.com/hytale/mods/dogs-companion
+    about: Download the latest version and see the mod page.

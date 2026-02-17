@@ -1,4 +1,4 @@
-# Changelog for Cats (Hytale)
+# Changelog for Dogs Companion (Hytale)
 
 ## Note
 
@@ -6,6 +6,17 @@ This change log includes the summarized changes.
 For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
+
+### 1.2.0
+
+- Added healing system: Dogs now heal when fed (cooked food heals 10 HP, raw food heals 5 HP).
+- Increased dog max health from 20 to 60 HP.
+- Added hurt animation when dogs take damage.
+- Improved dog model hitbox and eye height for better interaction.
+- Added camera pitch/yaw targeting for head movement.
+- Enhanced animation system with proper speeds and blending.
+- Added death animation, knockback resistance, and separation behavior.
+- Improved pathfinding with climb height and jump mechanics.
 
 ### 1.1.0
 
