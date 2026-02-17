@@ -13,7 +13,7 @@ group = project.group
 version = project.version
 
 base {
-  archivesName = "${project.mod_id}-hytale-${project.version}"
+  archivesName = "${project.mod_id}-hytale"
 }
 
 java {
