@@ -7,6 +7,10 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 1.2.1
+
+- Fixed mod warning by using fixed ServerVersion. 
+
 ### 1.2.0
 
 - Added healing system: Dogs now heal when fed (cooked food heals 10 HP, raw food heals 5 HP).
