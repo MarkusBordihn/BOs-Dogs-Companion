@@ -20,7 +20,7 @@
       "Type": "Walk",
       "MaxWalkSpeed": 8,
       "RunThreshold": 0.7,
-      "RunThresholdRange": 0.1,
+      "RunThresholdRange": 0.2,
       "Gravity": 10,
       "MaxFallSpeed": 20,
       "Acceleration": 12,
@@ -509,12 +509,17 @@
               },
               "Instructions": [
                 {
-                  "$Comment": "Alert animation when entering defense mode",
+                  "$Comment": "Clear stale animations and alert when entering defense mode",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
                   },
                   "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    },
                     {
                       "Type": "SpawnParticles",
                       "Offset": [0, 1.2, 0],
@@ -532,22 +537,15 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner player within range",
+                  "$Comment": "Follow owner player within range - motion controller handles animations",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 18,
                     "LockOnTarget": true
                   },
-                  "Actions": [
-                    {
-                      "Type": "PlayAnimation",
-                      "Animation": "Idle",
-                      "Slot": "Action"
-                    }
-                  ],
                   "BodyMotion": {
                     "Type": "Seek",
-                    "SlowDownDistance": 5,
+                    "SlowDownDistance": 10,
                     "StopDistance": 3,
                     "RelativeSpeed": 0.9
                   },
@@ -574,12 +572,17 @@
               },
               "Instructions": [
                 {
-                  "$Comment": "Alert animation when entering offense mode",
+                  "$Comment": "Clear stale animations and alert when entering offense mode",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
                   },
                   "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Idle",
+                      "Slot": "Action"
+                    },
                     {
                       "Type": "SpawnParticles",
                       "Offset": [0, 1.2, 0],
@@ -597,22 +600,15 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner player within range",
+                  "$Comment": "Follow owner player within range - motion controller handles animations",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 18,
                     "LockOnTarget": true
                   },
-                  "Actions": [
-                    {
-                      "Type": "PlayAnimation",
-                      "Animation": "Idle",
-                      "Slot": "Action"
-                    }
-                  ],
                   "BodyMotion": {
                     "Type": "Seek",
-                    "SlowDownDistance": 5,
+                    "SlowDownDistance": 10,
                     "StopDistance": 3,
                     "RelativeSpeed": 0.9
                   },
@@ -632,14 +628,14 @@
               ]
             },
             {
-              "$Comment": "Default following behavior - follows owner with pauses and idle wag",
+              "$Comment": "Default following behavior - follows owner with natural idle variations",
               "Sensor": {
                 "Type": "State",
                 "State": ".Default"
               },
               "Instructions": [
                 {
-                  "$Comment": "Wag tail when idling near owner",
+                  "$Comment": "Clear stale animations when entering default mode",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -647,23 +643,79 @@
                   "Actions": [
                     {
                       "Type": "PlayAnimation",
-                      "Animation": "Wag",
+                      "Animation": "Idle",
                       "Slot": "Action"
                     }
                   ]
                 },
                 {
-                  "$Comment": "Follow owner player within range",
+                  "$Comment": "Follow owner when far away - motion controller handles walk/run transitions",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 18,
+                    "MinRange": 5,
                     "LockOnTarget": true
                   },
                   "BodyMotion": {
                     "Type": "Seek",
-                    "SlowDownDistance": 5,
+                    "SlowDownDistance": 10,
                     "StopDistance": 3,
                     "RelativeSpeed": 0.9
+                  },
+                  "HeadMotion": {
+                    "Type": "Watch"
+                  }
+                },
+                {
+                  "$Comment": "Natural idle behavior when close to owner - random variations",
+                  "Sensor": {
+                    "Type": "Player",
+                    "Range": 5,
+                    "LockOnTarget": true
+                  },
+                  "BodyMotion": {
+                    "Type": "Sequence",
+                    "Looped": true,
+                    "Motions": [
+                      {
+                        "$Comment": "Stand idle near owner for a while",
+                        "Type": "Timer",
+                        "Time": [3, 7],
+                        "Motion": {
+                          "Type": "Nothing"
+                        }
+                      },
+                      {
+                        "$Comment": "Short wander - sniff around",
+                        "Type": "Timer",
+                        "Time": [1, 3],
+                        "Motion": {
+                          "Type": "WanderInCircle",
+                          "Radius": 3,
+                          "MaxHeadingChange": 45,
+                          "RelativeSpeed": 0.2
+                        }
+                      },
+                      {
+                        "$Comment": "Pause again",
+                        "Type": "Timer",
+                        "Time": [2, 5],
+                        "Motion": {
+                          "Type": "Nothing"
+                        }
+                      },
+                      {
+                        "$Comment": "Another short wander in different direction",
+                        "Type": "Timer",
+                        "Time": [1, 2],
+                        "Motion": {
+                          "Type": "WanderInCircle",
+                          "Radius": 2,
+                          "MaxHeadingChange": 90,
+                          "RelativeSpeed": 0.15
+                        }
+                      }
+                    ]
                   },
                   "HeadMotion": {
                     "Type": "Watch"

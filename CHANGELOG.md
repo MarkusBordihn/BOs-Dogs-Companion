@@ -7,6 +7,11 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 1.3.0
+
+- Fixed animation bug with default mode.
+- Updated server version, again, to fix mod warning.
+
 ### 1.2.1
 
 - Fixed mod warning by using fixed ServerVersion. 
