@@ -16,43 +16,28 @@
 
 ## 📖 Overview
 
-Bring loyal dog companions into your Hytale world.
+This plugin adds tameable dogs to Hytale that follow you, defend you, and fight alongside you.
+Unlike cats (peaceful, decorative), dogs are **active combat companions** with defense and offense
+modes.
 
-This plugin adds tameable dogs that can follow you, defend you, and fight alongside you in combat.
-Unlike passive companions such as cats (which are designed for decoration and interaction), dogs are
-**active combat companions** that can deal damage, defend their owner, and assist in battles.
+* **🐱 Cats** – Peaceful companions, no combat
+* **🐕 Dogs** – Combat companions that fight and defend
 
-Dogs support multiple behavior modes including defensive guarding and offensive assault, making them
-powerful allies for exploration, dungeon raids, and base defense.
+## ✅ Features
 
-**Companion comparison:**
-
-* **🐱 Cats** – Peaceful decorative companions without combat abilities
-* **🐕 Dogs** – Active combat companions that fight and defend
-
-## ✅ Current Features
-
-### Working Features
-
-* Multiple dog breeds: Generic Dog, German Shepherd, Shiba Inu (more breeds planned)
-* Taming system using raw or cooked meat
-* Automatic dog naming with unique names for each dog
-* Full command-based interaction via `/dog`
-* Custom dog names with `/dog name`
-* Dog ownership limits configurable via permissions
-* Combat capabilities with damage dealing (6.0 damage per attack)
-* **Defense Mode:** Dogs automatically defend their owner when attacked (20 block radius)
-* **Offense Mode:** Dogs assist their owner in combat when owner attacks (20 block radius)
-* **Attack Command:** Direct your dog to attack specific targets
-* Multiple behavior states: sitting, following, waiting, wandering, sleeping, playing, attacking
-* Matching animations for each behavior
-* Visual nameplate indicators showing current mode: [DEF], [OFF], [ATK], [SIT]
-* Dog sounds
-* Item consumption for taming and feeding (items are consumed from the player's inventory)
-* Persistent component data for owner + state (component CODECs)
-* Full memory system support for NPC tracking and persistence
-* Persistent dog data storage with owner names, positions, and states
-  (saved in `worlds/default/resources/DogsCompanionData.json`)
+* 3 breeds: Generic Dog, German Shepherd, Shiba Inu (more planned)
+* Taming with raw or cooked meat, success screen with name input
+* **Action Wheel** to control your dog (follow, sit, sleep, play, wander, combat mode, search, pet,
+  rename)
+* **Dog Whistle** to recall dogs, send them to attack, or cancel attacks
+* Mood particles show how your dog feels
+* Interaction hints change based on what you hold (food, whistle, empty hand)
+* Combat modes: Defense (auto-protect), Offense (assist attacks), Attack Command (manual target)
+* Nameplates show the current mode: [DEF], [OFF], [ATK], [SIT]
+* Sounds and animations for each behavior state
+* All dog data is saved persistently (owner, state, position)
+* Dog limit per player, configurable via permissions
+* `/dog reload` to reload config on the fly (admin only)
 
 ### How to Get a Dog
 
@@ -75,112 +60,80 @@ powerful allies for exploration, dungeon raids, and base defense.
 ### How to Tame a Dog
 
 1. Get meat (Raw Wildmeat or Cooked Wildmeat)
-2. Hold meat and approach a wild dog
-3. Press F (interact) on the dog multiple times - requires 2-5 feedings (random)
-4. Your dog gets an automatic unique name (e.g., "Max", "Buddy", "Rex")
+2. Hold meat and walk up to a wild dog
+3. Press F (interact) a few times – takes 2-5 feedings
+4. A success screen shows the breed and suggests a name
+5. Keep the name or type a new one, then confirm
 
-**Tips:**
-* Enable "Allow NPC Detection" in Creative Mode Quick Settings (TAB) to interact in Creative
-* Tamed dogs can be fed meat to keep them happy
-* Use empty hand to cycle combat modes (press F)
-* Wrong items may upset wild dogs
+> In Creative Mode, enable "Allow NPC Detection" in Quick Settings (TAB) first.
+> Wrong items may upset wild dogs!
+
+### Dog Whistle
+
+Use a Dog Whistle to command your dogs from a distance:
+
+* **Recall** – use without targeting anything, all nearby dogs come back
+* **Attack** – use while looking at an enemy, all nearby dogs attack it
+* **Cancel** – use on one of your attacking dogs to stop the attack
+
+Has a short cooldown. Only affects dogs within range.
+
+### Action Wheel
+
+Press F on your tamed dog to open the Action Wheel:
+
+| Action              | Effect                           |
+|---------------------|----------------------------------|
+| **Follow**          | Dog follows you                  |
+| **Sit**             | Dog sits and stays               |
+| **Sleep / Wake Up** | Toggle sleep                     |
+| **Play**            | Playful mood                     |
+| **Wander / Return** | Free roaming or come back        |
+| **Combat Mode**     | Cycle Normal → Defense → Offense |
+| **Search**          | Dog searches the area            |
+| **Pet**             | Pet your dog                     |
+
+**Stop** (center) cancels the current action, **Rename** opens a name input screen.
 
 ### Combat System
 
-Dogs have powerful combat capabilities that make them valuable companions:
+#### Stats
 
-#### Attack Stats
-
-* **Base Damage:** 6.0 per hit
-* **Attack Speed:** 2.5 seconds cooldown between attacks
-* **Attack Range:** ~2.5 blocks
-* **Strike Delay:** 400ms wind-up before damage is dealt
+* 6.0 damage per hit, 2.5s cooldown, ~2.5 block range, 400ms wind-up
 
 #### Combat Modes
 
-**Mode Cycling (Interact with Dog)**
+Switch modes via the Action Wheel or with commands.
+The current mode is shown on the nameplate.
 
-* Press F (interact) on your dog with an empty hand to cycle through combat modes
-* Cycle order: Following → Defense → Offense → Sitting → Following
-* Current mode is shown on the dog's nameplate
+**Defense [DEF]** – Dog auto-defends you when something attacks you (20 block radius)
 
-**Defense Mode [DEF]**
+**Offense [OFF]** – Dog helps when you attack something (20 block radius)
 
-* Dogs automatically defend their owner when attacked by enemies
-* Activation radius: 20 blocks
-* Dogs will engage any entity that damages their owner
-* Ideal for: Base defense, exploring dangerous areas, dungeon exploration
+**Attack [ATK]** – Look at a target and use `/dog attack` to send your dog after it
 
-**Offense Mode [OFF]**
+Dogs return to following after defeating a target in Defense/Offense mode.
+Set them to Sit to keep them out of combat.
 
-* Dogs assist when their owner initiates combat
-* Activation radius: 20 blocks
-* Dogs will attack the same target as their owner
-* Ideal for: Hunting, raiding, aggressive playstyle
+### Commands
 
-**Attack Command (`/dog attack`)**
+All commands start with `/dog` (or `/dogs`). Look at your dog when using them.
 
-* Manually direct your dog to attack a specific target
-* Look at the target entity and use `/dog attack`
-* Dog will engage until the target is defeated or command is cancelled
-* Visual indicator: **[ATK]** on nameplate
+**General:**
+`info` – dog details | `list` – your dogs | `spawn` / `despawn` – spawn or save a dog | `owner` –
+change owner (admin) | `reload` – reload config (admin)
 
-**Combat Tips:**
-
-* Dogs show a striking animation before dealing damage
-* Heart particles appear when dogs defeat enemies
-* Dogs automatically return to following after defeating targets in Defense/Offense mode
-* Cycle to Sitting mode to keep dogs out of combat
-* Use `/dog sit` or `/dog wait` to keep dogs stationary
-
-### Available Commands
-
-#### General Commands
-
-* `/dog info` – Show detailed dog information (works on any dog)
-* `/dog list` – List all dogs owned by a player
-* `/dog owner` – Admin command to change ownership
-* `/dog spawn` – Spawn a previously despawned dog
-* `/dog despawn` – Despawn a dog (saves state, can be respawned later)
-
-#### Tamed Dog Commands
-
-Commands work by looking at your tamed dog or by providing its entity ID:
-
-* `/dog follow` – Make the dog follow you (default behavior)
-* `/dog name <name>` – Set a custom name
-* `/dog play` – Enable playful behavior
-* `/dog release` – Release your dog back to the wild
-* `/dog sit` – Make the dog sit and stay
-* `/dog sleep` – Put the dog to sleep
-* `/dog wait` – Stop following and wait in place
-* `/dog wander` – Allow free roaming
-* `/dog attack` – **[Combat]** Command dog to attack the target you're looking at
-
-**Combat Mode Switching:**
-
-* **Interact (F key)** with your dog using an empty hand to cycle combat modes:
-  Following → Defense → Offense → Sitting
-* Visual indicators on nameplate: [DEF], [OFF], [ATK], [SIT]
-
-**Command Aliases:**
-
-* `/dog` or `/dogs` – Both work as the main command
-
-**Tip:** For best results, look directly at your dog when using commands.
+**Dog control:**
+`follow` | `sit` | `sleep` | `wait` | `wander` | `play` | `name <name>` | `release` | `attack`
 
 ## 🔐 Permissions
 
-The plugin supports both Hytale's permission system and LuckPerms.
-
-**Default Dog Limit:** Players can own up to 16 dogs. Admins can adjust this using permissions like `markusbordihn.dogs.limit.8` or `markusbordihn.dogs.limit.unlimited`.
+Supports Hytale permissions and LuckPerms. Default limit is 16 dogs per player.
+Adjust with `markusbordihn.dogs.limit.8` or `markusbordihn.dogs.limit.unlimited`.
 
 ## ⚠️ Known Limitations
 
 ### Important Notes
-
-* **No UI menu**
-  The interactive menu is temporarily disabled and will return in a later version.
 
 * **Natural spawning**
   Wild dogs do not yet spawn naturally in the world. Use spawn commands or spawn eggs.
@@ -188,44 +141,31 @@ The plugin supports both Hytale's permission system and LuckPerms.
 * **Limited breed variety**
   Currently only 3 dog breeds are available. More breeds are planned for future updates.
 
-## 🚧 Planned Features
+## 🚧 Planned
 
-Planned improvements and additions:
-
-* Natural spawning across different biomes
-* More dog breeds (Husky, Golden Retriever, Border Collie, etc.)
-* Dog breeding and puppies
-* Accessories such as collars and armor
-* Dog beds and toys
-* Advanced combat AI and tactics
-* Experience/leveling system for dogs
-* Special abilities per breed
+* Natural spawning in different biomes
+* More breeds (Husky, Golden Retriever, Border Collie, ...)
+* Breeding and puppies
+* Collars, armor, beds, toys
+* Leveling system and breed-specific abilities
 * Pack behavior for multiple dogs
 
 ## 🗃️ Data Storage
 
-Dog data is automatically saved to `worlds/default/resources/DogsCompanionData.json`.
-This includes:
-
-* Dog UUID and owner information
-* Dog type, name, and current state
-* Last known position and spawn status
-* Combat mode and target information
-
-Backup this file to preserve your dogs when moving worlds.
+Dog data saves automatically to `worlds/default/resources/DogsCompanionData.json`
+(UUIDs, names, states, positions, combat info). Back up this file when moving worlds.
 
 ## 🐛 Known Issues
 
-* Wild dogs may occasionally get stuck while approaching players holding meat
-* Some animation transitions are not yet smooth
-* Pathfinding still needs refinement
-* Defense/Offense mode activation timing may delay slightly
+* Wild dogs sometimes get stuck near players with meat
+* Some animation transitions are rough
+* Pathfinding needs work
+* Defense/Offense mode may activate with slight delay
 
 ## 🔗 Related Plugins
 
-**🐱 Cats Companion**
-
-Looking for peaceful companions? Check out the Cats Companion plugin! While dogs are perfect for combat and protection, cats are designed for peaceful companionship with decorative features, natural spawning, and playful interactions.
+**🐱 Cats Companion** – Peaceful companions with decorative features and playful interactions, no
+combat.
 
 👉 [Download Cats Companion](https://www.curseforge.com/hytale/mods/cats)
 

@@ -19,6 +19,8 @@
 
 package de.markusbordihn.dogscompanion;
 
+import java.util.Set;
+
 public final class Constants {
 
   public static final String MOD_ID = "dogs_companion";
@@ -31,6 +33,32 @@ public final class Constants {
   public static final String COLOR_GRAY = "#808080";
 
   public static final int DEFAULT_DOG_LIMIT = 16;
+
+  public static final String DOG_WHISTLE_ITEM_ID = "DogWhistle";
+  public static final int DOG_WHISTLE_COOLDOWN_MS = 1500;
+  public static final double DOG_WHISTLE_DOG_RANGE = 64.0;
+
+  public static final Set<String> DOG_FOOD_ITEMS =
+      Set.of(
+          "Item_Bone",
+          "Bone",
+          "Food_Meat_Raw",
+          "Food_Meat_Cooked",
+          "Food_Beef_Raw",
+          "Food_Beef_Cooked",
+          "Food_Pork_Raw",
+          "Food_Pork_Cooked",
+          "Food_Chicken_Raw",
+          "Food_Chicken_Cooked",
+          "Food_Mutton_Raw",
+          "Food_Mutton_Cooked",
+          "Food_Wildmeat_Raw",
+          "Food_Wildmeat_Cooked");
+
+  public static final String UI_PATH = "Dogs/";
+  public static final String UI_ACTION_WHEEL = UI_PATH + "DogsActionWheel.ui";
+  public static final String UI_NAME_INPUT = UI_PATH + "DogNameInput.ui";
+  public static final String UI_TAMING_SUCCESS = UI_PATH + "DogTamingSuccess.ui";
 
   private Constants() {}
 }

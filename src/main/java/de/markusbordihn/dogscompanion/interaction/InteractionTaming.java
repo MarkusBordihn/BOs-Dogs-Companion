@@ -23,9 +23,10 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.inventory.Inventory;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
@@ -34,8 +35,10 @@ import com.hypixel.hytale.server.npc.systems.RoleChangeSystem;
 import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.component.DogTamingProgressComponent;
 import de.markusbordihn.dogscompanion.data.DogType;
+import de.markusbordihn.dogscompanion.inventory.InventoryHelper;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
+import de.markusbordihn.dogscompanion.ui.DogTamingSuccessPage;
 import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -115,7 +118,7 @@ public class InteractionTaming {
 
     progressComponent.incrementFeeding();
     store.putComponent(entityRef, DogTamingProgressComponent.getComponentType(), progressComponent);
-    consumeItem(player, heldItem);
+    InventoryHelper.consumeActiveHotbarItem(player, heldItem);
 
     role.getStateSupport().setState(entityRef, "Wild", "Feeding", store);
 
@@ -188,6 +191,24 @@ public class InteractionTaming {
     DogsManager.getInstance().assignOwner(entityRef, playerUUID, username, dogName, store);
     store.removeComponent(entityRef, DogTamingProgressComponent.getComponentType());
 
+    Ref<EntityStore> playerEntityRef = role.getStateSupport().getInteractionIterationTarget();
+    if (playerEntityRef != null && playerEntityRef.isValid()) {
+      PlayerRef playerRef = store.getComponent(playerEntityRef, PlayerRef.getComponentType());
+      if (playerRef != null) {
+        UUIDComponent dogUuidComponent =
+            store.getComponent(entityRef, UUIDComponent.getComponentType());
+        UUID dogUuid = dogUuidComponent != null ? dogUuidComponent.getUuid() : null;
+        String roleName =
+            npcEntity != null && npcEntity.getRole() != null
+                ? npcEntity.getRole().getRoleName()
+                : null;
+        DogTamingSuccessPage successPage =
+            new DogTamingSuccessPage(
+                playerRef, dogUuid != null ? dogUuid : playerUUID, roleName, dogName);
+        player.getPageManager().openCustomPage(playerEntityRef, store, successPage);
+      }
+    }
+
     player.sendMessage(
         Message.translation("dogs_companion.interactions.taming.success")
             .param("item", itemName)
@@ -207,32 +228,5 @@ public class InteractionTaming {
       return false;
     }
     return itemName.equals("Food_Wildmeat_Cooked") || itemName.equals("Food_Wildmeat_Raw");
-  }
-
-  private static void consumeItem(Player player, ItemStack heldItem) {
-    if (player == null || heldItem == null) {
-      return;
-    }
-
-    Inventory inventory = player.getInventory();
-    if (inventory == null) {
-      return;
-    }
-
-    ItemStack currentItem =
-        inventory.getHotbar().getItemStack((short) inventory.getActiveHotbarSlot());
-    if (currentItem != null && currentItem.getItemId().equals(heldItem.getItemId())) {
-      int newQuantity = currentItem.getQuantity() - 1;
-      if (newQuantity <= 0) {
-        inventory.getHotbar().removeItemStackFromSlot((short) inventory.getActiveHotbarSlot());
-      } else {
-        inventory
-            .getHotbar()
-            .setItemStackForSlot(
-                (short) inventory.getActiveHotbarSlot(),
-                currentItem.withQuantity(newQuantity),
-                false);
-      }
-    }
   }
 }

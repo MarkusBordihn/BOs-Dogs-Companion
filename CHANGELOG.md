@@ -7,6 +7,24 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 1.5.0
+
+- Added basic dog whistle item to command dogs (attack target, recall, cancel attack).
+- Added Action Wheel UI for dog interactions (follow, sit, sleep, play, wander, combat modes,
+  rename, etc.).
+- Added dog naming UI on taming success and rename via action wheel.
+- Added mood particles for dogs based on their current state.
+- Added NPC sensors for held items (food, whistle, empty hand) with context-sensitive interaction
+  hints.
+- Improved interaction system: owner actions now route through item-specific handlers.
+- Simplified Gradle build setup, removed legacy config and task files.
+- Improved existing dog textures.
+
+### 1.4.0
+
+- Migrated to Hytale 2026.03.26-89796e57b with updated APIs and systems.
+  (Navigation and Pathfinding is currently broken !!!)
+
 ### 1.3.0
 
 - Fixed animation bug with default mode.
@@ -14,7 +32,7 @@ Note: Please always back up your world before updating to a new version!
 
 ### 1.2.1
 
-- Fixed mod warning by using fixed ServerVersion. 
+- Fixed mod warning by using fixed ServerVersion.
 
 ### 1.2.0
 

@@ -29,6 +29,9 @@ release.success=You've released {name} into the wild. May they roam free!
 owner.wild=This dog is wild and has no owner
 owner.info={name} belongs to {owner}
 
+reload.success=Dogs configuration reloaded successfully!
+reload.failed=Failed to reload dogs configuration.
+
 list.header=Your dogs:
 list.entry=- {name} ({state})
 list.none=No canine companions yet. Tame a wild dog to start your pack!

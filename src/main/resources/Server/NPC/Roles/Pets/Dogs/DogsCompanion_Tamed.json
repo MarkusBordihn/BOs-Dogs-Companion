@@ -56,21 +56,21 @@
           ]
         },
         {
-          "$Comment": "Dog is tamed - use substates for different behaviors",
+          "$Comment": "Pet substates",
           "Sensor": {
             "Type": "State",
             "State": "Pet"
           },
           "Instructions": [
             {
-              "$Comment": "Sitting behavior - stays still in sitting pose",
+              "$Comment": "Sitting",
               "Sensor": {
                 "Type": "State",
                 "State": ".Sitting"
               },
               "Instructions": [
                 {
-                  "$Comment": "Show particle when entering sitting state",
+                  "$Comment": "Enter particle",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -101,7 +101,7 @@
               ]
             },
             {
-              "$Comment": "Sleeping behavior - rests on ground",
+              "$Comment": "Sleeping",
               "Sensor": {
                 "Type": "State",
                 "State": ".Sleeping"
@@ -122,7 +122,7 @@
               }
             },
             {
-              "$Comment": "Playing behavior - playful movement, auto-returns to default after timeout",
+              "$Comment": "Playing, returns to default after timeout",
               "Sensor": {
                 "Type": "State",
                 "State": ".Playing"
@@ -150,7 +150,7 @@
               }
             },
             {
-              "$Comment": "Feeding state - eating animation with hearts",
+              "$Comment": "Feeding",
               "Sensor": {
                 "Type": "State",
                 "State": ".Feeding"
@@ -190,7 +190,7 @@
               }
             },
             {
-              "$Comment": "Rejection state - refuses interaction",
+              "$Comment": "Rejection",
               "Sensor": {
                 "Type": "State",
                 "State": ".Rejection"
@@ -225,7 +225,7 @@
               }
             },
             {
-              "$Comment": "Striking behavior - brief strike animation and sound when damage is applied",
+              "$Comment": "Striking, returns to Attacking",
               "Sensor": {
                 "Type": "State",
                 "State": ".Striking"
@@ -260,14 +260,14 @@
               }
             },
             {
-              "$Comment": "Attacking behavior - attacks commanded target",
+              "$Comment": "Attacking LockedTarget",
               "Sensor": {
                 "Type": "State",
                 "State": ".Attacking"
               },
               "Instructions": [
                 {
-                  "$Comment": "Attack timeout - return to previous state after 30 seconds",
+                  "$Comment": "Timeout 30s, return to previous state",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -284,6 +284,26 @@
                       "Action": {
                         "Type": "DogReturnToPreviousState"
                       }
+                    }
+                  ]
+                },
+                {
+                  "$Comment": "Safety: abort if target is owner",
+                  "Sensor": {
+                    "Type": "And",
+                    "Sensors": [
+                      {
+                        "Type": "Target",
+                        "TargetSlot": "LockedTarget"
+                      },
+                      {
+                        "Type": "DogOwner"
+                      }
+                    ]
+                  },
+                  "Actions": [
+                    {
+                      "Type": "DogReturnToPreviousState"
                     }
                   ]
                 },
@@ -312,7 +332,7 @@
                   }
                 },
                 {
-                  "$Comment": "Attack when in melee range - plays attack animation",
+                  "$Comment": "Melee range",
                   "Sensor": {
                     "Type": "Target",
                     "TargetSlot": "LockedTarget",
@@ -330,7 +350,7 @@
                   }
                 },
                 {
-                  "$Comment": "Target lost or dead - return to previous state",
+                  "$Comment": "Target lost, return",
                   "Sensor": {
                     "Type": "Any"
                   },
@@ -343,14 +363,14 @@
               ]
             },
             {
-              "$Comment": "Waiting behavior - stands still and watches",
+              "$Comment": "Waiting",
               "Sensor": {
                 "Type": "State",
                 "State": ".Waiting"
               },
               "Instructions": [
                 {
-                  "$Comment": "Show particle when entering waiting state",
+                  "$Comment": "Enter particle",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -381,7 +401,7 @@
               ]
             },
             {
-              "$Comment": "Wandering behavior - walks around freely",
+              "$Comment": "Wandering",
               "Sensor": {
                 "Type": "State",
                 "State": ".Wandering"
@@ -439,14 +459,14 @@
               ]
             },
             {
-              "$Comment": "Searching behavior - dog searches and tracks around the area",
+              "$Comment": "Searching",
               "Sensor": {
                 "Type": "State",
                 "State": ".Searching"
               },
               "Instructions": [
                 {
-                  "$Comment": "Show particle when entering searching state",
+                  "$Comment": "Enter particle",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -502,14 +522,14 @@
               ]
             },
             {
-              "$Comment": "Defense mode - follows owner and auto-attacks when owner is damaged",
+              "$Comment": "Defense: follow owner, auto-attack on damage",
               "Sensor": {
                 "Type": "State",
                 "State": ".Defense"
               },
               "Instructions": [
                 {
-                  "$Comment": "Clear stale animations and alert when entering defense mode",
+                  "$Comment": "Init defense",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -537,7 +557,7 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner player within range - motion controller handles animations",
+                  "$Comment": "Follow owner",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 18,
@@ -554,7 +574,7 @@
                   }
                 },
                 {
-                  "$Comment": "Teleport to player if too far away",
+                  "$Comment": "Teleport if out of range",
                   "Sensor": {
                     "Type": "Target"
                   },
@@ -565,14 +585,14 @@
               ]
             },
             {
-              "$Comment": "Offense mode - follows owner and assists when owner attacks",
+              "$Comment": "Offense: follow owner, assist attacks",
               "Sensor": {
                 "Type": "State",
                 "State": ".Offense"
               },
               "Instructions": [
                 {
-                  "$Comment": "Clear stale animations and alert when entering offense mode",
+                  "$Comment": "Init offense",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -600,7 +620,7 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner player within range - motion controller handles animations",
+                  "$Comment": "Follow owner",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 18,
@@ -617,7 +637,7 @@
                   }
                 },
                 {
-                  "$Comment": "Teleport to player if too far away",
+                  "$Comment": "Teleport if out of range",
                   "Sensor": {
                     "Type": "Target"
                   },
@@ -628,14 +648,14 @@
               ]
             },
             {
-              "$Comment": "Default following behavior - follows owner with natural idle variations",
+              "$Comment": "Default: follow with idle variations",
               "Sensor": {
                 "Type": "State",
                 "State": ".Default"
               },
               "Instructions": [
                 {
-                  "$Comment": "Clear stale animations when entering default mode",
+                  "$Comment": "Init default",
                   "Sensor": {
                     "Type": "Any",
                     "Once": true
@@ -649,7 +669,7 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner when far away - motion controller handles walk/run transitions",
+                  "$Comment": "Follow owner when far",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 18,
@@ -667,7 +687,7 @@
                   }
                 },
                 {
-                  "$Comment": "Natural idle behavior when close to owner - random variations",
+                  "$Comment": "Idle near owner",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 5,
@@ -678,7 +698,7 @@
                     "Looped": true,
                     "Motions": [
                       {
-                        "$Comment": "Stand idle near owner for a while",
+                        "$Comment": "Idle",
                         "Type": "Timer",
                         "Time": [3, 7],
                         "Motion": {
@@ -686,7 +706,7 @@
                         }
                       },
                       {
-                        "$Comment": "Short wander - sniff around",
+                        "$Comment": "Sniff around",
                         "Type": "Timer",
                         "Time": [1, 3],
                         "Motion": {
@@ -697,7 +717,7 @@
                         }
                       },
                       {
-                        "$Comment": "Pause again",
+                        "$Comment": "Pause",
                         "Type": "Timer",
                         "Time": [2, 5],
                         "Motion": {
@@ -705,7 +725,7 @@
                         }
                       },
                       {
-                        "$Comment": "Another short wander in different direction",
+                        "$Comment": "Wander",
                         "Type": "Timer",
                         "Time": [1, 2],
                         "Motion": {
@@ -722,7 +742,7 @@
                   }
                 },
                 {
-                  "$Comment": "Teleport to player if too far away (outside seek range)",
+                  "$Comment": "Teleport if out of range",
                   "Sensor": {
                     "Type": "Target"
                   },
@@ -733,7 +753,7 @@
               ]
             },
             {
-              "$Comment": "State setter declarations for validation - never executed",
+              "$Comment": "State declarations for validation (never executed)",
               "Sensor": {
                 "Type": "Flag",
                 "Name": "_VALIDATION_ONLY_NEVER_SET"
@@ -762,7 +782,76 @@
   "InteractionInstruction": {
     "Instructions": [
       {
-        "$Comment": "Tamed dog + Owner - show owner interaction hint",
+        "$Comment": "Owner + whistle: whistle hint",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "DogOwner"
+            },
+            {
+              "Type": "IsHoldingDogWhistle"
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.owner_whistle",
+            "ShowPrompt": true
+          }
+        ]
+      },
+      {
+        "$Comment": "Owner + food: feed hint",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "DogOwner"
+            },
+            {
+              "Type": "IsHoldingDogFood"
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.owner_feed",
+            "ShowPrompt": true
+          }
+        ]
+      },
+      {
+        "$Comment": "Owner + empty hand: wheel hint",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "DogOwner"
+            },
+            {
+              "Type": "IsHoldingDogEmptyHand"
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.owner_wheel",
+            "ShowPrompt": true
+          }
+        ]
+      },
+      {
+        "$Comment": "Owner + other item: generic hint",
         "Continue": true,
         "Sensor": {
           "Type": "And",
@@ -772,6 +861,24 @@
             },
             {
               "Type": "DogOwner"
+            },
+            {
+              "Type": "Not",
+              "Sensor": {
+                "Type": "IsHoldingDogFood"
+              }
+            },
+            {
+              "Type": "Not",
+              "Sensor": {
+                "Type": "IsHoldingDogEmptyHand"
+              }
+            },
+            {
+              "Type": "Not",
+              "Sensor": {
+                "Type": "IsHoldingDogWhistle"
+              }
             }
           ]
         },
@@ -785,7 +892,7 @@
         ]
       },
       {
-        "$Comment": "Tamed dog + Stranger - show stranger interaction hint (cannot interact)",
+        "$Comment": "Stranger: stranger hint",
         "Continue": true,
         "Sensor": {
           "Type": "And",
@@ -831,7 +938,7 @@
             "Type": "LockOnInteractionTarget"
           },
           {
-            "Type": "DogCycleState"
+            "Type": "DogInteractionOwner"
           }
         ]
       }
@@ -842,11 +949,11 @@
   "Parameters": {
     "NameTranslationKey": {
       "Value": "server.npcRoles.DogsCompanion_Tamed.name",
-      "Description": "Translation key for dog name display"
+      "Description": "Translation key for display name"
     },
     "Appearance": {
       "Value": "DogsCompanion_Tamed",
-      "Description": "The dog's model appearance"
+      "Description": "Model appearance"
     }
   }
 }

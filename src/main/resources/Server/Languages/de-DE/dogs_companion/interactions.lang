@@ -1,21 +1,38 @@
 # Item Interactions
-item.unknown=Dein Hund schnuppert neugierig am Gegenstand, ist aber nicht interessiert
-item.unknown.named={dogName} schnuppert neugierig am Gegenstand, ist aber nicht interessiert
+item.unknown=Dein Hund schnuppert neugierig, weiß aber nicht, was er damit anfangen soll.
+item.unknown.named={dogName} schnuppert neugierig, weiß aber nicht, was er damit anfangen soll.
+
+# Feeding
+already_full_health={dogName} hat bereits volle Gesundheit!
+healing={dogName} schlingt das Futter begeistert herunter! (+{amount} LP)
 
 # State Cycling
 state.passive={dogName} entspannt sich in den passiven Modus (wird friedlich folgen)
-state.defense={dogName} steht bereit dich zu verteidigen!
+state.defense={dogName} steht bereit, dich zu verteidigen!
 state.offense={dogName} bereitet sich auf den Kampf an deiner Seite vor!
 state.sitting={dogName} setzt sich hin
 
 # Taming
 taming.success=Eine neue Freundschaft beginnt! Triff {dogName}!
 taming.failed=Der Hund ist nicht interessiert...
-taming.limit_reached=Du hast bereits {current} Hunde (Limit: {limit})
+taming.limit_reached=Du hast dein Hundelimit erreicht ({current}/{limit})
 taming.in_progress=Der Hund wedelt mit dem Schwanz... fast geschafft! (noch {remaining} benötigt)
-taming.cooldown=Der Hund braucht einen Moment zum Verdauen. Versuch es gleich nochmal!
+taming.cooldown=Der Hund ist noch satt! Warte einen Moment bevor du wieder fütterst.
+
+# Dog Whistle
+whistle.attack={dogName} jagt {target}!
+whistle.attack.all=Deine Hunde jagen {target}!
+whistle.cancel={dogName} hört auf und kommt zurück.
+whistle.cancel.not_attacking={dogName} greift gerade nichts an.
+whistle.recall=Deine Hunde kommen zu dir zurück!
+whistle.no_dogs=Keiner deiner Hunde ist nah genug um die Pfeife zu hören.
+whistle.cooldown=Warte kurz bevor du wieder in die Pfeife bläst.
 
 # Hints
-hint.tame=Wildes Fleisch könnte das Vertrauen dieses Hundes gewinnen [{key}]
-hint.owner=Gib deinem Gefährten einen Befehl [{key}]
+hint.owner_whistle=Drücke [{key}], um deinem Hund einen Befehl zu geben
+hint.tame=Wildes Fleisch könnte das Vertrauen dieses Hundes gewinnen
+hint.tame.food=Drücke [{key}], um Futter anzubieten und sein Vertrauen zu gewinnen
+hint.owner=Drücke [{key}], um deinem Gefährten einen Befehl zu geben
+hint.owner_feed=Drücke [{key}], um deinen Hund zu füttern
+hint.owner_wheel=Drücke [{key}], um das Aktionsrad zu öffnen
 hint.stranger=Dieser Hund gehört {owner}

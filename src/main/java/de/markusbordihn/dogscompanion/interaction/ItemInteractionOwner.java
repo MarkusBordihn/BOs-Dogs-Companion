@@ -27,27 +27,11 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
+import de.markusbordihn.dogscompanion.Constants;
 import java.util.Set;
 
 public class ItemInteractionOwner {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-
-  private static final Set<String> FOOD_ITEMS =
-      Set.of(
-          "Item_Bone",
-          "Bone",
-          "Food_Meat_Raw",
-          "Food_Meat_Cooked",
-          "Food_Beef_Raw",
-          "Food_Beef_Cooked",
-          "Food_Pork_Raw",
-          "Food_Pork_Cooked",
-          "Food_Chicken_Raw",
-          "Food_Chicken_Cooked",
-          "Food_Mutton_Raw",
-          "Food_Mutton_Cooked",
-          "Food_Wild_Meat_Raw",
-          "Food_Wild_Meat_Cooked");
 
   private static final Set<String> TOY_ITEMS =
       Set.of("Item_Stick", "Stick", "Dog_Ball", "Dog_Toy", "Item_Ball");
@@ -61,12 +45,16 @@ public class ItemInteractionOwner {
 
     String itemName = heldItem != null ? heldItem.getItemId() : null;
 
-    if (itemName != null && FOOD_ITEMS.contains(itemName)) {
+    if (itemName != null && Constants.DOG_FOOD_ITEMS.contains(itemName)) {
       return InteractionFeeding.handle(entityRef, role, store, player, heldItem, true);
     }
 
     if (itemName != null && TOY_ITEMS.contains(itemName)) {
       return InteractionPlaying.handle(entityRef, role, store, player, itemName);
+    }
+
+    if (Constants.DOG_WHISTLE_ITEM_ID.equals(itemName)) {
+      return InteractionDogWhistle.handleOnDog(entityRef, role, store, player);
     }
 
     if (player != null) {
@@ -85,7 +73,6 @@ public class ItemInteractionOwner {
         player.sendMessage(
             Message.translation("dogs_companion.interactions.item.unknown").color("#FFAA66"));
       }
-      return InteractionOwner.handle(entityRef, role, store, player);
     }
 
     return InteractionOwner.handle(entityRef, role, store, player);

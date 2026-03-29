@@ -5,7 +5,10 @@ npcRoles.DogsCompanion_GermanShepherd_Tamed.name=Schäferhund
 npcRoles.DogsCompanion_ShibaInu_Wild.name=Wilder Shiba Inu
 npcRoles.DogsCompanion_ShibaInu_Tamed.name=Shiba Inu
 
+items.dogs_companion.dog_whistle.name=Hundepfeife
+items.dogs_companion.dog_whistle.description=Benutze die Pfeife, um deinen Hunden Befehle zu geben. Schau auf einen Feind und benutze sie, damit deine Hunde ihn jagen. Schau auf deinen eigenen Hund, damit er aufhört. Benutze sie ohne Ziel, um alle Hunde zu dir zurückzurufen.
+
 items.dogs_companion.egg_spawner_dogs.name=Hunde Spawn Ei
 items.dogs_companion.egg_spawner_dogs.description=Beschwöre deinen zukünftigen treuen Begleiter! Füttere diesen wilden Hund, um sein Vertrauen und seine Freundschaft zu gewinnen. Einmal gezähmt, wird er dir überall hin folgen, dich im Kampf beschützen und dein treuester Freund werden.
 
-memories.categories.Dogs.title = Hunde
+memories.categories.Dogs.title=Hunde

@@ -29,6 +29,9 @@ release.success=Du hast {name} in die Wildnis entlassen. Möge er frei umherstre
 owner.wild=Dieser Hund ist wild und hat keinen Besitzer
 owner.info={name} gehört {owner}
 
+reload.success=Hunde-Konfiguration erfolgreich neu geladen!
+reload.failed=Fehler beim Neu-Laden der Hunde-Konfiguration.
+
 list.header=Deine Hunde:
 list.entry=- {name} ({state})
 list.none=Noch keine Hunde-Gefährten. Zähme einen wilden Hund um dein Rudel zu starten!

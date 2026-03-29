@@ -26,13 +26,11 @@ public final class DogCommands extends AbstractCommandCollection {
     super("dog", "Dog management commands");
     this.addAliases("dogs");
 
-    // Basic information and management
     this.addSubCommand(new DogInfoCommand());
     this.addSubCommand(new DogNameCommand());
     this.addSubCommand(new DogListCommand());
     this.addSubCommand(new DogOwnerCommand());
 
-    // Behavior commands
     this.addSubCommand(new DogSitCommand());
     this.addSubCommand(new DogFollowCommand());
     this.addSubCommand(new DogWaitCommand());
@@ -41,12 +39,12 @@ public final class DogCommands extends AbstractCommandCollection {
     this.addSubCommand(new DogSleepCommand());
     this.addSubCommand(new DogSearchCommand());
 
-    // Combat commands
     this.addSubCommand(new DogAttackCommand());
 
-    // Lifecycle commands
     this.addSubCommand(new DogSpawnCommand());
     this.addSubCommand(new DogDespawnCommand());
     this.addSubCommand(new DogReleaseCommand());
+
+    this.addSubCommand(new DogReloadCommand());
   }
 }

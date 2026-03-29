@@ -26,13 +26,10 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderSupport;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.npc.role.Role;
 import com.hypixel.hytale.server.npc.sensorinfo.InfoProvider;
-import de.markusbordihn.dogscompanion.component.DogStateComponent;
-import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.interaction.InteractionOwner;
 import de.markusbordihn.dogscompanion.interaction.ItemInteractionOwner;
-import de.markusbordihn.dogscompanion.manager.DogsManager;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
@@ -116,31 +113,7 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         return ItemInteractionOwner.handle(entityRef, role, store, player, heldItem);
       }
 
-      DogStateComponent stateComponent =
-          store.getComponent(entityRef, DogStateComponent.getComponentType());
-
-      if (stateComponent == null) {
-        LOGGER.at(Level.WARNING).log("DogStateComponent not found for dog");
-        return false;
-      }
-
-      DogState currentState = stateComponent.getState();
-      DogState newState = currentState == DogState.SITTING ? DogState.FOLLOWING : DogState.SITTING;
-      String newSubState = (newState == DogState.SITTING) ? "Sitting" : "Default";
-
-      LOGGER.at(Level.FINE).log(
-          "Dog state change: %s -> %s (substate: %s)", currentState, newState, newSubState);
-
-      DogsManager.getInstance().updateDogState(entityRef, newState, store);
-
-      NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
-      if (npcEntity != null && npcEntity.getRole() != null) {
-        npcEntity.getRole().getStateSupport().setState(entityRef, "Pet", newSubState, store);
-      } else {
-        LOGGER.at(Level.WARNING).log("NPCEntity or Role not found - state update incomplete");
-      }
-
-      return true;
+      return InteractionOwner.handle(entityRef, role, store, player);
     }
   }
 }

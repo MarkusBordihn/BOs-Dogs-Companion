@@ -56,21 +56,21 @@
           ]
         },
         {
-          "$Comment": "Dog is not tamed yet - wanders and seeks food",
+          "$Comment": "Wild substates",
           "Sensor": {
             "Type": "State",
             "State": "Wild"
           },
           "Instructions": [
             {
-              "$Comment": "Default wild state - seek food or wander",
+              "$Comment": "Default: seek food or wander",
               "Sensor": {
                 "Type": "State",
                 "State": ".Default"
               },
               "Instructions": [
                 {
-                  "$Comment": "Follow player with CookedBeef or Bone in hand",
+                  "$Comment": "Follow player holding food",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 8,
@@ -92,7 +92,7 @@
                   }
                 },
                 {
-                  "$Comment": "Become alerted when player is close without food",
+                  "$Comment": "Alert if player close without food",
                   "Sensor": {
                     "Type": "Player",
                     "Range": 4,
@@ -117,7 +117,7 @@
                   ]
                 },
                 {
-                  "$Comment": "Wander around naturally",
+                  "$Comment": "Wander",
                   "Sensor": {
                     "Type": "Any"
                   },
@@ -148,7 +148,7 @@
               ]
             },
             {
-              "$Comment": "Feeding state - eating animation with hearts",
+              "$Comment": "Feeding",
               "Sensor": {
                 "Type": "State",
                 "State": ".Feeding"
@@ -188,7 +188,7 @@
               }
             },
             {
-              "$Comment": "Rejection state - refuses interaction",
+              "$Comment": "Rejection",
               "Sensor": {
                 "Type": "State",
                 "State": ".Rejection"
@@ -223,14 +223,14 @@
               }
             },
             {
-              "$Comment": "Alerted state - dog becomes alert when a player approaches",
+              "$Comment": "Alerted",
               "Sensor": {
                 "Type": "State",
                 "State": ".Alerted"
               },
               "Instructions": [
                 {
-                  "$Comment": "Watch nearby player if present",
+                  "$Comment": "Watch nearby player",
                   "Continue": true,
                   "Sensor": {
                     "Type": "Player",
@@ -268,7 +268,7 @@
               ]
             },
             {
-              "$Comment": "State setter declarations for validation - never executed",
+              "$Comment": "State declarations for validation (never executed)",
               "Sensor": {
                 "Type": "Flag",
                 "Name": "_VALIDATION_ONLY_NEVER_SET"
@@ -288,13 +288,47 @@
   "InteractionInstruction": {
     "Instructions": [
       {
-        "$Comment": "Wild dog - show taming hint on mouse-over",
+        "$Comment": "Player + food: taming hint",
         "Continue": true,
         "Sensor": {
-          "Type": "Not",
-          "Sensor": {
-            "Type": "DogTamed"
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "Not",
+              "Sensor": {
+                "Type": "DogTamed"
+              }
+            },
+            {
+              "Type": "IsHoldingDogFood"
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.tame.food",
+            "ShowPrompt": true
           }
+        ]
+      },
+      {
+        "$Comment": "Player + empty hand: get-food hint",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "Not",
+              "Sensor": {
+                "Type": "DogTamed"
+              }
+            },
+            {
+              "Type": "IsHoldingDogEmptyHand"
+            }
+          ]
         },
         "Actions": [
           {
@@ -327,22 +361,22 @@
         "Food_Wildmeat_Cooked",
         "Food_Wildmeat_Raw"
       ],
-      "Description": "Items that attract dogs and make them follow players"
+      "Description": "Items that attract dogs"
     },
     "LovedItems": {
       "Value": [
         "Food_Wildmeat_Cooked",
         "Food_Wildmeat_Raw"
       ],
-      "Description": "Items that dogs love and will befriend for"
+      "Description": "Items that tame dogs"
     },
     "Appearance": {
       "Value": "DogsCompanion",
-      "Description": "The dog's model appearance"
+      "Description": "Model appearance"
     },
     "NameTranslationKey": {
       "Value": "server.npcRoles.Dogs_Wild.name",
-      "Description": "Translation key for dog name display"
+      "Description": "Translation key for display name"
     }
   }
 }

@@ -21,26 +21,43 @@ package de.markusbordihn.dogscompanion.interaction;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
-import java.util.logging.Level;
+import de.markusbordihn.dogscompanion.ui.DogActionWheelPage;
+import javax.annotation.Nonnull;
 
 public class InteractionOwner {
 
-  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-
   public static boolean handle(
-      Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
+      @Nonnull Ref<EntityStore> entityRef,
+      @Nonnull Role role,
+      @Nonnull Store<EntityStore> store,
+      @Nonnull Player player) {
 
-    LOGGER.at(Level.INFO).log(
-        "OWNER: Petting Interaction - Dog petted by owner %s",
-        player != null ? player.getDisplayName() : "unknown");
+    Ref<EntityStore> playerEntityRef = role.getStateSupport().getInteractionIterationTarget();
+    if (playerEntityRef == null || !playerEntityRef.isValid()) {
+      return false;
+    }
 
-    // Trigger brief happy/play animation when petted
+    PlayerRef playerRef = store.getComponent(playerEntityRef, PlayerRef.getComponentType());
+    if (playerRef == null) {
+      return false;
+    }
+
+    DogActionWheelPage wheel =
+        DogActionWheelPage.create(playerRef, entityRef, player, playerEntityRef, store);
+    player.getPageManager().openCustomPage(playerEntityRef, store, wheel);
+    return true;
+  }
+
+  public static boolean pet(
+      @Nonnull Ref<EntityStore> entityRef,
+      @Nonnull Role role,
+      @Nonnull Store<EntityStore> store,
+      @Nonnull Player player) {
     role.getStateSupport().setState(entityRef, "Pet", "Playing", store);
-
-    return false;
+    return true;
   }
 }

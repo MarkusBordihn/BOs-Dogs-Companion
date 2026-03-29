@@ -38,9 +38,8 @@ public class InteractionFeeding {
 
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-  // Healing values based on food type
-  private static final float COOKED_FOOD_HEAL = 10.0f; // Cooked food heals more
-  private static final float RAW_FOOD_HEAL = 5.0f; // Raw food heals less
+  private static final float COOKED_FOOD_HEAL = 10.0f;
+  private static final float RAW_FOOD_HEAL = 5.0f;
 
   public static boolean handle(
       Ref<EntityStore> entityRef,
@@ -50,19 +49,16 @@ public class InteractionFeeding {
       ItemStack heldItem,
       boolean isOwner) {
     String itemName = heldItem != null ? heldItem.getItemId() : null;
-    String interactionType = isOwner ? "FEEDING: By Owner" : "FEEDING: By Stranger";
 
     LOGGER.at(Level.INFO).log(
         "%s - Dog fed with %s by player %s",
-        interactionType, itemName, player != null ? player.getDisplayName() : "unknown");
+        isOwner ? "FEEDING: By Owner" : "FEEDING: By Stranger",
+        itemName,
+        player != null ? player.getDisplayName() : "unknown");
 
-    // Apply healing effect based on food type
     if (itemName != null) {
-      float healAmount = getHealAmount(itemName);
-      healDog(entityRef, store, player, healAmount);
+      healDog(entityRef, store, player, getHealAmount(itemName));
     }
-
-    // Trigger feeding animation
     role.getStateSupport().setState(entityRef, "Pet", "Feeding", store);
 
     InventoryHelper.consumeActiveHotbarItem(player, heldItem);
@@ -77,10 +73,7 @@ public class InteractionFeeding {
   }
 
   private static void healDog(
-      Ref<EntityStore> entityRef,
-      Store<EntityStore> store,
-      Player player,
-      float healAmount) {
+      Ref<EntityStore> entityRef, Store<EntityStore> store, Player player, float healAmount) {
 
     EntityStatMap entityStatMap = store.getComponent(entityRef, EntityStatMap.getComponentType());
     if (entityStatMap == null) {
@@ -102,30 +95,27 @@ public class InteractionFeeding {
       entityStatMap.setStatValue(healthStat.getIndex(), newHealth);
       float actualHealAmount = newHealth - currentHealth;
 
-      // Send feedback to player
-      if (player != null && actualHealAmount > 0) {
+      if (player != null) {
         DogNameComponent nameComponent =
             store.getComponent(entityRef, DogNameComponent.getComponentType());
         String dogName = nameComponent != null ? nameComponent.getName() : "Your dog";
 
-        player.sendMessage(
-            Message.translation("dogs_companion.interactions.healing")
-                .param("dogName", dogName)
-                .param("amount", String.format("%.1f", actualHealAmount))
-                .color("#66FF66"));
+        if (actualHealAmount > 0) {
+          player.sendMessage(
+              Message.translation("dogs_companion.interactions.healing")
+                  .param("dogName", dogName)
+                  .param("amount", String.format("%.1f", actualHealAmount))
+                  .color("#66FF66"));
 
-        LOGGER.at(Level.INFO).log(
-            "Dog healed: %s (+%.1f HP, now %.1f/%.1f)",
-            dogName, actualHealAmount, newHealth, maxHealth);
-      } else if (player != null && actualHealAmount == 0) {
-        DogNameComponent nameComponent =
-            store.getComponent(entityRef, DogNameComponent.getComponentType());
-        String dogName = nameComponent != null ? nameComponent.getName() : "Your dog";
-
-        player.sendMessage(
-            Message.translation("dogs_companion.interactions.already_full_health")
-                .param("dogName", dogName)
-                .color("#FFAA66"));
+          LOGGER.at(Level.INFO).log(
+              "Dog healed: %s (+%.1f HP, now %.1f/%.1f)",
+              dogName, actualHealAmount, newHealth, maxHealth);
+        } else {
+          player.sendMessage(
+              Message.translation("dogs_companion.interactions.already_full_health")
+                  .param("dogName", dogName)
+                  .color("#FFAA66"));
+        }
       }
     } catch (Exception e) {
       LOGGER.at(Level.WARNING).log("Failed to heal dog: %s", e.getMessage());

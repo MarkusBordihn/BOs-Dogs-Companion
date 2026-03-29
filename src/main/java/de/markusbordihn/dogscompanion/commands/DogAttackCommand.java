@@ -25,6 +25,7 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
@@ -34,6 +35,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
+import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
@@ -75,7 +77,18 @@ final class DogAttackCommand extends DogCommand {
       return;
     }
 
-    // Validate target is not another dog
+    DogOwnerComponent ownerComponent =
+        store.getComponent(dogRef, DogOwnerComponent.getComponentType());
+    if (ownerComponent != null && ownerComponent.getOwnerUUID() != null) {
+      UUIDComponent targetUUID = store.getComponent(targetRef, UUIDComponent.getComponentType());
+      if (targetUUID != null && ownerComponent.getOwnerUUID().equals(targetUUID.getUuid())) {
+        context.sendMessage(
+            Message.translation("dogs_companion.commands.attack.cannot_attack_owner")
+                .color(Constants.COLOR_ERROR));
+        return;
+      }
+    }
+
     DogStateComponent targetDogState =
         store.getComponent(targetRef, DogStateComponent.getComponentType());
     if (targetDogState != null) {
@@ -85,7 +98,6 @@ final class DogAttackCommand extends DogCommand {
       return;
     }
 
-    // Check if target is alive
     EntityStatMap targetStats = store.getComponent(targetRef, EntityStatMap.getComponentType());
     if (targetStats != null) {
       EntityStatValue healthStat = targetStats.get(DefaultEntityStatTypes.getHealth());
@@ -104,15 +116,13 @@ final class DogAttackCommand extends DogCommand {
       npcEntity.getRole().getMarkedEntitySupport().setMarkedEntity("LockedTarget", targetRef);
       npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", "Attacking", store);
 
-      // Notify owner that dog is attacking
-      String targetName = getTargetName(targetRef, store);
       DogsManager.getInstance()
           .sendMessageToOwner(
               dogRef,
               store,
               Message.translation("dogs_companion.combat.attacking")
                   .param("dog", getDogDisplayName(dogRef, store))
-                  .param("target", targetName)
+                  .param("target", getTargetName(targetRef, store))
                   .color(Constants.COLOR_INFO));
 
       context.sendMessage(
@@ -129,11 +139,10 @@ final class DogAttackCommand extends DogCommand {
   private String getTargetName(
       @Nonnull Ref<EntityStore> targetRef, @Nonnull Store<EntityStore> store) {
 
-    if (targetRef == null || !targetRef.isValid()) {
+    if (!targetRef.isValid()) {
       return "target";
     }
 
-    // Try DogNameComponent first (for other dogs)
     DogNameComponent dogNameComponent =
         store.getComponent(targetRef, DogNameComponent.getComponentType());
     if (dogNameComponent != null
@@ -142,7 +151,6 @@ final class DogAttackCommand extends DogCommand {
       return dogNameComponent.getName();
     }
 
-    // Try DisplayNameComponent (for NPCs and players)
     DisplayNameComponent displayNameComponent =
         store.getComponent(targetRef, DisplayNameComponent.getComponentType());
     if (displayNameComponent != null && displayNameComponent.getDisplayName() != null) {
@@ -152,7 +160,6 @@ final class DogAttackCommand extends DogCommand {
       }
     }
 
-    // Try NPCEntity role name as fallback
     NPCEntity npcEntity = store.getComponent(targetRef, NPCEntity.getComponentType());
     if (npcEntity != null && npcEntity.getRole() != null) {
       String roleName = npcEntity.getRole().getRoleName();

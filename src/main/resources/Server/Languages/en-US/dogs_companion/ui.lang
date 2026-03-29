@@ -1,0 +1,40 @@
+# Dog UI
+taming_success.congratulations=A loyal companion awaits!
+taming_success.name_label=Give your dog a name:
+taming_success.placeholder=Dog name
+taming_success.tip1=Hold food and press F to feed and heal your dog
+taming_success.tip2=Your dog will defend you when you are attacked
+taming_success.tip3=Use /dog for commands like sit, follow, sleep and more
+taming_success.tip4=Press F with an empty hand to open the action wheel
+
+# Action Wheel
+wheel.status_header=Status:
+wheel.stop=STOP
+wheel.rename=Rename
+
+# Action Wheel Slot Labels
+wheel.slot.follow=Follow
+wheel.slot.sit=Sit
+wheel.slot.pet=Pet
+wheel.slot.play=Play
+wheel.slot.sleep=Sleep
+wheel.slot.wakeup=Wake Up
+wheel.slot.wander=Wander
+wheel.slot.return=Return
+wheel.slot.normal=Normal
+wheel.slot.defense=Defense
+wheel.slot.offense=Offense
+wheel.slot.search=Search
+
+# Dog States
+state.attacking=Attacking
+state.defense=Defending
+state.following=Following
+state.offense=Offense
+state.playing=Playing
+state.searching=Searching
+state.sitting=Sitting
+state.sleeping=Sleeping
+state.striking=Striking
+state.waiting=Waiting
+state.wandering=Wandering

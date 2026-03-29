@@ -73,7 +73,9 @@ public record DogDataEntry(
               doc.containsKey(POSITION_TAG)
                   ? Vector3i.CODEC.decode(doc.get(POSITION_TAG), info)
                   : null,
-              DogStatus.CODEC.decode(doc.get(STATUS_TAG), info));
+              doc.containsKey(STATUS_TAG)
+                  ? DogStatus.CODEC.decode(doc.get(STATUS_TAG), info)
+                  : DogStatus.SPAWNED);
         }
 
         @Override

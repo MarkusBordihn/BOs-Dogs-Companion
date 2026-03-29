@@ -1,0 +1,38 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.dogs_companion.dog_whistle.name",
+    "Description": "server.items.dogs_companion.dog_whistle.description"
+  },
+  "Model": "Items/DogWhistle/Dog_Whistle.blockymodel",
+  "Texture": "Items/DogWhistle/Dog_Whistle_Texture.png",
+  "Quality": "Uncommon",
+  "PlayerAnimationsId": "Item",
+  "Icon": "Icons/ItemsGenerated/DogWhistle.png",
+  "Tags": {
+    "Type": [
+      "Pet_Accessory"
+    ],
+    "Family": [
+      "Dogs"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemSoundSetId": "ISS_Items_Metal",
+  "DropOnDeath": true,
+  "Interactions": {
+    "Primary": {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "Effects": {
+            "ItemAnimationId": "Interact"
+          },
+          "RunTime": 0.05,
+          "Next": {
+            "Type": "UseDogWhistle"
+          }
+        }
+      ]
+    }
+  }
+}

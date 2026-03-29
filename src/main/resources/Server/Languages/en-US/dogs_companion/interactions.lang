@@ -1,6 +1,10 @@
 # Item Interactions
-item.unknown=Your dog sniffs the item curiously but isn't interested
-item.unknown.named={dogName} sniffs the item curiously but isn't interested
+item.unknown=Your dog sniffs the item curiously but doesn't know what to do with that.
+item.unknown.named={dogName} sniffs the item curiously but doesn't know what to do with that.
+
+# Feeding
+already_full_health={dogName} is already at full health!
+healing={dogName} happily gobbles up the food! (+{amount} HP)
 
 # State Cycling
 state.passive={dogName} relaxes into passive mode (will follow peacefully)
@@ -11,11 +15,24 @@ state.sitting={dogName} sits down
 # Taming
 taming.success=A new friendship begins! Meet {dogName}!
 taming.failed=The dog is not interested...
-taming.limit_reached=You already have {current} dogs (limit: {limit})
+taming.limit_reached=You have reached your dog limit ({current}/{limit})
 taming.in_progress=The dog wags its tail... almost there! ({remaining} more needed)
-taming.cooldown=The dog needs a moment to digest. Try again soon!
+taming.cooldown=The dog is still full! Wait a moment before feeding again.
+
+# Dog Whistle
+whistle.attack={dogName} is going after {target}!
+whistle.attack.all=Your dogs are going after {target}!
+whistle.cancel={dogName} stops and comes back.
+whistle.cancel.not_attacking={dogName} is not attacking anything right now.
+whistle.recall=Your dogs are coming back to you!
+whistle.no_dogs=None of your dogs are close enough to hear the whistle.
+whistle.cooldown=Wait a moment before blowing the whistle again.
 
 # Hints
-hint.tame=Wild Meat might earn this dog's trust [{key}]
-hint.owner=Give your companion a command [{key}]
+hint.owner_whistle=Press [{key}] to give your dog an order
+hint.tame=Wild Meat might earn this dog's trust
+hint.tame.food=Press [{key}] to offer food and earn its trust
+hint.owner=Press [{key}] to give your companion a command
+hint.owner_feed=Press [{key}] to feed your dog
+hint.owner_wheel=Press [{key}] to open the action wheel
 hint.stranger=This dog belongs to {owner}
