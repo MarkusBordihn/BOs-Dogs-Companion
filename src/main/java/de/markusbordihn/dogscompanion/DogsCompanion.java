@@ -26,35 +26,21 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.config.Int
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.plugin.event.PluginSetupEvent;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
-import com.hypixel.hytale.server.npc.asset.builder.BuilderFactory;
-import com.hypixel.hytale.server.npc.instructions.Action;
-import com.hypixel.hytale.server.npc.instructions.Sensor;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogCycleState;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionBase;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionOwner;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionStranger;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogInteractionWild;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogMoodParticles;
-import de.markusbordihn.dogscompanion.actions.BuilderActionDogReturnToPreviousState;
 import de.markusbordihn.dogscompanion.commands.DogCommands;
+import de.markusbordihn.dogscompanion.compat.LuckPermsCompat;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.component.DogTamingProgressComponent;
+import de.markusbordihn.dogscompanion.handler.DamageSetupHandler;
+import de.markusbordihn.dogscompanion.handler.NPCSetupHandler;
 import de.markusbordihn.dogscompanion.interaction.InteractionDogWhistle;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
-import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsDogTamed;
-import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsHoldingDogWhistle;
-import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsHoldingEmptyHand;
-import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsHoldingFood;
-import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsOwner;
-import de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerAttacked;
-import de.markusbordihn.dogscompanion.systems.DogCombatDamageSystem;
-import de.markusbordihn.dogscompanion.systems.DogDefenseSystem;
-import de.markusbordihn.dogscompanion.systems.DogOffenseSystem;
+import de.markusbordihn.dogscompanion.permission.PermissionManager;
 import de.markusbordihn.dogscompanion.world.storage.DogsCompanionDataResource;
 import java.util.logging.Level;
 
@@ -63,21 +49,13 @@ public class DogsCompanion extends JavaPlugin {
 
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-  private static final Class<? extends BuilderActionDogInteractionBase>[] DOG_INTERACTION_BUILDERS =
-      new Class[] {
-        BuilderActionDogInteractionWild.class,
-        BuilderActionDogInteractionOwner.class,
-        BuilderActionDogInteractionStranger.class
-      };
-
   private static DogsCompanion instance;
   public ComponentType<EntityStore, DogOwnerComponent> dogOwnerComponentType;
   public ComponentType<EntityStore, DogNameComponent> dogNameComponentType;
   public ResourceType<EntityStore, DogsCompanionDataResource> dogsDataResourceType;
   public ComponentType<EntityStore, DogStateComponent> dogStateComponentType;
   public ComponentType<EntityStore, DogTamingProgressComponent> dogTamingProgressComponentType;
-  private boolean actionsRegistered = false;
-  private boolean sensorsRegistered = false;
+  private DogCommands dogCommands;
 
   public DogsCompanion(JavaPluginInit init) {
     super(init);
@@ -88,145 +66,17 @@ public class DogsCompanion extends JavaPlugin {
     return instance;
   }
 
-  private void registerDogInteractionActions(NPCPlugin npcPlugin) {
-    if (actionsRegistered) {
-      LOGGER.at(Level.INFO).log("Custom actions already registered - skipping");
-      return;
-    }
-
-    LOGGER.at(Level.INFO).log("NPC Plugin setup detected - registering custom actions");
-
-    BuilderFactory<Action> actionFactory = npcPlugin.getBuilderManager().getFactory(Action.class);
-
-    int registeredCount = 0;
-    for (Class<? extends BuilderActionDogInteractionBase> builderClass : DOG_INTERACTION_BUILDERS) {
-      try {
-        BuilderActionDogInteractionBase builder =
-            builderClass.getDeclaredConstructor().newInstance();
-        String builderId = builder.getBuilderId();
-        actionFactory.add(
-            builderId,
-            () -> {
-              try {
-                return builderClass.getDeclaredConstructor().newInstance();
-              } catch (Exception e) {
-                throw new RuntimeException(
-                    "Failed to instantiate action builder: " + builderClass.getSimpleName(), e);
-              }
-            });
-        registeredCount++;
-        LOGGER.at(Level.INFO).log("Registered action: %s", builderId);
-      } catch (Exception e) {
-        LOGGER.at(Level.SEVERE).log(
-            "Failed to register action builder: %s", builderClass.getSimpleName(), e);
-      }
-    }
-
-    try {
-      actionFactory.add("DogCycleState", BuilderActionDogCycleState::new);
-      LOGGER.at(Level.INFO).log("Registered action: DogCycleState");
-      registeredCount++;
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log("Failed to register action: DogCycleState", e);
-    }
-
-    try {
-      actionFactory.add("DogReturnToPreviousState", BuilderActionDogReturnToPreviousState::new);
-      LOGGER.at(Level.INFO).log("Registered action: DogReturnToPreviousState");
-      registeredCount++;
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log("Failed to register action: DogReturnToPreviousState", e);
-    }
-
-    try {
-      actionFactory.add(
-          BuilderActionDogMoodParticles.BUILDER_ID, BuilderActionDogMoodParticles::new);
-      LOGGER.at(Level.INFO).log("Registered action: %s", BuilderActionDogMoodParticles.BUILDER_ID);
-      registeredCount++;
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register action: %s", BuilderActionDogMoodParticles.BUILDER_ID, e);
-    }
-
-    LOGGER.at(Level.INFO).log("Registered %d dog interaction actions", registeredCount);
-    actionsRegistered = true;
-  }
-
-  private void registerDogSensors(NPCPlugin npcPlugin) {
-    if (sensorsRegistered) {
-      LOGGER.at(Level.INFO).log("Custom sensors already registered - skipping");
-      return;
-    }
-
-    LOGGER.at(Level.INFO).log("Registering custom dog sensors...");
-
-    BuilderFactory<Sensor> sensorFactory = npcPlugin.getBuilderManager().getFactory(Sensor.class);
-
-    try {
-      sensorFactory.add(BuilderSensorIsDogTamed.SENSOR_ID, BuilderSensorIsDogTamed::new);
-      LOGGER.at(Level.INFO).log("Registered sensor: %s", BuilderSensorIsDogTamed.SENSOR_ID);
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register sensor: %s", BuilderSensorIsDogTamed.SENSOR_ID, e);
-    }
-
-    try {
-      sensorFactory.add(BuilderSensorIsOwner.SENSOR_ID, BuilderSensorIsOwner::new);
-      LOGGER.at(Level.INFO).log("Registered sensor: %s", BuilderSensorIsOwner.SENSOR_ID);
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register sensor: %s", BuilderSensorIsOwner.SENSOR_ID, e);
-    }
-
-    try {
-      sensorFactory.add(BuilderSensorOwnerAttacked.BUILDER_ID, BuilderSensorOwnerAttacked::new);
-      LOGGER.at(Level.INFO).log("Registered sensor: %s", BuilderSensorOwnerAttacked.BUILDER_ID);
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register sensor: %s", BuilderSensorOwnerAttacked.BUILDER_ID, e);
-    }
-
-    try {
-      sensorFactory.add(BuilderSensorIsHoldingFood.SENSOR_ID, BuilderSensorIsHoldingFood::new);
-      LOGGER.at(Level.INFO).log("Registered sensor: %s", BuilderSensorIsHoldingFood.SENSOR_ID);
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register sensor: %s", BuilderSensorIsHoldingFood.SENSOR_ID, e);
-    }
-
-    try {
-      sensorFactory.add(
-          BuilderSensorIsHoldingEmptyHand.SENSOR_ID, BuilderSensorIsHoldingEmptyHand::new);
-      LOGGER.at(Level.INFO).log("Registered sensor: %s", BuilderSensorIsHoldingEmptyHand.SENSOR_ID);
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register sensor: %s", BuilderSensorIsHoldingEmptyHand.SENSOR_ID, e);
-    }
-
-    try {
-      sensorFactory.add(
-          BuilderSensorIsHoldingDogWhistle.SENSOR_ID, BuilderSensorIsHoldingDogWhistle::new);
-      LOGGER.at(Level.INFO).log(
-          "Registered sensor: %s", BuilderSensorIsHoldingDogWhistle.SENSOR_ID);
-    } catch (Exception e) {
-      LOGGER.at(Level.SEVERE).log(
-          "Failed to register sensor: %s", BuilderSensorIsHoldingDogWhistle.SENSOR_ID, e);
-    }
-
-    sensorsRegistered = true;
-    LOGGER.at(Level.INFO).log("Finished registering custom dog sensors");
-  }
-
   @Override
   protected void setup() {
     super.setup();
-    LOGGER.at(Level.INFO).log("Setting up %s Plugin...", Constants.MOD_NAME);
-    LOGGER.at(Level.INFO).log("Plugin: %s", getManifest().getName());
-    LOGGER.at(Level.INFO).log("Version: %s", getManifest().getVersion());
-    LOGGER.at(Level.INFO).log("Author: %s", getManifest().getAuthors());
-    LOGGER.at(Level.INFO).log("Description: %s", getManifest().getDescription());
+    LOGGER.at(Level.INFO).log(
+        "Setting up %s (v%s by %s): %s",
+        getManifest().getName(),
+        getManifest().getVersion(),
+        getManifest().getAuthors(),
+        getManifest().getDescription());
 
-    LOGGER.at(Level.INFO).log("Registering dog components...");
+    LOGGER.at(Level.INFO).log("Registering dog components and resources...");
     dogOwnerComponentType =
         getEntityStoreRegistry()
             .registerComponent(DogOwnerComponent.class, "DogOwner", DogOwnerComponent.CODEC);
@@ -243,7 +93,6 @@ public class DogsCompanion extends JavaPlugin {
                 "DogTamingProgress",
                 DogTamingProgressComponent.CODEC);
 
-    LOGGER.at(Level.INFO).log("Registering dog resources...");
     dogsDataResourceType =
         getEntityStoreRegistry()
             .registerResource(
@@ -256,31 +105,23 @@ public class DogsCompanion extends JavaPlugin {
     getEntityStoreRegistry().registerSystem(new DogsManager(dogStateComponentType));
 
     LOGGER.at(Level.INFO).log("Registering dog combat systems...");
-    getEntityStoreRegistry().registerSystem(new DogDefenseSystem());
-    getEntityStoreRegistry().registerSystem(new DogOffenseSystem());
-    getEntityStoreRegistry().registerSystem(new DogCombatDamageSystem());
+    DamageSetupHandler damageSetupHandler = new DamageSetupHandler(getEntityStoreRegistry());
+    if (!damageSetupHandler.tryRegister()) {
+      LOGGER.at(Level.INFO).log(
+          "DamageModule not ready yet, deferring combat system registration...");
+      getEventRegistry().registerGlobal(PluginSetupEvent.class, damageSetupHandler::onPluginSetup);
+    }
 
     LOGGER.at(Level.INFO).log("Initializing dog names manager...");
     DogsNamesManager.initialize();
 
+    NPCSetupHandler npcSetupHandler = new NPCSetupHandler();
     if (NPCPlugin.get() instanceof NPCPlugin npcPlugin) {
       LOGGER.at(Level.INFO).log("Registering NPC Plugin ...");
-      registerDogInteractionActions(npcPlugin);
-      registerDogSensors(npcPlugin);
-    } else if (getEventRegistry() != null) {
-      LOGGER.at(Level.INFO).log("Registering NPC Plugin setup listener...");
-      getEventRegistry()
-          .registerGlobal(
-              PluginSetupEvent.class,
-              event -> {
-                if (event.getPlugin() instanceof NPCPlugin npcPlugin) {
-                  registerDogInteractionActions(npcPlugin);
-                  registerDogSensors(npcPlugin);
-                }
-              });
+      npcSetupHandler.onNpcPluginReady(npcPlugin);
     } else {
-      LOGGER.at(Level.SEVERE).log(
-          "Event registry is not available, cannot register NPC Plugin setup listener");
+      LOGGER.at(Level.INFO).log("Registering NPC Plugin setup listener...");
+      getEventRegistry().registerGlobal(PluginSetupEvent.class, npcSetupHandler::onPluginSetup);
     }
 
     LOGGER.at(Level.INFO).log("Registering interaction codecs...");
@@ -289,13 +130,20 @@ public class DogsCompanion extends JavaPlugin {
             InteractionDogWhistle.ID, InteractionDogWhistle.class, InteractionDogWhistle.CODEC);
 
     LOGGER.at(Level.INFO).log("Registering commands...");
-    this.getCommandRegistry().registerCommand(new DogCommands());
+    dogCommands = new DogCommands();
+    this.getCommandRegistry().registerCommand(dogCommands);
   }
 
   @Override
   protected void start() {
     super.start();
     LOGGER.at(Level.INFO).log("Starting Dogs Companion Plugin...");
+
+    if (dogCommands != null) {
+      PermissionManager.initializeDefaultPermissions(dogCommands.buildPlayerPermissionNodes());
+    }
+
+    Universe.get().getUniverseReady().thenRun(LuckPermsCompat::detect);
   }
 
   @Override

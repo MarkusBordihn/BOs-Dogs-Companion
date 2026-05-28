@@ -40,9 +40,8 @@ public class InteractionPlaying {
 
     LOGGER.at(Level.INFO).log(
         "PLAYING WITH TOY - Dog playing with %s by player %s",
-        toyItem, player != null ? player.getDisplayName() : "unknown");
+        toyItem, player != null ? player.getPlayerRef().getUsername() : "unknown");
 
-    // Trigger playing state
     role.getStateSupport().setState(entityRef, "Pet", "Playing", store);
 
     return false;

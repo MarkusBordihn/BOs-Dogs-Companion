@@ -54,7 +54,6 @@ final class DogSitCommand extends DogCommand {
         return;
       }
 
-      // Update state (component + persistent data)
       DogsManager.getInstance().updateDogState(entityRef, DogState.SITTING, store);
 
       NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());

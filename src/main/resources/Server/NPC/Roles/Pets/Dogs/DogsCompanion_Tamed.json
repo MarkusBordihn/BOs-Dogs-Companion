@@ -50,6 +50,10 @@
               "Slot": "Status"
             },
             {
+              "Type": "PlaySound",
+              "SoundEventId": "SFX_Wolf_Hurt"
+            },
+            {
               "Type": "Timeout",
               "Delay": [0.5, 0.5]
             }
@@ -106,20 +110,41 @@
                 "Type": "State",
                 "State": ".Sleeping"
               },
-              "Actions": [
+              "Instructions": [
                 {
-                  "Type": "PlayAnimation",
-                  "Animation": "Sleep",
-                  "Slot": "Action"
+                  "$Comment": "Enter particle and sound",
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Sleepy"
+                    },
+                    {
+                      "Type": "PlaySound",
+                      "SoundEventId": "SFX_Wolf_Sleep"
+                    }
+                  ]
                 },
                 {
-                  "Type": "PlaySound",
-                  "SoundEventId": "SFX_Wolf_Sleep"
+                  "Sensor": {
+                    "Type": "Any"
+                  },
+                  "Actions": [
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Sleep",
+                      "Slot": "Action"
+                    }
+                  ],
+                  "BodyMotion": {
+                    "Type": "Nothing"
+                  }
                 }
-              ],
-              "BodyMotion": {
-                "Type": "Nothing"
-              }
+              ]
             },
             {
               "$Comment": "Playing, returns to default after timeout",
@@ -175,6 +200,11 @@
                   "Type": "SpawnParticles",
                   "Offset": [0, 0.5, 0],
                   "ParticleSystem": "Hearts_Subtle"
+                },
+                {
+                  "Type": "SpawnParticles",
+                  "Offset": [0, 0.5, 0],
+                  "ParticleSystem": "Effect_Heal"
                 },
                 {
                   "Type": "Timeout",
@@ -279,11 +309,27 @@
                       "ParticleSystem": "Alerted"
                     },
                     {
+                      "Type": "PlaySound",
+                      "SoundEventId": "SFX_Wolf_Run"
+                    },
+                    {
                       "Type": "Timeout",
                       "Delay": [30, 30],
                       "Action": {
                         "Type": "DogReturnToPreviousState"
                       }
+                    }
+                  ]
+                },
+                {
+                  "$Comment": "Target killed, return immediately",
+                  "Sensor": {
+                    "Type": "Kill",
+                    "TargetSlot": "LockedTarget"
+                  },
+                  "Actions": [
+                    {
+                      "Type": "DogReturnToPreviousState"
                     }
                   ]
                 },
@@ -493,6 +539,9 @@
                       "Type": "PlayAnimation",
                       "Animation": "Idle",
                       "Slot": "Action"
+                    },
+                    {
+                      "Type": "DogSearchReturn"
                     }
                   ],
                   "BodyMotion": {
@@ -517,6 +566,69 @@
                         }
                       }
                     ]
+                  }
+                }
+              ]
+            },
+            {
+              "$Comment": "Returning with found item, seek owner for handoff",
+              "Sensor": {
+                "Type": "State",
+                "State": ".Returning"
+              },
+              "Instructions": [
+                {
+                  "Sensor": {
+                    "Type": "Any",
+                    "Once": true
+                  },
+                  "Actions": [
+                    {
+                      "Type": "SpawnParticles",
+                      "Offset": [0, 1.2, 0],
+                      "ParticleSystem": "Hearts_Subtle"
+                    },
+                    {
+                      "Type": "PlayAnimation",
+                      "Animation": "Run",
+                      "Slot": "Action"
+                    },
+                    {
+                      "Type": "PlaySound",
+                      "SoundEventId": "SFX_Wolf_Alerted"
+                    },
+                    {
+                      "Type": "Timeout",
+                      "Delay": [60, 60],
+                      "Action": {
+                        "Type": "State",
+                        "State": ".Default"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "Sensor": {
+                    "Type": "Player",
+                    "Range": 18,
+                    "LockOnTarget": true
+                  },
+                  "BodyMotion": {
+                    "Type": "Seek",
+                    "SlowDownDistance": 4,
+                    "StopDistance": 2,
+                    "RelativeSpeed": 1.0
+                  },
+                  "HeadMotion": {
+                    "Type": "Watch"
+                  }
+                },
+                {
+                  "Sensor": {
+                    "Type": "Target"
+                  },
+                  "BodyMotion": {
+                    "Type": "Teleport"
                   }
                 }
               ]
@@ -766,6 +878,7 @@
                 {"Type": "State", "State": ".Offense"},
                 {"Type": "State", "State": ".Playing"},
                 {"Type": "State", "State": ".Rejection"},
+                {"Type": "State", "State": ".Returning"},
                 {"Type": "State", "State": ".Searching"},
                 {"Type": "State", "State": ".Sitting"},
                 {"Type": "State", "State": ".Sleeping"},
@@ -846,6 +959,33 @@
             "Type": "SetInteractable",
             "Interactable": true,
             "Hint": "dogs_companion.interactions.hint.owner_wheel",
+            "ShowPrompt": true
+          }
+        ]
+      },
+      {
+        "$Comment": "Owner + empty hand + returning: overrides wheel hint with item pickup hint",
+        "Continue": true,
+        "Sensor": {
+          "Type": "And",
+          "Sensors": [
+            {
+              "Type": "DogOwner"
+            },
+            {
+              "Type": "IsHoldingDogEmptyHand"
+            },
+            {
+              "Type": "State",
+              "State": "Pet.Returning"
+            }
+          ]
+        },
+        "Actions": [
+          {
+            "Type": "SetInteractable",
+            "Interactable": true,
+            "Hint": "dogs_companion.interactions.hint.owner_return",
             "ShowPrompt": true
           }
         ]

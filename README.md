@@ -90,7 +90,7 @@ Press F on your tamed dog to open the Action Wheel:
 | **Play**            | Playful mood                     |
 | **Wander / Return** | Free roaming or come back        |
 | **Combat Mode**     | Cycle Normal → Defense → Offense |
-| **Search**          | Dog searches the area            |
+| **Search**          | Dog searches the area for items  |
 | **Pet**             | Pet your dog                     |
 
 **Stop** (center) cancels the current action, **Rename** opens a name input screen.
@@ -114,6 +114,13 @@ The current mode is shown on the nameplate.
 
 Dogs return to following after defeating a target in Defense/Offense mode.
 Set them to Sit to keep them out of combat.
+
+#### Loyalty Defense
+
+Dogs in active states (Following, Searching, Wandering, Playing, Returning) will automatically
+defend you if your HP drops below 75% — even without Defense mode enabled. This reflects the
+dog's instinct to protect someone they're close to. Dogs set to Sit, Sleep, or Wait stay put and
+will not react.
 
 ### Commands
 

@@ -39,11 +39,11 @@ public class DogNameplateUtils {
   private static final String SYMBOL_OFFENSE = "[OFF]";
   private static final String SYMBOL_SITTING = "[SIT]";
   private static final String SYMBOL_ATTACKING = "[ATK]";
-  private static final String SYMBOL_SLEEPING = "[ZZZ]";
+  private static final String SYMBOL_SLEEPING = "[ZzZ]";
   private static final String SYMBOL_PLAYING = "[PLAY]";
   private static final String SYMBOL_WAITING = "[WAIT]";
   private static final String SYMBOL_WANDERING = "[---]";
-  private static final String SYMBOL_SEARCHING = "[?]";
+  private static final String SYMBOL_SEARCHING = "[SEEK]";
 
   public static void updateNameplateWithState(
       @Nonnull Ref<EntityStore> dogRef,

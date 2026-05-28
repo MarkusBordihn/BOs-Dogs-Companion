@@ -28,6 +28,10 @@ whistle.recall=Deine Hunde kommen zu dir zurück!
 whistle.no_dogs=Keiner deiner Hunde ist nah genug um die Pfeife zu hören.
 whistle.cooldown=Warte kurz bevor du wieder in die Pfeife bläst.
 
+# Search Return
+search.found={name} hat etwas gefunden! Interagiere um es zu erhalten.
+search.give={name} bringt dir: {item}
+
 # Hints
 hint.owner_whistle=Drücke [{key}], um deinem Hund einen Befehl zu geben
 hint.tame=Wildes Fleisch könnte das Vertrauen dieses Hundes gewinnen
@@ -35,4 +39,5 @@ hint.tame.food=Drücke [{key}], um Futter anzubieten und sein Vertrauen zu gewin
 hint.owner=Drücke [{key}], um deinem Gefährten einen Befehl zu geben
 hint.owner_feed=Drücke [{key}], um deinen Hund zu füttern
 hint.owner_wheel=Drücke [{key}], um das Aktionsrad zu öffnen
+hint.owner_return=Drücke [{key}], um den gefundenen Gegenstand zu erhalten
 hint.stranger=Dieser Hund gehört {owner}

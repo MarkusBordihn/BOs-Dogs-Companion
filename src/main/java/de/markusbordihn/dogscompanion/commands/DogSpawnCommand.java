@@ -22,8 +22,7 @@ package de.markusbordihn.dogscompanion.commands;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.math.vector.Rotation3f;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
@@ -43,6 +42,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import org.joml.Vector3d;
 
 final class DogSpawnCommand extends DogCommand {
 
@@ -200,7 +200,8 @@ final class DogSpawnCommand extends DogCommand {
       }
     }
 
-    return playerPos.add(Math.random() * 4 - 2, 0, Math.random() * 4 - 2);
+    return new Vector3d(
+        playerPos.x + Math.random() * 4 - 2, playerPos.y, playerPos.z + Math.random() * 4 - 2);
   }
 
   private boolean spawnDog(
@@ -235,7 +236,7 @@ final class DogSpawnCommand extends DogCommand {
         return false;
       }
 
-      Vector3f rotation = new Vector3f();
+      Rotation3f rotation = new Rotation3f();
       Pair<Ref<EntityStore>, NPCEntity> spawnResult =
           npcPlugin.spawnEntity(store, roleIndex, position, rotation, null, null, null);
 
@@ -247,13 +248,11 @@ final class DogSpawnCommand extends DogCommand {
 
       Ref<EntityStore> dogRef = spawnResult.left();
 
-      // Update UUID if needed
       UUID newEntityUuid = dogsManager.getUuid(dogRef, store);
       if (newEntityUuid != null && !newEntityUuid.equals(dogData.uuid())) {
         dogsManager.updateDogUuid(dogData.uuid(), newEntityUuid, store);
       }
 
-      // Apply all dog data (owner, name, state) using DogsManager
       dogsManager.applyDogDataToEntity(dogRef, dogData, store);
 
       return true;

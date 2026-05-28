@@ -28,6 +28,10 @@ whistle.recall=Your dogs are coming back to you!
 whistle.no_dogs=None of your dogs are close enough to hear the whistle.
 whistle.cooldown=Wait a moment before blowing the whistle again.
 
+# Search Return
+search.found={name} found something! Interact to receive it.
+search.give={name} brings you: {item}
+
 # Hints
 hint.owner_whistle=Press [{key}] to give your dog an order
 hint.tame=Wild Meat might earn this dog's trust
@@ -35,4 +39,5 @@ hint.tame.food=Press [{key}] to offer food and earn its trust
 hint.owner=Press [{key}] to give your companion a command
 hint.owner_feed=Press [{key}] to feed your dog
 hint.owner_wheel=Press [{key}] to open the action wheel
+hint.owner_return=Press [{key}] to receive the found item
 hint.stranger=This dog belongs to {owner}

@@ -20,31 +20,54 @@
 package de.markusbordihn.dogscompanion.commands;
 
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractCommandCollection;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class DogCommands extends AbstractCommandCollection {
+
+  private final List<DogCommand> dogSubCommands = new ArrayList<>();
+
   public DogCommands() {
     super("dog", "Dog management commands");
     this.addAliases("dogs");
 
-    this.addSubCommand(new DogInfoCommand());
-    this.addSubCommand(new DogNameCommand());
-    this.addSubCommand(new DogListCommand());
-    this.addSubCommand(new DogOwnerCommand());
+    register(new DogInfoCommand());
+    register(new DogNameCommand());
+    register(new DogListCommand());
+    register(new DogOwnerCommand());
 
-    this.addSubCommand(new DogSitCommand());
-    this.addSubCommand(new DogFollowCommand());
-    this.addSubCommand(new DogWaitCommand());
-    this.addSubCommand(new DogWanderCommand());
-    this.addSubCommand(new DogPlayCommand());
-    this.addSubCommand(new DogSleepCommand());
-    this.addSubCommand(new DogSearchCommand());
+    register(new DogSitCommand());
+    register(new DogFollowCommand());
+    register(new DogWaitCommand());
+    register(new DogWanderCommand());
+    register(new DogPlayCommand());
+    register(new DogSleepCommand());
+    register(new DogSearchCommand());
 
-    this.addSubCommand(new DogAttackCommand());
+    register(new DogAttackCommand());
 
-    this.addSubCommand(new DogSpawnCommand());
-    this.addSubCommand(new DogDespawnCommand());
-    this.addSubCommand(new DogReleaseCommand());
+    register(new DogSpawnCommand());
+    register(new DogDespawnCommand());
+    register(new DogReleaseCommand());
 
-    this.addSubCommand(new DogReloadCommand());
+    register(new DogReloadCommand());
+  }
+
+  private void register(DogCommand cmd) {
+    this.addSubCommand(cmd);
+    this.dogSubCommands.add(cmd);
+  }
+
+  public Set<String> buildPlayerPermissionNodes() {
+    Set<String> nodes =
+        dogSubCommands.stream()
+            .filter(cmd -> !cmd.requiresOp())
+            .map(DogCommand::getPermission)
+            .collect(Collectors.toCollection(HashSet::new));
+    nodes.add(this.getPermission());
+    return nodes;
   }
 }

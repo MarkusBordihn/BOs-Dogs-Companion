@@ -26,7 +26,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.AnyQuery;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -41,6 +40,7 @@ import de.markusbordihn.dogscompanion.manager.DogsManager;
 import java.util.Set;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import org.joml.Vector3d;
 
 public class DogOffenseSystem extends DamageEventSystem {
 
@@ -126,11 +126,10 @@ public class DogOffenseSystem extends DamageEventSystem {
         continue;
       }
 
-      // Calculate distance manually
       Vector3d dogPos = dogTransform.getPosition();
-      double dx = attackerPos.getX() - dogPos.getX();
-      double dy = attackerPos.getY() - dogPos.getY();
-      double dz = attackerPos.getZ() - dogPos.getZ();
+      double dx = attackerPos.x - dogPos.x;
+      double dy = attackerPos.y - dogPos.y;
+      double dz = attackerPos.z - dogPos.z;
       double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
       if (distance > ASSIST_ACTIVATION_RADIUS) {

@@ -45,6 +45,10 @@ public abstract class DogCommand extends AbstractWorldCommand {
     super(name, description);
   }
 
+  protected boolean requiresOp() {
+    return false;
+  }
+
   protected boolean checkOwnership(
       @Nonnull Ref<EntityStore> entityRef,
       @Nonnull Store<EntityStore> store,
@@ -91,7 +95,7 @@ public abstract class DogCommand extends AbstractWorldCommand {
     if (!context.isPlayer()) {
       return null;
     }
-    return context.sender().getDisplayName();
+    return context.sender().getUsername();
   }
 
   @Nonnull

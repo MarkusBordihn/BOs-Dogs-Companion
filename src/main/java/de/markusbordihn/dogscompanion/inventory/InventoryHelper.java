@@ -28,6 +28,28 @@ import java.util.logging.Level;
 public class InventoryHelper {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
+  public static boolean giveItem(Player player, String itemId) {
+    if (player == null || itemId == null || itemId.isEmpty()) {
+      return false;
+    }
+
+    Inventory inventory = player.getInventory();
+    if (inventory == null) {
+      LOGGER.at(Level.WARNING).log("Cannot give item: player inventory is null");
+      return false;
+    }
+
+    ItemStack giftStack = new ItemStack(itemId);
+    if (!giftStack.isValid()) {
+      LOGGER.at(Level.WARNING).log("Cannot give item: invalid item ID %s", itemId);
+      return false;
+    }
+
+    inventory.getHotbar().addItemStack(giftStack);
+    LOGGER.at(Level.FINE).log("Gave 1x %s to player", itemId);
+    return true;
+  }
+
   public static void consumeActiveHotbarItem(Player player, ItemStack heldItem) {
     String itemName = heldItem != null ? heldItem.getItemId() : null;
     if (player == null) {

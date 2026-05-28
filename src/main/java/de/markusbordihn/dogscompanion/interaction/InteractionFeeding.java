@@ -54,7 +54,7 @@ public class InteractionFeeding {
         "%s - Dog fed with %s by player %s",
         isOwner ? "FEEDING: By Owner" : "FEEDING: By Stranger",
         itemName,
-        player != null ? player.getDisplayName() : "unknown");
+        player != null ? player.getPlayerRef().getUsername() : "unknown");
 
     if (itemName != null) {
       healDog(entityRef, store, player, getHealAmount(itemName));
@@ -101,20 +101,24 @@ public class InteractionFeeding {
         String dogName = nameComponent != null ? nameComponent.getName() : "Your dog";
 
         if (actualHealAmount > 0) {
-          player.sendMessage(
-              Message.translation("dogs_companion.interactions.healing")
-                  .param("dogName", dogName)
-                  .param("amount", String.format("%.1f", actualHealAmount))
-                  .color("#66FF66"));
+          player
+              .getPlayerRef()
+              .sendMessage(
+                  Message.translation("dogs_companion.interactions.healing")
+                      .param("dogName", dogName)
+                      .param("amount", String.format("%.1f", actualHealAmount))
+                      .color("#66FF66"));
 
           LOGGER.at(Level.INFO).log(
               "Dog healed: %s (+%.1f HP, now %.1f/%.1f)",
               dogName, actualHealAmount, newHealth, maxHealth);
         } else {
-          player.sendMessage(
-              Message.translation("dogs_companion.interactions.already_full_health")
-                  .param("dogName", dogName)
-                  .color("#FFAA66"));
+          player
+              .getPlayerRef()
+              .sendMessage(
+                  Message.translation("dogs_companion.interactions.already_full_health")
+                      .param("dogName", dogName)
+                      .color("#FFAA66"));
         }
       }
     } catch (Exception e) {

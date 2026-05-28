@@ -21,11 +21,18 @@ package de.markusbordihn.dogscompanion.interaction;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
+import de.markusbordihn.dogscompanion.actions.BuilderActionDogSearchReturn;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
+import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.inventory.InventoryHelper;
+import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.ui.DogActionWheelPage;
+import de.markusbordihn.dogscompanion.utils.DogNameplateUtils;
 import javax.annotation.Nonnull;
 
 public class InteractionOwner {
@@ -35,6 +42,29 @@ public class InteractionOwner {
       @Nonnull Role role,
       @Nonnull Store<EntityStore> store,
       @Nonnull Player player) {
+
+    if (BuilderActionDogSearchReturn.ActionDogSearchReturn.hasPendingItem(entityRef)) {
+      String itemId = BuilderActionDogSearchReturn.ActionDogSearchReturn.claimFoundItem(entityRef);
+      if (itemId != null) {
+        DogNameComponent nameComponent =
+            store.getComponent(entityRef, DogNameComponent.getComponentType());
+        String dogName = nameComponent != null ? nameComponent.getName() : "Your dog";
+
+        InventoryHelper.giveItem(player, itemId);
+        player
+            .getPlayerRef()
+            .sendMessage(
+                Message.translation("dogs_companion.interactions.search.give")
+                    .param("name", dogName)
+                    .param("item", itemId)
+                    .color("#FFD700"));
+
+        DogsManager.getInstance().updateDogState(entityRef, DogState.FOLLOWING, store);
+        role.getStateSupport().setState(entityRef, "Pet", "Default", store);
+        DogNameplateUtils.updateNameplateWithState(entityRef, dogName, store);
+      }
+      return true;
+    }
 
     Ref<EntityStore> playerEntityRef = role.getStateSupport().getInteractionIterationTarget();
     if (playerEntityRef == null || !playerEntityRef.isValid()) {

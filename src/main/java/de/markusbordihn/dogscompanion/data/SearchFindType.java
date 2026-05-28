@@ -17,26 +17,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.markusbordihn.dogscompanion.interaction;
+package de.markusbordihn.dogscompanion.data;
 
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.npc.role.Role;
-import java.util.logging.Level;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class InteractionStranger {
+public enum SearchFindType {
+  BONE("Deco_Bone_Full", "Deco_Bone_Spike"),
+  FEATHER("Ingredient_Feathers_Light", "Ingredient_Feathers_Blue"),
+  BERRY("Plant_Fruit_Berries_Red", "Plant_Fruit_Apple"),
+  CRYSTAL("Ingredient_Crystal_White", "Ingredient_Crystal_Green"),
+  HIDE("Ingredient_Hide_Soft", "Ingredient_Hide_Light"),
+  FLOWER("Plant_Flower_Common_White", "Plant_Flower_Common_Yellow");
 
-  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+  private final String[] itemIds;
 
-  public static boolean handle(
-      Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
-    LOGGER.at(Level.INFO).log("STRANGER: Interaction blocked for dog - player is not the owner");
+  SearchFindType(String... itemIds) {
+    this.itemIds = itemIds;
+  }
 
-    role.getStateSupport().setState(entityRef, "Pet", "Rejection", store);
+  public static SearchFindType random() {
+    SearchFindType[] values = values();
+    return values[ThreadLocalRandom.current().nextInt(values.length)];
+  }
 
-    return false;
+  public String getItemId() {
+    return itemIds[ThreadLocalRandom.current().nextInt(itemIds.length)];
   }
 }

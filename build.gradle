@@ -26,7 +26,7 @@ if (ghostRefScript.exists()) apply from: ghostRefScript
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(21)
+    languageVersion = JavaLanguageVersion.of(25)
   }
   withSourcesJar()
 }
@@ -48,11 +48,14 @@ dependencies {
   testImplementation 'org.junit.jupiter:junit-jupiter'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-  compileOnly("com.hypixel.hytale:Server:$hytale_build")
   if (hasLocalServer) {
+    compileOnly(files(hytaleServerJarPath))
     runtimeOnly(files(hytaleServerJarPath))
+    testCompileOnly(files(hytaleServerJarPath))
     testRuntimeOnly(files(hytaleServerJarPath))
   } else {
+    compileOnly("com.hypixel.hytale:Server:$hytale_build")
+    testCompileOnly("com.hypixel.hytale:Server:$hytale_build")
     testRuntimeOnly("com.hypixel.hytale:Server:$hytale_build")
   }
 }

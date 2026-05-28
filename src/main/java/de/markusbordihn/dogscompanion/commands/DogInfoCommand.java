@@ -56,7 +56,6 @@ final class DogInfoCommand extends DogCommand {
 
     Ref<EntityStore> entityRef = entityOpt.get();
 
-    // Get UUID (persistent identifier)
     DogsManager dogsManager = DogsManager.getInstance();
     UUID dogUuid = dogsManager.getUuid(entityRef, store);
     if (dogUuid == null) {

@@ -110,24 +110,17 @@ public class BuilderActionDogReturnToPreviousState extends BuilderActionBase {
         return false;
       }
 
-      // Get previous state or default to FOLLOWING
       DogState previousState = stateComponent.getData().getStateOrPrevious();
-
-      // Get corresponding NPC substate name
       String substateName = getSubstateName(previousState);
 
-      // Update the dog's state
       DogsManager.getInstance().updateDogState(entityRef, previousState, store);
 
-      // Update NPC role substate
       NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
       if (npcEntity != null && npcEntity.getRole() != null) {
         npcEntity.getRole().getStateSupport().setState(entityRef, "Pet", substateName, store);
 
-        // Clear attack target when returning to previous state
         DogCombatUtils.clearTarget(entityRef, store);
 
-        // Update nameplate to show state symbol
         DogNameComponent nameComponent =
             store.getComponent(entityRef, DogNameComponent.getComponentType());
         if (nameComponent != null) {

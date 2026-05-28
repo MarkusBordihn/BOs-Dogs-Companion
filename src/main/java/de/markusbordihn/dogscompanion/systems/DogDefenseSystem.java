@@ -26,12 +26,14 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.AnyQuery;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
@@ -41,11 +43,30 @@ import de.markusbordihn.dogscompanion.manager.DogsManager;
 import java.util.Set;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import org.joml.Vector3d;
 
 public class DogDefenseSystem extends DamageEventSystem {
 
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
   private static final double DEFENSE_ACTIVATION_RADIUS = 20.0;
+  private static final float LOYALTY_HP_THRESHOLD = 0.75f;
+
+  private static boolean isActiveMobileState(@Nonnull DogState state) {
+    return switch (state) {
+      case FOLLOWING, SEARCHING, WANDERING, PLAYING -> true;
+      default -> false;
+    };
+  }
+
+  private static boolean isOwnerBelowHpThreshold(
+      @Nonnull Ref<EntityStore> ownerRef, @Nonnull Store<EntityStore> store) {
+    EntityStatMap stats = store.getComponent(ownerRef, EntityStatMap.getComponentType());
+    if (stats == null) {
+      return false;
+    }
+    EntityStatValue health = stats.get(DefaultEntityStatTypes.getHealth());
+    return health != null && health.asPercentage() < LOYALTY_HP_THRESHOLD;
+  }
 
   @Nonnull
   @Override
@@ -100,7 +121,14 @@ public class DogDefenseSystem extends DamageEventSystem {
 
       DogStateComponent stateComponent =
           store.getComponent(dogRef, DogStateComponent.getComponentType());
-      if (stateComponent == null || stateComponent.getState() != DogState.DEFENSE) {
+      if (stateComponent == null) {
+        continue;
+      }
+      DogState dogState = stateComponent.getState();
+      boolean shouldDefend =
+          dogState == DogState.DEFENSE
+              || (isActiveMobileState(dogState) && isOwnerBelowHpThreshold(victimRef, store));
+      if (!shouldDefend) {
         continue;
       }
 
@@ -111,9 +139,9 @@ public class DogDefenseSystem extends DamageEventSystem {
       }
 
       Vector3d dogPos = dogTransform.getPosition();
-      double dx = victimPos.getX() - dogPos.getX();
-      double dy = victimPos.getY() - dogPos.getY();
-      double dz = victimPos.getZ() - dogPos.getZ();
+      double dx = victimPos.x - dogPos.x;
+      double dy = victimPos.y - dogPos.y;
+      double dz = victimPos.z - dogPos.z;
       double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (distance > DEFENSE_ACTIVATION_RADIUS) {
         continue;
@@ -129,11 +157,10 @@ public class DogDefenseSystem extends DamageEventSystem {
       @Nonnull Store<EntityStore> store,
       @Nonnull CommandBuffer<EntityStore> commandBuffer) {
 
-    // Set dog to ATTACKING state using CommandBuffer (don't modify store during event processing)
+    // don't modify store during event processing
     DogStateComponent newStateComponent = new DogStateComponent(DogState.ATTACKING);
     commandBuffer.putComponent(dogRef, DogStateComponent.getComponentType(), newStateComponent);
 
-    // Update nameplate via CommandBuffer
     DogNameComponent nameComponent =
         store.getComponent(dogRef, DogNameComponent.getComponentType());
     if (nameComponent != null) {
@@ -145,7 +172,6 @@ public class DogDefenseSystem extends DamageEventSystem {
       }
     }
 
-    // Set the target in the NPC role
     NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
     if (npcEntity != null && npcEntity.getRole() != null) {
       npcEntity.getRole().getMarkedEntitySupport().setMarkedEntity("LockedTarget", targetRef);

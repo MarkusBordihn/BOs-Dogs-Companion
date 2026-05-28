@@ -7,6 +7,14 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 1.6.0
+
+- Fixed status effect bug where dogs would get stuck in a status effect state.
+- Fixed missing state updates and conditions in state machine.
+- Added search functionality, for searching for items and return them to the owner.
+- Added loyalty defense system, where dogs will automatically defend their owner when attacked.
+- Migrated to Hytale 0.5.2 with updated APIs and systems.
+
 ### 1.5.0
 
 - Added basic dog whistle item to command dogs (attack target, recall, cancel attack).

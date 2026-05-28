@@ -19,17 +19,35 @@
 
 package de.markusbordihn.dogscompanion.permission;
 
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.exceptions.NoPermissionException;
 import com.hypixel.hytale.server.core.permissions.PermissionHolder;
+import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import de.markusbordihn.dogscompanion.Constants;
+import java.util.Set;
+import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
 public class PermissionManager {
 
+  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
   private static final int MAX_DOG_LIMIT = 32;
+  private static final String PLAYER_GROUP = "Adventure";
 
   private PermissionManager() {}
+
+  public static void initializeDefaultPermissions(@Nonnull Set<String> playerCommandNodes) {
+    PermissionsModule perms = PermissionsModule.get();
+    if (perms == null) {
+      LOGGER.at(Level.WARNING).log(
+          "PermissionsModule not available - skipping default permission registration");
+      return;
+    }
+    LOGGER.at(Level.INFO).log(
+        "Registering %d dog permission(s) in %s group", playerCommandNodes.size(), PLAYER_GROUP);
+    perms.addGroupPermission(PLAYER_GROUP, playerCommandNodes);
+  }
 
   public static void checkPermissionAlways(
       @Nonnull CommandContext context, @Nonnull String permission) throws NoPermissionException {

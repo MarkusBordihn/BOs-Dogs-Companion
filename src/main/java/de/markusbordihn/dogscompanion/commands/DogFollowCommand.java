@@ -60,7 +60,6 @@ final class DogFollowCommand extends DogCommand {
         StateSupport stateSupport = npcEntity.getRole().getStateSupport();
         boolean wasAlreadyFollowing = stateSupport.inState("Pet", "Default");
 
-        // Update state (component + persistent data)
         DogsManager.getInstance().updateDogState(entityRef, DogState.FOLLOWING, store);
 
         // Already following, force refresh by toggling through Playing state

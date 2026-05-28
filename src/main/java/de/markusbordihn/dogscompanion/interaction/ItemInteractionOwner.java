@@ -28,6 +28,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
 import de.markusbordihn.dogscompanion.Constants;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import java.util.Set;
 
 public class ItemInteractionOwner {
@@ -58,20 +59,22 @@ public class ItemInteractionOwner {
     }
 
     if (player != null) {
-      com.hypixel.hytale.server.core.entity.nameplate.Nameplate nameplate =
-          store.getComponent(
-              entityRef,
-              com.hypixel.hytale.server.core.entity.nameplate.Nameplate.getComponentType());
-      String dogName = nameplate != null ? nameplate.getText() : null;
+      DogNameComponent nameComponent =
+          store.getComponent(entityRef, DogNameComponent.getComponentType());
+      String dogName = nameComponent != null ? nameComponent.getName() : null;
 
       if (dogName != null && !dogName.isEmpty()) {
-        player.sendMessage(
-            Message.translation("dogs_companion.interactions.item.unknown.named")
-                .param("dogName", dogName)
-                .color("#FFAA66"));
+        player
+            .getPlayerRef()
+            .sendMessage(
+                Message.translation("dogs_companion.interactions.item.unknown.named")
+                    .param("dogName", dogName)
+                    .color("#FFAA66"));
       } else {
-        player.sendMessage(
-            Message.translation("dogs_companion.interactions.item.unknown").color("#FFAA66"));
+        player
+            .getPlayerRef()
+            .sendMessage(
+                Message.translation("dogs_companion.interactions.item.unknown").color("#FFAA66"));
       }
     }
 

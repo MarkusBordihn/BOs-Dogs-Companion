@@ -44,6 +44,7 @@ import de.markusbordihn.dogscompanion.utils.DogCombatUtils;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
+import org.joml.Vector3d;
 
 public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
 
@@ -76,26 +77,22 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
 
     long currentTimeMs = System.currentTimeMillis();
 
-    // Process one pending strike per tick (if ready)
     PendingStrike strike = pendingStrikes.peek();
     if (strike != null && currentTimeMs >= strike.applyAtMs) {
       pendingStrikes.poll();
 
-      // Validate both dog and target refs are still valid
       if (!strike.dogRef.isValid() || !DogCombatUtils.isTargetAlive(strike.targetRef, store)) {
         return;
       }
 
-      // Set NPC state to Striking for visual feedback (but keep DogStateComponent as ATTACKING)
+      // NPC state Striking for visual only; DogStateComponent stays ATTACKING
       NPCEntity npcEntity = store.getComponent(strike.dogRef, NPCEntity.getComponentType());
       if (npcEntity != null && npcEntity.getRole() != null) {
         npcEntity.getRole().getStateSupport().setState(strike.dogRef, "Pet", "Striking", store);
       }
 
-      // Apply damage
       DamageSystems.executeDamage(strike.targetRef, commandBuffer, strike.damage);
 
-      // Check if target died from this strike (use cached target name)
       if (!DogCombatUtils.isTargetAlive(strike.targetRef, store)) {
         sendOwnerMessage(
             strike.dogRef,
@@ -133,8 +130,12 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
       return;
     }
 
-    double distanceSquared =
-        dogTransform.getPosition().distanceSquaredTo(targetTransform.getPosition());
+    Vector3d dogPos = dogTransform.getPosition();
+    Vector3d targetPos = targetTransform.getPosition();
+    double dx = dogPos.x - targetPos.x;
+    double dy = dogPos.y - targetPos.y;
+    double dz = dogPos.z - targetPos.z;
+    double distanceSquared = dx * dx + dy * dy + dz * dz;
 
     if (distanceSquared > ATTACK_RANGE_SQUARED) {
       return;
@@ -178,12 +179,10 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
   @Nonnull
   private String getEntityName(
       @Nonnull Ref<EntityStore> entityRef, @Nonnull Store<EntityStore> store) {
-    // Validate reference first
     if (entityRef == null || !entityRef.isValid()) {
       return "target";
     }
 
-    // Try DogNameComponent first (for other dogs)
     DogNameComponent dogNameComponent =
         store.getComponent(entityRef, DogNameComponent.getComponentType());
     if (dogNameComponent != null
@@ -192,7 +191,6 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
       return dogNameComponent.getName();
     }
 
-    // Try DisplayNameComponent (for NPCs and players)
     DisplayNameComponent displayNameComponent =
         store.getComponent(entityRef, DisplayNameComponent.getComponentType());
     if (displayNameComponent != null && displayNameComponent.getDisplayName() != null) {
@@ -202,7 +200,6 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
       }
     }
 
-    // Try NPCEntity role name as fallback
     NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
     if (npcEntity != null && npcEntity.getRole() != null) {
       String roleName = npcEntity.getRole().getRoleName();

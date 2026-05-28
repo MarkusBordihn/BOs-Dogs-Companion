@@ -25,12 +25,13 @@ import com.hypixel.hytale.codec.codecs.UUIDBinaryCodec;
 import com.hypixel.hytale.codec.codecs.simple.StringCodec;
 import com.hypixel.hytale.codec.schema.SchemaContext;
 import com.hypixel.hytale.codec.schema.config.Schema;
-import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.math.vector.Vector3iUtil;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
+import org.joml.Vector3i;
 
 public record DogDataEntry(
     @Nonnull UUID uuid,
@@ -71,7 +72,7 @@ public record DogDataEntry(
               doc.containsKey(NAME_TAG) ? STRING_CODEC.decode(doc.get(NAME_TAG), info) : null,
               DogState.CODEC.decode(doc.get(STATE_TAG), info),
               doc.containsKey(POSITION_TAG)
-                  ? Vector3i.CODEC.decode(doc.get(POSITION_TAG), info)
+                  ? Vector3iUtil.CODEC.decode(doc.get(POSITION_TAG), info)
                   : null,
               doc.containsKey(STATUS_TAG)
                   ? DogStatus.CODEC.decode(doc.get(STATUS_TAG), info)
@@ -90,7 +91,7 @@ public record DogDataEntry(
           if (entry.name != null) doc.put(NAME_TAG, STRING_CODEC.encode(entry.name, info));
           doc.put(STATE_TAG, DogState.CODEC.encode(entry.state, info));
           if (entry.position != null)
-            doc.put(POSITION_TAG, Vector3i.CODEC.encode(entry.position, info));
+            doc.put(POSITION_TAG, Vector3iUtil.CODEC.encode(entry.position, info));
           doc.put(STATUS_TAG, DogStatus.CODEC.encode(entry.status, info));
           return doc;
         }

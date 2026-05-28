@@ -28,8 +28,6 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -58,6 +56,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 public class DogsManager extends RefSystem<EntityStore> {
 
@@ -117,7 +117,6 @@ public class DogsManager extends RefSystem<EntityStore> {
         }
       }
 
-      // Restore NPC state based on DogStateComponent after entity load
       if (reason == AddReason.LOAD) {
         DogStateComponent stateComponent =
             store.getComponent(ref, DogStateComponent.getComponentType());
@@ -399,11 +398,13 @@ public class DogsManager extends RefSystem<EntityStore> {
       String npcState =
           switch (dogState) {
             case SITTING -> "Sitting";
-            case FOLLOWING -> "Default";
-            case ATTACKING -> "Attacking";
-            case STRIKING -> "Attacking";
-            case WANDERING -> "Default";
-            default -> "Default";
+            case SLEEPING -> "Sleeping";
+            case WAITING -> "Waiting";
+            case SEARCHING -> "Searching";
+            case DEFENSE -> "Defense";
+            case OFFENSE -> "Offense";
+            case ATTACKING, STRIKING -> "Attacking";
+            case FOLLOWING, WANDERING, PLAYING -> "Default";
           };
       npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", npcState, store);
     }
@@ -448,10 +449,8 @@ public class DogsManager extends RefSystem<EntityStore> {
       return;
     }
 
-    // Remove owner component
     store.removeComponent(dogRef, DogOwnerComponent.getComponentType());
 
-    // Update persistent data
     DogsCompanionDataResource resource =
         store.getResource(DogsCompanionDataResource.getResourceType());
     if (resource != null) {
@@ -512,7 +511,7 @@ public class DogsManager extends RefSystem<EntityStore> {
 
     Player player = store.getComponent(ownerRef, Player.getComponentType());
     if (player != null) {
-      player.sendMessage(message);
+      player.getPlayerRef().sendMessage(message);
     }
   }
 

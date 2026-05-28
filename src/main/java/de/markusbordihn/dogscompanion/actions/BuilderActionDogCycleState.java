@@ -113,15 +113,12 @@ public class BuilderActionDogCycleState extends BuilderActionBase {
       DogState nextState = getNextState(currentState);
       String nextSubstate = getSubstateName(nextState);
 
-      // Update the dog's state
       DogsManager.getInstance().updateDogState(entityRef, nextState, store);
 
-      // Update NPC role substate
       NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
       if (npcEntity != null && npcEntity.getRole() != null) {
         npcEntity.getRole().getStateSupport().setState(entityRef, "Pet", nextSubstate, store);
 
-        // Update nameplate to show state symbol
         DogNameComponent nameComponent =
             store.getComponent(entityRef, DogNameComponent.getComponentType());
         if (nameComponent != null) {
