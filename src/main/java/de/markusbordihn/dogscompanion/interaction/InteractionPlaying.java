@@ -23,6 +23,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
 import java.util.logging.Level;
@@ -38,9 +39,13 @@ public class InteractionPlaying {
       Player player,
       String toyItem) {
 
+    PlayerRef playerRef =
+        player != null
+            ? store.getComponent(player.getReference(), PlayerRef.getComponentType())
+            : null;
     LOGGER.at(Level.INFO).log(
         "PLAYING WITH TOY - Dog playing with %s by player %s",
-        toyItem, player != null ? player.getPlayerRef().getUsername() : "unknown");
+        toyItem, playerRef != null ? playerRef.getUsername() : "unknown");
 
     role.getStateSupport().setState(entityRef, "Pet", "Playing", store);
 

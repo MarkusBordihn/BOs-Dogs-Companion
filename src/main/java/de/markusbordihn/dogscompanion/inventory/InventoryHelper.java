@@ -19,23 +19,26 @@
 
 package de.markusbordihn.dogscompanion.inventory;
 
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.inventory.Inventory;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.logging.Level;
 
 public class InventoryHelper {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
-  public static boolean giveItem(Player player, String itemId) {
+  public static boolean giveItem(Player player, Store<EntityStore> store, String itemId) {
     if (player == null || itemId == null || itemId.isEmpty()) {
       return false;
     }
 
-    Inventory inventory = player.getInventory();
-    if (inventory == null) {
-      LOGGER.at(Level.WARNING).log("Cannot give item: player inventory is null");
+    InventoryComponent.Hotbar hotbar =
+        store.getComponent(player.getReference(), InventoryComponent.Hotbar.getComponentType());
+    if (hotbar == null) {
+      LOGGER.at(Level.WARNING).log("Cannot give item: player hotbar is null");
       return false;
     }
 
@@ -45,26 +48,28 @@ public class InventoryHelper {
       return false;
     }
 
-    inventory.getHotbar().addItemStack(giftStack);
+    hotbar.getInventory().addItemStack(giftStack);
     LOGGER.at(Level.FINE).log("Gave 1x %s to player", itemId);
     return true;
   }
 
-  public static void consumeActiveHotbarItem(Player player, ItemStack heldItem) {
+  public static void consumeActiveHotbarItem(
+      Player player, Store<EntityStore> store, ItemStack heldItem) {
     String itemName = heldItem != null ? heldItem.getItemId() : null;
     if (player == null) {
       LOGGER.at(Level.WARNING).log("Cannot consume item: player is null");
       return;
     }
 
-    Inventory inventory = player.getInventory();
-    if (inventory == null) {
-      LOGGER.at(Level.WARNING).log("Cannot consume item: player inventory is null");
+    InventoryComponent.Hotbar hotbar =
+        store.getComponent(player.getReference(), InventoryComponent.Hotbar.getComponentType());
+    if (hotbar == null) {
+      LOGGER.at(Level.WARNING).log("Cannot consume item: player hotbar is null");
       return;
     }
 
-    byte activeSlot = inventory.getActiveHotbarSlot();
-    inventory.getHotbar().removeItemStackFromSlot(activeSlot, 1);
+    byte activeSlot = hotbar.getActiveSlot();
+    hotbar.getInventory().removeItemStackFromSlot(activeSlot, 1);
     LOGGER.at(Level.FINE).log(
         "Consumed 1x %s from player inventory at slot %d", itemName, activeSlot);
   }

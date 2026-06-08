@@ -36,6 +36,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
@@ -511,7 +512,10 @@ public class DogsManager extends RefSystem<EntityStore> {
 
     Player player = store.getComponent(ownerRef, Player.getComponentType());
     if (player != null) {
-      player.getPlayerRef().sendMessage(message);
+      PlayerRef playerRef = store.getComponent(ownerRef, PlayerRef.getComponentType());
+      if (playerRef != null) {
+        playerRef.sendMessage(message);
+      }
     }
   }
 

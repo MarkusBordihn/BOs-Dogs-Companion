@@ -81,7 +81,7 @@ public class BuilderActionDogInteractionWild extends BuilderActionDogInteraction
         double deltaTime,
         Store<EntityStore> store) {
       Player player = getPlayerFromInfoProvider(role, infoProvider, store);
-      ItemStack heldItem = getHeldItem(player);
+      ItemStack heldItem = getHeldItem(player, store);
 
       if (heldItem != null && heldItem.isValid()) {
         return InteractionTaming.handle(entityRef, role, store, player, heldItem);

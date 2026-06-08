@@ -76,7 +76,7 @@ public class BuilderActionDogInteractionStranger extends BuilderActionDogInterac
       if (player == null) {
         return false;
       }
-      return !isOwner(entityRef, getPlayerUUID(player), store);
+      return !isOwner(entityRef, getPlayerUUID(player, store), store);
     }
 
     @Override

@@ -68,8 +68,17 @@ public class InteractionTaming {
       return false;
     }
 
-    UUID playerUUID = player.getUuid();
-    String username = player.getPlayerRef().getUsername();
+    Ref<EntityStore> playerEntityRef = role.getStateSupport().getInteractionIterationTarget();
+    UUIDComponent uuidComponent =
+        playerEntityRef != null
+            ? store.getComponent(playerEntityRef, UUIDComponent.getComponentType())
+            : null;
+    UUID playerUUID = uuidComponent != null ? uuidComponent.getUuid() : null;
+    PlayerRef playerRefComponent =
+        playerEntityRef != null
+            ? store.getComponent(playerEntityRef, PlayerRef.getComponentType())
+            : null;
+    String username = playerRefComponent != null ? playerRefComponent.getUsername() : null;
     if (playerUUID == null || username == null) {
       LOGGER.at(Level.WARNING).log("Cannot tame dog - UUID or username not found");
       return false;
@@ -83,13 +92,13 @@ public class InteractionTaming {
 
     int currentDogCount = dogsManager.getDogCountByOwner(playerUUID, store);
     if (currentDogCount >= Constants.DEFAULT_DOG_LIMIT) {
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.taming.limit_reached")
-                  .param("current", String.valueOf(currentDogCount))
-                  .param("limit", String.valueOf(Constants.DEFAULT_DOG_LIMIT))
-                  .color(Constants.COLOR_ERROR));
+      if (playerRefComponent != null) {
+        playerRefComponent.sendMessage(
+            Message.translation("dogs_companion.interactions.taming.limit_reached")
+                .param("current", String.valueOf(currentDogCount))
+                .param("limit", String.valueOf(Constants.DEFAULT_DOG_LIMIT))
+                .color(Constants.COLOR_ERROR));
+      }
       return false;
     }
 
@@ -112,17 +121,17 @@ public class InteractionTaming {
         && System.currentTimeMillis() - progressComponent.getLastFedTimestamp()
             < FEEDING_COOLDOWN_MS) {
       role.getStateSupport().setState(entityRef, "Wild", "Rejection", store);
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.taming.cooldown")
-                  .color(Constants.COLOR_WARNING));
+      if (playerRefComponent != null) {
+        playerRefComponent.sendMessage(
+            Message.translation("dogs_companion.interactions.taming.cooldown")
+                .color(Constants.COLOR_WARNING));
+      }
       return true;
     }
 
     progressComponent.incrementFeeding();
     store.putComponent(entityRef, DogTamingProgressComponent.getComponentType(), progressComponent);
-    InventoryHelper.consumeActiveHotbarItem(player, heldItem);
+    InventoryHelper.consumeActiveHotbarItem(player, store, heldItem);
 
     role.getStateSupport().setState(entityRef, "Wild", "Feeding", store);
 
@@ -132,20 +141,28 @@ public class InteractionTaming {
 
     if (progressComponent.isComplete()) {
       completeTaming(
-          entityRef, role, store, player, playerUUID, username, itemName, progressComponent);
+          entityRef,
+          role,
+          store,
+          player,
+          playerEntityRef,
+          playerUUID,
+          username,
+          itemName,
+          progressComponent);
       return true;
     }
 
-    player
-        .getPlayerRef()
-        .sendMessage(
-            Message.translation("dogs_companion.interactions.taming.in_progress")
-                .param(
-                    "remaining",
-                    String.valueOf(
-                        progressComponent.getRequiredFeedings()
-                            - progressComponent.getFeedingCount()))
-                .color(Constants.COLOR_INFO));
+    if (playerRefComponent != null) {
+      playerRefComponent.sendMessage(
+          Message.translation("dogs_companion.interactions.taming.in_progress")
+              .param(
+                  "remaining",
+                  String.valueOf(
+                      progressComponent.getRequiredFeedings()
+                          - progressComponent.getFeedingCount()))
+              .color(Constants.COLOR_INFO));
+    }
 
     return true;
   }
@@ -155,6 +172,7 @@ public class InteractionTaming {
       Role role,
       Store<EntityStore> store,
       Player player,
+      Ref<EntityStore> playerEntityRef,
       UUID playerUUID,
       String username,
       String itemName,
@@ -198,7 +216,6 @@ public class InteractionTaming {
     DogsManager.getInstance().assignOwner(entityRef, playerUUID, username, dogName, store);
     store.removeComponent(entityRef, DogTamingProgressComponent.getComponentType());
 
-    Ref<EntityStore> playerEntityRef = role.getStateSupport().getInteractionIterationTarget();
     if (playerEntityRef != null && playerEntityRef.isValid()) {
       PlayerRef playerRef = store.getComponent(playerEntityRef, PlayerRef.getComponentType());
       if (playerRef != null) {
@@ -213,16 +230,13 @@ public class InteractionTaming {
             new DogTamingSuccessPage(
                 playerRef, dogUuid != null ? dogUuid : playerUUID, roleName, dogName);
         player.getPageManager().openCustomPage(playerEntityRef, store, successPage);
-      }
-    }
-
-    player
-        .getPlayerRef()
-        .sendMessage(
+        playerRef.sendMessage(
             Message.translation("dogs_companion.interactions.taming.success")
                 .param("item", itemName)
                 .param("dogName", dogName)
                 .color(Constants.COLOR_SUCCESS));
+      }
+    }
 
     LOGGER.at(Level.INFO).log(
         "Dog successfully tamed by player %s with item %s (dogs: %d/%d)",

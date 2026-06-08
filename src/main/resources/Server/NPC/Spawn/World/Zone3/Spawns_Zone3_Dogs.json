@@ -1,0 +1,19 @@
+{
+  "$Comment": "Zone 3 tundra/forests - German Shepherd, daytime",
+  "Environments": [
+    "Env_Zone3_Tundra",
+    "Env_Zone3_Forests"
+  ],
+  "NPCs": [
+    {
+      "Weight": 2,
+      "SpawnBlockSet": "Soil_NoSnow",
+      "Id": "DogsCompanion_GermanShepherd_Wild",
+      "Flock": "One_Or_Two"
+    }
+  ],
+  "DayTimeRange": [
+    6,
+    18
+  ]
+}

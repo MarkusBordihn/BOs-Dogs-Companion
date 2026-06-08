@@ -84,7 +84,7 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         LOGGER.at(Level.FINE).log("No player found");
         return false;
       }
-      if (!isOwner(entityRef, getPlayerUUID(player), store)) {
+      if (!isOwner(entityRef, getPlayerUUID(player, store), store)) {
         LOGGER.at(Level.FINE).log("Player is not the owner");
         return false;
       }
@@ -105,7 +105,7 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         return false;
       }
 
-      ItemStack heldItem = getHeldItem(player);
+      ItemStack heldItem = getHeldItem(player, store);
 
       if (heldItem != null) {
         LOGGER.at(Level.FINE).log(

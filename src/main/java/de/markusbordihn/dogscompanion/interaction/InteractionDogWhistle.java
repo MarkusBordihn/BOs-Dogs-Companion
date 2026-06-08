@@ -36,6 +36,7 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.SimpleInteraction;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import com.hypixel.hytale.server.npc.role.Role;
@@ -92,21 +93,22 @@ public class InteractionDogWhistle extends SimpleInteraction {
       count++;
     }
 
+    PlayerRef playerRef = store.getComponent(player.getReference(), PlayerRef.getComponentType());
+    if (playerRef == null) {
+      return;
+    }
+
     if (count == 1) {
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.whistle.attack")
-                  .param("dogName", lastDogName)
-                  .param("target", targetName)
-                  .color(Constants.COLOR_INFO));
+      playerRef.sendMessage(
+          Message.translation("dogs_companion.interactions.whistle.attack")
+              .param("dogName", lastDogName)
+              .param("target", targetName)
+              .color(Constants.COLOR_INFO));
     } else if (count > 1) {
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.whistle.attack.all")
-                  .param("target", targetName)
-                  .color(Constants.COLOR_INFO));
+      playerRef.sendMessage(
+          Message.translation("dogs_companion.interactions.whistle.attack.all")
+              .param("target", targetName)
+              .color(Constants.COLOR_INFO));
     }
   }
 
@@ -123,11 +125,12 @@ public class InteractionDogWhistle extends SimpleInteraction {
       DogActionHelper.follow(dogRef, store);
     }
 
-    player
-        .getPlayerRef()
-        .sendMessage(
-            Message.translation("dogs_companion.interactions.whistle.recall")
-                .color(Constants.COLOR_SUCCESS));
+    PlayerRef playerRef = store.getComponent(player.getReference(), PlayerRef.getComponentType());
+    if (playerRef != null) {
+      playerRef.sendMessage(
+          Message.translation("dogs_companion.interactions.whistle.recall")
+              .color(Constants.COLOR_SUCCESS));
+    }
   }
 
   private static boolean isValidAttackTarget(
@@ -195,19 +198,21 @@ public class InteractionDogWhistle extends SimpleInteraction {
     if (stateComponent != null && stateComponent.getState() == DogState.ATTACKING) {
       DogCombatUtils.clearTarget(dogRef, store);
       DogActionHelper.follow(dogRef, store);
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.whistle.cancel")
-                  .param("dogName", dogName)
-                  .color(Constants.COLOR_SUCCESS));
+      PlayerRef playerRef = store.getComponent(player.getReference(), PlayerRef.getComponentType());
+      if (playerRef != null) {
+        playerRef.sendMessage(
+            Message.translation("dogs_companion.interactions.whistle.cancel")
+                .param("dogName", dogName)
+                .color(Constants.COLOR_SUCCESS));
+      }
     } else {
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.whistle.cancel.not_attacking")
-                  .param("dogName", dogName)
-                  .color(Constants.COLOR_GRAY));
+      PlayerRef playerRef = store.getComponent(player.getReference(), PlayerRef.getComponentType());
+      if (playerRef != null) {
+        playerRef.sendMessage(
+            Message.translation("dogs_companion.interactions.whistle.cancel.not_attacking")
+                .param("dogName", dogName)
+                .color(Constants.COLOR_GRAY));
+      }
     }
 
     return true;
@@ -252,11 +257,13 @@ public class InteractionDogWhistle extends SimpleInteraction {
     long now = System.currentTimeMillis();
     Long lastUsed = cooldownMap.get(playerUUID);
     if (lastUsed != null && (now - lastUsed) < Constants.DOG_WHISTLE_COOLDOWN_MS) {
-      player
-          .getPlayerRef()
-          .sendMessage(
-              Message.translation("dogs_companion.interactions.whistle.cooldown")
-                  .color(Constants.COLOR_WARNING));
+      PlayerRef playerRefComponent =
+          commandBuffer.getComponent(playerRef, PlayerRef.getComponentType());
+      if (playerRefComponent != null) {
+        playerRefComponent.sendMessage(
+            Message.translation("dogs_companion.interactions.whistle.cooldown")
+                .color(Constants.COLOR_WARNING));
+      }
       context.getState().state = InteractionState.Finished;
       super.tick0(firstRun, time, type, context, cooldownHandler);
       return;
@@ -298,11 +305,13 @@ public class InteractionDogWhistle extends SimpleInteraction {
           }
 
           if (nearbyDogs.isEmpty()) {
-            player
-                .getPlayerRef()
-                .sendMessage(
-                    Message.translation("dogs_companion.interactions.whistle.no_dogs")
-                        .color(Constants.COLOR_WARNING));
+            PlayerRef playerRefComponent =
+                store.getComponent(player.getReference(), PlayerRef.getComponentType());
+            if (playerRefComponent != null) {
+              playerRefComponent.sendMessage(
+                  Message.translation("dogs_companion.interactions.whistle.no_dogs")
+                      .color(Constants.COLOR_WARNING));
+            }
             return;
           }
 

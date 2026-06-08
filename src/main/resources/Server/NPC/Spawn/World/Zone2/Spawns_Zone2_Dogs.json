@@ -1,0 +1,25 @@
+{
+  "$Comment": "Zone 2 savanna/oasis - Shiba Inu, daytime",
+  "Environments": [
+    "Env_Zone2_Savanna",
+    "Env_Zone2_Oasis"
+  ],
+  "NPCs": [
+    {
+      "Weight": 3,
+      "SpawnBlockSet": "Soil",
+      "Id": "DogsCompanion_ShibaInu_Wild",
+      "Flock": "One_Or_Two"
+    },
+    {
+      "Weight": 2,
+      "SpawnBlockSet": "Soil",
+      "Id": "DogsCompanion_Wild",
+      "Flock": "One_Or_Two"
+    }
+  ],
+  "DayTimeRange": [
+    6,
+    18
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$Comment": "Zone 1 plains - all breeds, daytime",
+  "Environments": [
+    "Env_Zone1_Plains"
+  ],
+  "NPCs": [
+    {
+      "Weight": 3,
+      "SpawnBlockSet": "Soil",
+      "Id": "DogsCompanion_Wild",
+      "Flock": "One_Or_Two"
+    },
+    {
+      "Weight": 2,
+      "SpawnBlockSet": "Soil",
+      "Id": "DogsCompanion_ShibaInu_Wild",
+      "Flock": "One_Or_Two"
+    }
+  ],
+  "DayTimeRange": [
+    6,
+    18
+  ]
+}

@@ -50,14 +50,16 @@ public class InteractionOwner {
             store.getComponent(entityRef, DogNameComponent.getComponentType());
         String dogName = nameComponent != null ? nameComponent.getName() : "Your dog";
 
-        InventoryHelper.giveItem(player, itemId);
-        player
-            .getPlayerRef()
-            .sendMessage(
-                Message.translation("dogs_companion.interactions.search.give")
-                    .param("name", dogName)
-                    .param("item", itemId)
-                    .color("#FFD700"));
+        InventoryHelper.giveItem(player, store, itemId);
+        PlayerRef ownerPlayerRef =
+            store.getComponent(player.getReference(), PlayerRef.getComponentType());
+        if (ownerPlayerRef != null) {
+          ownerPlayerRef.sendMessage(
+              Message.translation("dogs_companion.interactions.search.give")
+                  .param("name", dogName)
+                  .param("item", itemId)
+                  .color("#FFD700"));
+        }
 
         DogsManager.getInstance().updateDogState(entityRef, DogState.FOLLOWING, store);
         role.getStateSupport().setState(entityRef, "Pet", "Default", store);

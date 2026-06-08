@@ -1,0 +1,19 @@
+{
+  "$Comment": "Zone 1 mountains/azure - German Shepherd, daytime",
+  "Environments": [
+    "Env_Zone1_Mountains",
+    "Env_Zone1_Azure"
+  ],
+  "NPCs": [
+    {
+      "Weight": 2,
+      "SpawnBlockSet": "Soil",
+      "Id": "DogsCompanion_GermanShepherd_Wild",
+      "Flock": "One_Or_Two"
+    }
+  ],
+  "DayTimeRange": [
+    6,
+    18
+  ]
+}

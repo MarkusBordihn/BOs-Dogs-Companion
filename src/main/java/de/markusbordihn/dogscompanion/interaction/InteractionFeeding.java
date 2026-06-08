@@ -28,6 +28,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
@@ -54,14 +55,16 @@ public class InteractionFeeding {
         "%s - Dog fed with %s by player %s",
         isOwner ? "FEEDING: By Owner" : "FEEDING: By Stranger",
         itemName,
-        player != null ? player.getPlayerRef().getUsername() : "unknown");
+        player != null
+            ? store.getComponent(player.getReference(), PlayerRef.getComponentType()).getUsername()
+            : "unknown");
 
     if (itemName != null) {
       healDog(entityRef, store, player, getHealAmount(itemName));
     }
     role.getStateSupport().setState(entityRef, "Pet", "Feeding", store);
 
-    InventoryHelper.consumeActiveHotbarItem(player, heldItem);
+    InventoryHelper.consumeActiveHotbarItem(player, store, heldItem);
 
     return false;
   }
@@ -99,26 +102,24 @@ public class InteractionFeeding {
         DogNameComponent nameComponent =
             store.getComponent(entityRef, DogNameComponent.getComponentType());
         String dogName = nameComponent != null ? nameComponent.getName() : "Your dog";
+        PlayerRef playerRef =
+            store.getComponent(player.getReference(), PlayerRef.getComponentType());
 
-        if (actualHealAmount > 0) {
-          player
-              .getPlayerRef()
-              .sendMessage(
-                  Message.translation("dogs_companion.interactions.healing")
-                      .param("dogName", dogName)
-                      .param("amount", String.format("%.1f", actualHealAmount))
-                      .color("#66FF66"));
+        if (actualHealAmount > 0 && playerRef != null) {
+          playerRef.sendMessage(
+              Message.translation("dogs_companion.interactions.healing")
+                  .param("dogName", dogName)
+                  .param("amount", String.format("%.1f", actualHealAmount))
+                  .color("#66FF66"));
 
           LOGGER.at(Level.INFO).log(
               "Dog healed: %s (+%.1f HP, now %.1f/%.1f)",
               dogName, actualHealAmount, newHealth, maxHealth);
-        } else {
-          player
-              .getPlayerRef()
-              .sendMessage(
-                  Message.translation("dogs_companion.interactions.already_full_health")
-                      .param("dogName", dogName)
-                      .color("#FFAA66"));
+        } else if (playerRef != null) {
+          playerRef.sendMessage(
+              Message.translation("dogs_companion.interactions.already_full_health")
+                  .param("dogName", dogName)
+                  .color("#FFAA66"));
         }
       }
     } catch (Exception e) {

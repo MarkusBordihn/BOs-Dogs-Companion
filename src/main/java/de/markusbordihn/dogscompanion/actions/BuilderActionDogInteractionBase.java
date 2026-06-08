@@ -22,8 +22,9 @@ package de.markusbordihn.dogscompanion.actions;
 import com.google.gson.JsonElement;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.inventory.Inventory;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderDescriptorState;
@@ -74,11 +75,13 @@ public abstract class BuilderActionDogInteractionBase extends BuilderActionBase 
       return ownerComponent != null && ownerComponent.hasOwner();
     }
 
-    protected java.util.UUID getPlayerUUID(Player player) {
+    protected java.util.UUID getPlayerUUID(Player player, Store<EntityStore> store) {
       if (player == null) {
         return null;
       }
-      return player.getUuid();
+      UUIDComponent uuidComponent =
+          store.getComponent(player.getReference(), UUIDComponent.getComponentType());
+      return uuidComponent != null ? uuidComponent.getUuid() : null;
     }
 
     protected Player getPlayerFromInfoProvider(
@@ -103,17 +106,18 @@ public abstract class BuilderActionDogInteractionBase extends BuilderActionBase 
       return null;
     }
 
-    protected ItemStack getHeldItem(Player player) {
+    protected ItemStack getHeldItem(Player player, Store<EntityStore> store) {
       if (player == null) {
         return null;
       }
 
-      Inventory inventory = player.getInventory();
-      if (inventory == null) {
+      InventoryComponent.Hotbar hotbar =
+          store.getComponent(player.getReference(), InventoryComponent.Hotbar.getComponentType());
+      if (hotbar == null) {
         return null;
       }
 
-      ItemStack activeItem = inventory.getActiveHotbarItem();
+      ItemStack activeItem = hotbar.getActiveItem();
       if (activeItem == null || activeItem.isEmpty()) {
         return null;
       }
@@ -121,8 +125,8 @@ public abstract class BuilderActionDogInteractionBase extends BuilderActionBase 
       return activeItem;
     }
 
-    protected String getHeldItemName(Player player) {
-      ItemStack item = getHeldItem(player);
+    protected String getHeldItemName(Player player, Store<EntityStore> store) {
+      ItemStack item = getHeldItem(player, store);
       return item != null ? item.getItemId() : null;
     }
 

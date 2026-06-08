@@ -7,6 +7,11 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 1.7.0
+
+- Migrated to Hytale 0.5.4 with updated APIs and systems.
+- Added basic default natural spawn definitions.
+
 ### 1.6.0
 
 - Fixed status effect bug where dogs would get stuck in a status effect state.

@@ -22,6 +22,7 @@ package de.markusbordihn.dogscompanion.sensors;
 import com.google.gson.JsonElement;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderDescriptorState;
@@ -99,8 +100,9 @@ public class BuilderSensorIsOwner extends BuilderSensorBase {
         return false;
       }
 
-      UUID playerUUID = player.getUuid();
-      return ownerComponent.getOwnerUUID().equals(playerUUID);
+      UUIDComponent uuidComponent = store.getComponent(playerRef, UUIDComponent.getComponentType());
+      UUID playerUUID = uuidComponent != null ? uuidComponent.getUuid() : null;
+      return playerUUID != null && ownerComponent.getOwnerUUID().equals(playerUUID);
     }
 
     @Override
