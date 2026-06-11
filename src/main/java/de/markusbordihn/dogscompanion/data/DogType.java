@@ -28,7 +28,10 @@ public enum DogType {
   UNKNOWN("", ""),
   GENERIC_DOG("DogsCompanion_Tamed", "DogsCompanion_Wild"),
   GERMAN_SHEPHERD("DogsCompanion_GermanShepherd_Tamed", "DogsCompanion_GermanShepherd_Wild"),
-  SHIBA_INU("DogsCompanion_ShibaInu_Tamed", "DogsCompanion_ShibaInu_Wild");
+  SHIBA_INU("DogsCompanion_ShibaInu_Tamed", "DogsCompanion_ShibaInu_Wild"),
+  AUSTRALIAN_SHEPHERD_BLUE_MERLE(
+      "DogsCompanion_AustralianShepherd_BlueMerle_Tamed",
+      "DogsCompanion_AustralianShepherd_BlueMerle_Wild");
 
   public static final EnumCodec<DogType> CODEC = new EnumCodec<>(DogType.class);
 

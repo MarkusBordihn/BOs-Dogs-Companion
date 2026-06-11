@@ -4,6 +4,8 @@ npcRoles.DogsCompanion_GermanShepherd_Wild.name=Wilder Schäferhund
 npcRoles.DogsCompanion_GermanShepherd_Tamed.name=Schäferhund
 npcRoles.DogsCompanion_ShibaInu_Wild.name=Wilder Shiba Inu
 npcRoles.DogsCompanion_ShibaInu_Tamed.name=Shiba Inu
+npcRoles.DogsCompanion_AustralianShepherd_BlueMerle_Wild.name=Wilder Australian Shepherd
+npcRoles.DogsCompanion_AustralianShepherd_BlueMerle_Tamed.name=Australian Shepherd
 
 items.dogs_companion.dog_whistle.name=Hundepfeife
 items.dogs_companion.dog_whistle.description=Benutze die Pfeife, um deinen Hunden Befehle zu geben. Schau auf einen Feind und benutze sie, damit deine Hunde ihn jagen. Schau auf deinen eigenen Hund, damit er aufhört. Benutze sie ohne Ziel, um alle Hunde zu dir zurückzurufen.

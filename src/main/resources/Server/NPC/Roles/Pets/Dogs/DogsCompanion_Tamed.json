@@ -608,28 +608,39 @@
                   ]
                 },
                 {
+                  "$Comment": "Seek owner only (by UUID) for item handoff",
                   "Sensor": {
-                    "Type": "Player",
-                    "Range": 18,
+                    "Type": "DogsOwnerPlayer",
+                    "Range": 48,
                     "LockOnTarget": true
                   },
-                  "BodyMotion": {
-                    "Type": "Seek",
-                    "SlowDownDistance": 4,
-                    "StopDistance": 2,
-                    "RelativeSpeed": 1.0
-                  },
-                  "HeadMotion": {
-                    "Type": "Watch"
-                  }
-                },
-                {
-                  "Sensor": {
-                    "Type": "Target"
-                  },
-                  "BodyMotion": {
-                    "Type": "Teleport"
-                  }
+                  "Instructions": [
+                    {
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget",
+                        "Range": 18
+                      },
+                      "BodyMotion": {
+                        "Type": "Seek",
+                        "SlowDownDistance": 4,
+                        "StopDistance": 2,
+                        "RelativeSpeed": 1.0
+                      },
+                      "HeadMotion": {
+                        "Type": "Watch"
+                      }
+                    },
+                    {
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget"
+                      },
+                      "BodyMotion": {
+                        "Type": "Teleport"
+                      }
+                    }
+                  ]
                 }
               ]
             },
@@ -669,30 +680,41 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner",
+                  "$Comment": "Follow owner only (by UUID)",
                   "Sensor": {
-                    "Type": "Player",
-                    "Range": 18,
+                    "Type": "DogsOwnerPlayer",
+                    "Range": 48,
                     "LockOnTarget": true
                   },
-                  "BodyMotion": {
-                    "Type": "Seek",
-                    "SlowDownDistance": 10,
-                    "StopDistance": 3,
-                    "RelativeSpeed": 0.9
-                  },
-                  "HeadMotion": {
-                    "Type": "Watch"
-                  }
-                },
-                {
-                  "$Comment": "Teleport if out of range",
-                  "Sensor": {
-                    "Type": "Target"
-                  },
-                  "BodyMotion": {
-                    "Type": "Teleport"
-                  }
+                  "Instructions": [
+                    {
+                      "$Comment": "Walk to owner",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget",
+                        "Range": 18
+                      },
+                      "BodyMotion": {
+                        "Type": "Seek",
+                        "SlowDownDistance": 10,
+                        "StopDistance": 3,
+                        "RelativeSpeed": 0.9
+                      },
+                      "HeadMotion": {
+                        "Type": "Watch"
+                      }
+                    },
+                    {
+                      "$Comment": "Teleport if owner is far away",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget"
+                      },
+                      "BodyMotion": {
+                        "Type": "Teleport"
+                      }
+                    }
+                  ]
                 }
               ]
             },
@@ -732,30 +754,41 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner",
+                  "$Comment": "Follow owner only (by UUID)",
                   "Sensor": {
-                    "Type": "Player",
-                    "Range": 18,
+                    "Type": "DogsOwnerPlayer",
+                    "Range": 48,
                     "LockOnTarget": true
                   },
-                  "BodyMotion": {
-                    "Type": "Seek",
-                    "SlowDownDistance": 10,
-                    "StopDistance": 3,
-                    "RelativeSpeed": 0.9
-                  },
-                  "HeadMotion": {
-                    "Type": "Watch"
-                  }
-                },
-                {
-                  "$Comment": "Teleport if out of range",
-                  "Sensor": {
-                    "Type": "Target"
-                  },
-                  "BodyMotion": {
-                    "Type": "Teleport"
-                  }
+                  "Instructions": [
+                    {
+                      "$Comment": "Walk to owner",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget",
+                        "Range": 18
+                      },
+                      "BodyMotion": {
+                        "Type": "Seek",
+                        "SlowDownDistance": 10,
+                        "StopDistance": 3,
+                        "RelativeSpeed": 0.9
+                      },
+                      "HeadMotion": {
+                        "Type": "Watch"
+                      }
+                    },
+                    {
+                      "$Comment": "Teleport if owner is far away",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget"
+                      },
+                      "BodyMotion": {
+                        "Type": "Teleport"
+                      }
+                    }
+                  ]
                 }
               ]
             },
@@ -781,86 +814,96 @@
                   ]
                 },
                 {
-                  "$Comment": "Follow owner when far",
+                  "$Comment": "Follow owner only (by UUID), tiered by distance",
                   "Sensor": {
-                    "Type": "Player",
-                    "Range": 18,
-                    "MinRange": 5,
+                    "Type": "DogsOwnerPlayer",
+                    "Range": 48,
                     "LockOnTarget": true
                   },
-                  "BodyMotion": {
-                    "Type": "Seek",
-                    "SlowDownDistance": 10,
-                    "StopDistance": 3,
-                    "RelativeSpeed": 0.9
-                  },
-                  "HeadMotion": {
-                    "Type": "Watch"
-                  }
-                },
-                {
-                  "$Comment": "Idle near owner",
-                  "Sensor": {
-                    "Type": "Player",
-                    "Range": 5,
-                    "LockOnTarget": true
-                  },
-                  "BodyMotion": {
-                    "Type": "Sequence",
-                    "Looped": true,
-                    "Motions": [
-                      {
-                        "$Comment": "Idle",
-                        "Type": "Timer",
-                        "Time": [3, 7],
-                        "Motion": {
-                          "Type": "Nothing"
-                        }
+                  "Instructions": [
+                    {
+                      "$Comment": "Idle near owner",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget",
+                        "Range": 5
                       },
-                      {
-                        "$Comment": "Sniff around",
-                        "Type": "Timer",
-                        "Time": [1, 3],
-                        "Motion": {
-                          "Type": "WanderInCircle",
-                          "Radius": 3,
-                          "MaxHeadingChange": 45,
-                          "RelativeSpeed": 0.2
-                        }
+                      "BodyMotion": {
+                        "Type": "Sequence",
+                        "Looped": true,
+                        "Motions": [
+                          {
+                            "$Comment": "Idle",
+                            "Type": "Timer",
+                            "Time": [3, 7],
+                            "Motion": {
+                              "Type": "Nothing"
+                            }
+                          },
+                          {
+                            "$Comment": "Sniff around",
+                            "Type": "Timer",
+                            "Time": [1, 3],
+                            "Motion": {
+                              "Type": "WanderInCircle",
+                              "Radius": 3,
+                              "MaxHeadingChange": 45,
+                              "RelativeSpeed": 0.2
+                            }
+                          },
+                          {
+                            "$Comment": "Pause",
+                            "Type": "Timer",
+                            "Time": [2, 5],
+                            "Motion": {
+                              "Type": "Nothing"
+                            }
+                          },
+                          {
+                            "$Comment": "Wander",
+                            "Type": "Timer",
+                            "Time": [1, 2],
+                            "Motion": {
+                              "Type": "WanderInCircle",
+                              "Radius": 2,
+                              "MaxHeadingChange": 90,
+                              "RelativeSpeed": 0.15
+                            }
+                          }
+                        ]
                       },
-                      {
-                        "$Comment": "Pause",
-                        "Type": "Timer",
-                        "Time": [2, 5],
-                        "Motion": {
-                          "Type": "Nothing"
-                        }
-                      },
-                      {
-                        "$Comment": "Wander",
-                        "Type": "Timer",
-                        "Time": [1, 2],
-                        "Motion": {
-                          "Type": "WanderInCircle",
-                          "Radius": 2,
-                          "MaxHeadingChange": 90,
-                          "RelativeSpeed": 0.15
-                        }
+                      "HeadMotion": {
+                        "Type": "Watch"
                       }
-                    ]
-                  },
-                  "HeadMotion": {
-                    "Type": "Watch"
-                  }
-                },
-                {
-                  "$Comment": "Teleport if out of range",
-                  "Sensor": {
-                    "Type": "Target"
-                  },
-                  "BodyMotion": {
-                    "Type": "Teleport"
-                  }
+                    },
+                    {
+                      "$Comment": "Walk back to owner when moderately far",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget",
+                        "Range": 18
+                      },
+                      "BodyMotion": {
+                        "Type": "Seek",
+                        "SlowDownDistance": 10,
+                        "StopDistance": 3,
+                        "RelativeSpeed": 0.9
+                      },
+                      "HeadMotion": {
+                        "Type": "Watch"
+                      }
+                    },
+                    {
+                      "$Comment": "Teleport if owner is far away",
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "OwnerTarget"
+                      },
+                      "BodyMotion": {
+                        "Type": "Teleport"
+                      }
+                    }
+                  ]
                 }
               ]
             },
@@ -1054,24 +1097,13 @@
             "Interactable": true,
             "Hint": "dogs_companion.interactions.hint.stranger",
             "ShowPrompt": true
-          },
-          {
-            "Type": "DogInteractionStranger"
           }
         ]
       },
       {
-        "$Comment": "Handle owner interactions",
+        "$Comment": "Handle interactions - owner and stranger actions self-gate by ownership",
         "Sensor": {
-          "Type": "And",
-          "Sensors": [
-            {
-              "Type": "HasInteracted"
-            },
-            {
-              "Type": "DogOwner"
-            }
-          ]
+          "Type": "HasInteracted"
         },
         "Actions": [
           {
@@ -1079,6 +1111,9 @@
           },
           {
             "Type": "DogInteractionOwner"
+          },
+          {
+            "Type": "DogInteractionStranger"
           }
         ]
       }

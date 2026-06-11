@@ -33,7 +33,7 @@ public class InteractionStranger {
 
   public static boolean handle(
       Ref<EntityStore> entityRef, Role role, Store<EntityStore> store, Player player) {
-    LOGGER.at(Level.INFO).log("STRANGER: Interaction blocked for dog - player is not the owner");
+    LOGGER.at(Level.FINE).log("STRANGER: Interaction blocked for dog - player is not the owner");
 
     role.getStateSupport().setState(entityRef, "Pet", "Rejection", store);
 

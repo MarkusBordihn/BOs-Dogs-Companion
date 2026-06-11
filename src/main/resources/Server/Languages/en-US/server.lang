@@ -4,6 +4,8 @@ npcRoles.DogsCompanion_GermanShepherd_Wild.name=Wild German Shepherd
 npcRoles.DogsCompanion_GermanShepherd_Tamed.name=German Shepherd
 npcRoles.DogsCompanion_ShibaInu_Wild.name=Wild Shiba Inu
 npcRoles.DogsCompanion_ShibaInu_Tamed.name=Shiba Inu
+npcRoles.DogsCompanion_AustralianShepherd_BlueMerle_Wild.name=Wild Australian Shepherd
+npcRoles.DogsCompanion_AustralianShepherd_BlueMerle_Tamed.name=Australian Shepherd
 
 items.dogs_companion.dog_whistle.name=Dog Whistle
 items.dogs_companion.dog_whistle.description=Use this whistle to give your dogs orders. Look at an enemy and use it to send your dogs after them. Look at your own dog to make it stop. Use it without looking at anything to call all your dogs back to you.

@@ -1,0 +1,15 @@
+{
+  "Type": "Variant",
+  "Reference": "DogsCompanion_Wild",
+  "Modify": {
+    "Appearance": "DogsCompanion_AustralianShepherd_BlueMerle",
+    "NameTranslationKey": {
+      "Compute": "NameTranslationKey"
+    }
+  },
+  "Parameters": {
+    "NameTranslationKey": {
+      "Value": "server.npcRoles.DogsCompanion_AustralianShepherd_BlueMerle_Wild.name"
+    }
+  }
+}

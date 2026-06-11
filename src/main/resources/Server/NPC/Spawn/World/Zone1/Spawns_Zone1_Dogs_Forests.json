@@ -16,6 +16,12 @@
       "SpawnBlockSet": "Soil",
       "Id": "DogsCompanion_GermanShepherd_Wild",
       "Flock": "One_Or_Two"
+    },
+    {
+      "Weight": 2,
+      "SpawnBlockSet": "Soil",
+      "Id": "DogsCompanion_AustralianShepherd_BlueMerle_Wild",
+      "Flock": "One_Or_Two"
     }
   ],
   "DayTimeRange": [

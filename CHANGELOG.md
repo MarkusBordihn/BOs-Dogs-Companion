@@ -7,8 +7,19 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 1.8.0
+
+- Added Australian Shepherd dog breed.
+- Fixed multi-player issues with owner are not recognized.
+
 ### 1.7.0
 
+- Fixed tamed dogs following any nearby player instead of only their owner.
+- Fixed stranger interaction firing every tick, which flooded the logs and repeatedly forced the
+  dog into its rejection state (freezing it and overriding owner commands like sit/stay).
+- Fixed tamed dogs being managed by the natural spawn system, which could despawn or duplicate
+  them.
+- Fixed stale entity reference cache entries (invalid refs and UUID changes) in the dog manager.
 - Migrated to Hytale 0.5.4 with updated APIs and systems.
 - Added basic default natural spawn definitions.
 

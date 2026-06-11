@@ -39,6 +39,7 @@ import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsHoldingEmptyHand;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsHoldingFood;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorIsOwner;
 import de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerAttacked;
+import de.markusbordihn.dogscompanion.sensors.BuilderSensorOwnerPlayer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -58,6 +59,7 @@ public class NPCSetupHandler {
     BuilderSensorIsDogTamed.SENSOR_ID,
     BuilderSensorIsOwner.SENSOR_ID,
     BuilderSensorOwnerAttacked.BUILDER_ID,
+    BuilderSensorOwnerPlayer.SENSOR_ID,
     BuilderSensorIsHoldingFood.SENSOR_ID,
     BuilderSensorIsHoldingEmptyHand.SENSOR_ID,
     BuilderSensorIsHoldingDogWhistle.SENSOR_ID,
@@ -68,6 +70,7 @@ public class NPCSetupHandler {
     BuilderSensorIsDogTamed::new,
     BuilderSensorIsOwner::new,
     BuilderSensorOwnerAttacked::new,
+    BuilderSensorOwnerPlayer::new,
     BuilderSensorIsHoldingFood::new,
     BuilderSensorIsHoldingEmptyHand::new,
     BuilderSensorIsHoldingDogWhistle::new,

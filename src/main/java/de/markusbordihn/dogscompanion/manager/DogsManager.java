@@ -39,6 +39,7 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntitySta
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import de.markusbordihn.dogscompanion.actions.BuilderActionDogMoodParticles;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
@@ -108,6 +109,15 @@ public class DogsManager extends RefSystem<EntityStore> {
       DogOwnerComponent ownerComponent =
           store.getComponent(ref, DogOwnerComponent.getComponentType());
       if (ownerComponent != null) {
+        NPCEntity npcEntity = store.getComponent(ref, NPCEntity.getComponentType());
+        if (npcEntity != null && ownerComponent.hasOwner()) {
+          npcEntity.setSpawnConfiguration(Integer.MIN_VALUE);
+          npcEntity.updateSpawnTrackingState(false);
+          LOGGER.at(Level.FINE).log(
+              "Disabled spawn tracking for tamed dog UUID %s (Owner: %s)",
+              entityUuid, ownerComponent.getOwnerName());
+        }
+
         DogsCompanionDataResource resource =
             store.getResource(DogsCompanionDataResource.getResourceType());
         if (resource != null && resource.getDog(entityUuid) == null) {
@@ -140,6 +150,7 @@ public class DogsManager extends RefSystem<EntityStore> {
     UUID entityUuid = getUuid(ref, store);
     if (entityUuid != null) {
       dogRefCache.remove(entityUuid);
+      BuilderActionDogMoodParticles.ActionDogMoodParticles.clearEntity(ref);
       DogsCompanionDataResource resource =
           store.getResource(DogsCompanionDataResource.getResourceType());
       if (resource != null) {
@@ -157,8 +168,11 @@ public class DogsManager extends RefSystem<EntityStore> {
   public Ref<EntityStore> getDogByUuid(
       @Nonnull UUID entityUuid, @Nonnull Store<EntityStore> store) {
     Ref<EntityStore> cached = dogRefCache.get(entityUuid);
-    if (cached != null && cached.isValid()) {
-      return cached;
+    if (cached != null) {
+      if (cached.isValid()) {
+        return cached;
+      }
+      dogRefCache.remove(entityUuid);
     }
 
     Ref<EntityStore> resolved = store.getExternalData().getRefFromUUID(entityUuid);
@@ -471,6 +485,10 @@ public class DogsManager extends RefSystem<EntityStore> {
       if (dogData != null) {
         resource.removeDog(oldUuid);
         resource.addDog(dogData.withUuid(newUuid).withStatus(DogStatus.SPAWNED));
+        Ref<EntityStore> oldRef = dogRefCache.remove(oldUuid);
+        if (oldRef != null) {
+          dogRefCache.put(newUuid, oldRef);
+        }
       }
     }
   }

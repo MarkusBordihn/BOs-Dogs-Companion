@@ -86,6 +86,10 @@ public class BuilderActionDogMoodParticles extends BuilderActionBase {
       super(builder);
     }
 
+    public static void clearEntity(@Nonnull Ref<EntityStore> entityRef) {
+      elapsedByEntity.remove(entityRef);
+    }
+
     @Nullable
     private static String toMoodSubState(@Nonnull DogState state) {
       return switch (state) {
