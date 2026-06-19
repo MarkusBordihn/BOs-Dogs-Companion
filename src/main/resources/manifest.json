@@ -1,7 +1,7 @@
 {
     "Group": "MarkusBordihn",
     "Name": "Dogs",
-    "Version": "1.8.0",
+    "Version": "2.0.0",
     "Description": "Adds dogs as useful companions with guarding and support behavior.",
     "Authors": [
         {
@@ -10,7 +10,7 @@
     ],
     "Website": "https://www.curseforge.com/hytale/mods/dogs-companion",
     "Main": "de.markusbordihn.dogscompanion.DogsCompanion",
-    "ServerVersion": "^0.5.4",
+    "ServerVersion": "^0.5.6",
     "Dependencies": {
         "Hytale:NPC": "*"
     },

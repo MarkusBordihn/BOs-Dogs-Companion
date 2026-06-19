@@ -7,6 +7,10 @@ For the full changelog, please go to the [GitHub History][history] instead.
 
 Note: Please always back up your world before updating to a new version!
 
+### 2.0.0
+
+- Migrated to Hytale 0.5.6
+
 ### 1.8.0
 
 - Added Australian Shepherd dog breed.
