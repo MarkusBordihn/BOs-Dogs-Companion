@@ -21,7 +21,6 @@ package de.markusbordihn.dogscompanion.interaction;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -33,7 +32,6 @@ import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import java.util.Set;
 
 public class ItemInteractionOwner {
-  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
   private static final Set<String> TOY_ITEMS =
       Set.of("Item_Stick", "Stick", "Dog_Ball", "Dog_Toy", "Item_Ball");
@@ -70,10 +68,11 @@ public class ItemInteractionOwner {
           playerRef.sendMessage(
               Message.translation("dogs_companion.interactions.item.unknown.named")
                   .param("dogName", dogName)
-                  .color("#FFAA66"));
+                  .color(Constants.COLOR_HINT));
         } else {
           playerRef.sendMessage(
-              Message.translation("dogs_companion.interactions.item.unknown").color("#FFAA66"));
+              Message.translation("dogs_companion.interactions.item.unknown")
+                  .color(Constants.COLOR_HINT));
         }
       }
     }

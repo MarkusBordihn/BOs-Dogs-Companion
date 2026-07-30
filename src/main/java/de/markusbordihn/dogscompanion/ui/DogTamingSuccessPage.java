@@ -139,13 +139,12 @@ public final class DogTamingSuccessPage
 
   public static final class TamingSuccessEventData {
     public static final BuilderCodec<TamingSuccessEventData> CODEC =
-        ((BuilderCodec.Builder<TamingSuccessEventData>)
-                BuilderCodec.builder(TamingSuccessEventData.class, TamingSuccessEventData::new)
-                    .append(
-                        new KeyedCodec(KEY_NAME_INPUT, Codec.STRING),
-                        (data, value) -> data.nameInput = value,
-                        data -> data.nameInput)
-                    .add())
+        BuilderCodec.builder(TamingSuccessEventData.class, TamingSuccessEventData::new)
+            .append(
+                new KeyedCodec<>(KEY_NAME_INPUT, Codec.STRING),
+                (data, value) -> data.nameInput = value,
+                data -> data.nameInput)
+            .add()
             .build();
 
     private String nameInput;

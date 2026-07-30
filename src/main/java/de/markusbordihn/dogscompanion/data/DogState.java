@@ -22,17 +22,27 @@ package de.markusbordihn.dogscompanion.data;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 
 public enum DogState {
-  SITTING,
-  SLEEPING,
-  FOLLOWING,
-  WANDERING,
-  PLAYING,
-  WAITING,
-  SEARCHING,
-  ATTACKING,
-  STRIKING,
-  DEFENSE,
-  OFFENSE;
+  SITTING("Sitting"),
+  SLEEPING("Sleeping"),
+  FOLLOWING("Default"),
+  WANDERING("Wandering"),
+  PLAYING("Playing"),
+  WAITING("Waiting"),
+  SEARCHING("Searching"),
+  ATTACKING("Attacking"),
+  STRIKING("Striking"),
+  DEFENSE("Defense"),
+  OFFENSE("Offense");
 
   public static final EnumCodec<DogState> CODEC = new EnumCodec<>(DogState.class);
+
+  private final String npcSubstate;
+
+  DogState(String npcSubstate) {
+    this.npcSubstate = npcSubstate;
+  }
+
+  public String getNpcSubstate() {
+    return this.npcSubstate;
+  }
 }

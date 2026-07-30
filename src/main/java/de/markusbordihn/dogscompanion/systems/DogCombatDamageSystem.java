@@ -27,7 +27,6 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
@@ -35,12 +34,12 @@ import com.hypixel.hytale.server.core.modules.entity.damage.DamageSystems;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.damage.DogDamageSource;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.utils.DogCombatUtils;
+import de.markusbordihn.dogscompanion.utils.DogEntityNameUtils;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -56,10 +55,26 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
   private static final double ATTACK_RANGE_SQUARED = 6.25;
   private static final long ATTACK_COOLDOWN_MS = 2500;
   private static final long STRIKE_DELAY_MS = 400;
-  private static final int TICK_INTERVAL = 5;
+  private static final String BITE_DAMAGE_CAUSE_ID = "Slashing";
+
+  private static volatile DamageCause biteDamageCause;
 
   private final ConcurrentLinkedQueue<PendingStrike> pendingStrikes = new ConcurrentLinkedQueue<>();
-  private int tickCounter = 0;
+
+  @Nonnull
+  private static DamageCause resolveBiteDamageCause() {
+    DamageCause damageCause = biteDamageCause;
+    if (damageCause == null) {
+      damageCause = DamageCause.getAssetMap().getAsset(BITE_DAMAGE_CAUSE_ID);
+      if (damageCause == null) {
+        throw new IllegalStateException(
+            "Damage cause " + BITE_DAMAGE_CAUSE_ID + " is not registered");
+      }
+      biteDamageCause = damageCause;
+    }
+
+    return damageCause;
+  }
 
   @Nonnull
   @Override
@@ -70,19 +85,23 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
   @Override
   public void tick(
       float deltaTime,
-      int index,
       @Nonnull ArchetypeChunk<EntityStore> chunk,
       @Nonnull Store<EntityStore> store,
       @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+    this.applyPendingStrikes(store, commandBuffer);
+    super.tick(deltaTime, chunk, store, commandBuffer);
+  }
 
+  private void applyPendingStrikes(
+      @Nonnull Store<EntityStore> store, @Nonnull CommandBuffer<EntityStore> commandBuffer) {
     long currentTimeMs = System.currentTimeMillis();
 
-    PendingStrike strike = pendingStrikes.peek();
-    if (strike != null && currentTimeMs >= strike.applyAtMs) {
-      pendingStrikes.poll();
+    PendingStrike strike;
+    while ((strike = this.pendingStrikes.peek()) != null && currentTimeMs >= strike.applyAtMs) {
+      this.pendingStrikes.poll();
 
       if (!strike.dogRef.isValid() || !DogCombatUtils.isTargetAlive(strike.targetRef, store)) {
-        return;
+        continue;
       }
 
       // NPC state Striking for visual only; DogStateComponent stays ATTACKING
@@ -94,19 +113,30 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
       DamageSystems.executeDamage(strike.targetRef, commandBuffer, strike.damage);
 
       if (!DogCombatUtils.isTargetAlive(strike.targetRef, store)) {
-        sendOwnerMessage(
-            strike.dogRef,
-            store,
-            Message.translation("dogs_companion.combat.defeated")
-                .param("dog", getDogName(strike.dogRef, store))
-                .param("target", strike.targetName)
-                .color(Constants.COLOR_SUCCESS));
+        DogsManager.getInstance()
+            .sendMessageToOwner(
+                strike.dogRef,
+                store,
+                Message.translation("dogs_companion.combat.defeated")
+                    .param(
+                        "dog",
+                        DogEntityNameUtils.getDogName(
+                            strike.dogRef, store, DogEntityNameUtils.FALLBACK_DOG))
+                    .param("target", strike.targetName)
+                    .color(Constants.COLOR_SUCCESS));
       }
     }
+  }
 
-    if (++tickCounter % TICK_INTERVAL != 0) {
-      return;
-    }
+  @Override
+  public void tick(
+      float deltaTime,
+      int index,
+      @Nonnull ArchetypeChunk<EntityStore> chunk,
+      @Nonnull Store<EntityStore> store,
+      @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+
+    long currentTimeMs = System.currentTimeMillis();
 
     DogStateComponent dogStateComponent =
         chunk.getComponent(index, DogStateComponent.getComponentType());
@@ -147,10 +177,10 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
     }
 
     Damage damage =
-        new Damage(new DogDamageSource(dogRef), DamageCause.PHYSICAL, DOG_ATTACK_DAMAGE);
+        new Damage(new DogDamageSource(dogRef), resolveBiteDamageCause(), DOG_ATTACK_DAMAGE);
 
     // Cache target name before queueing strike (in case entity dies before execution)
-    String targetName = getEntityName(targetRef, store);
+    String targetName = DogEntityNameUtils.getEntityName(targetRef, store);
     pendingStrikes.offer(
         new PendingStrike(dogRef, targetRef, targetName, damage, currentTimeMs + STRIKE_DELAY_MS));
     dogStateComponent.setLastAttackTime(currentTimeMs);
@@ -158,57 +188,6 @@ public class DogCombatDamageSystem extends EntityTickingSystem<EntityStore> {
     LOGGER.at(Level.FINE).log(
         "Dog attack queued (damage: %.1f, distance: %.2fm)",
         DOG_ATTACK_DAMAGE, Math.sqrt(distanceSquared));
-  }
-
-  private void sendOwnerMessage(
-      @Nonnull Ref<EntityStore> dogRef,
-      @Nonnull Store<EntityStore> store,
-      @Nonnull Message message) {
-    DogsManager.getInstance().sendMessageToOwner(dogRef, store, message);
-  }
-
-  @Nonnull
-  private String getDogName(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogNameComponent nameComponent =
-        store.getComponent(dogRef, DogNameComponent.getComponentType());
-    return nameComponent != null && nameComponent.getName() != null
-        ? nameComponent.getName()
-        : "Your dog";
-  }
-
-  @Nonnull
-  private String getEntityName(
-      @Nonnull Ref<EntityStore> entityRef, @Nonnull Store<EntityStore> store) {
-    if (entityRef == null || !entityRef.isValid()) {
-      return "target";
-    }
-
-    DogNameComponent dogNameComponent =
-        store.getComponent(entityRef, DogNameComponent.getComponentType());
-    if (dogNameComponent != null
-        && dogNameComponent.getName() != null
-        && !dogNameComponent.getName().isEmpty()) {
-      return dogNameComponent.getName();
-    }
-
-    DisplayNameComponent displayNameComponent =
-        store.getComponent(entityRef, DisplayNameComponent.getComponentType());
-    if (displayNameComponent != null && displayNameComponent.getDisplayName() != null) {
-      String displayName = displayNameComponent.getDisplayName().getRawText();
-      if (displayName != null && !displayName.isEmpty()) {
-        return displayName;
-      }
-    }
-
-    NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
-    if (npcEntity != null && npcEntity.getRole() != null) {
-      String roleName = npcEntity.getRole().getRoleName();
-      if (roleName != null && !roleName.isEmpty()) {
-        return roleName;
-      }
-    }
-
-    return "target";
   }
 
   private static class PendingStrike {

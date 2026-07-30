@@ -38,6 +38,7 @@ import de.markusbordihn.dogscompanion.data.DogType;
 import de.markusbordihn.dogscompanion.inventory.InventoryHelper;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.manager.DogsNamesManager;
+import de.markusbordihn.dogscompanion.permission.PermissionManager;
 import de.markusbordihn.dogscompanion.ui.DogTamingSuccessPage;
 import java.util.Random;
 import java.util.UUID;
@@ -90,15 +91,14 @@ public class InteractionTaming {
       return false;
     }
 
+    int dogLimit = PermissionManager.getDogLimit(playerRefComponent);
     int currentDogCount = dogsManager.getDogCountByOwner(playerUUID, store);
-    if (currentDogCount >= Constants.DEFAULT_DOG_LIMIT) {
-      if (playerRefComponent != null) {
-        playerRefComponent.sendMessage(
-            Message.translation("dogs_companion.interactions.taming.limit_reached")
-                .param("current", String.valueOf(currentDogCount))
-                .param("limit", String.valueOf(Constants.DEFAULT_DOG_LIMIT))
-                .color(Constants.COLOR_ERROR));
-      }
+    if (dogLimit >= 0 && currentDogCount >= dogLimit) {
+      playerRefComponent.sendMessage(
+          Message.translation("dogs_companion.interactions.taming.limit_reached")
+              .param("current", String.valueOf(currentDogCount))
+              .param("limit", String.valueOf(dogLimit))
+              .color(Constants.COLOR_ERROR));
       return false;
     }
 
@@ -209,7 +209,7 @@ public class InteractionTaming {
           }
         }
       } catch (Exception e) {
-        LOGGER.at(Level.SEVERE).log("Failed to change dog role", e);
+        LOGGER.at(Level.SEVERE).withCause(e).log("Failed to change dog role");
       }
     }
 
@@ -239,17 +239,11 @@ public class InteractionTaming {
     }
 
     LOGGER.at(Level.INFO).log(
-        "Dog successfully tamed by player %s with item %s (dogs: %d/%d)",
-        username,
-        itemName,
-        DogsManager.getInstance().getDogCountByOwner(playerUUID, store),
-        Constants.DEFAULT_DOG_LIMIT);
+        "Dog successfully tamed by player %s with item %s (dogs: %d)",
+        username, itemName, DogsManager.getInstance().getDogCountByOwner(playerUUID, store));
   }
 
   private static boolean isTamingItem(String itemName) {
-    if (itemName == null) {
-      return false;
-    }
-    return itemName.equals("Food_Wildmeat_Cooked") || itemName.equals("Food_Wildmeat_Raw");
+    return itemName != null && Constants.DOG_FOOD_ITEMS.contains(itemName);
   }
 }

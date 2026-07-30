@@ -27,19 +27,18 @@ import com.hypixel.hytale.component.query.AnyQuery;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
-import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
+import de.markusbordihn.dogscompanion.utils.DogCombatUtils;
 import java.util.Set;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -90,6 +89,11 @@ public class DogDefenseSystem extends DamageEventSystem {
       @Nonnull Damage damage,
       @Nonnull Store<EntityStore> store,
       @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+    // Only owners can have dogs, so skip every non-player victim before any lookup.
+    if (store.getComponent(victimRef, PlayerRef.getComponentType()) == null) {
+      return;
+    }
+
     UUIDComponent victimUUID = store.getComponent(victimRef, UUIDComponent.getComponentType());
     if (victimUUID == null) {
       return;
@@ -147,35 +151,7 @@ public class DogDefenseSystem extends DamageEventSystem {
         continue;
       }
 
-      activateDogAttack(dogRef, attackerRef, store, commandBuffer);
-    }
-  }
-
-  private void activateDogAttack(
-      @Nonnull Ref<EntityStore> dogRef,
-      @Nonnull Ref<EntityStore> targetRef,
-      @Nonnull Store<EntityStore> store,
-      @Nonnull CommandBuffer<EntityStore> commandBuffer) {
-
-    // don't modify store during event processing
-    DogStateComponent newStateComponent = new DogStateComponent(DogState.ATTACKING);
-    commandBuffer.putComponent(dogRef, DogStateComponent.getComponentType(), newStateComponent);
-
-    DogNameComponent nameComponent =
-        store.getComponent(dogRef, DogNameComponent.getComponentType());
-    if (nameComponent != null) {
-      Nameplate nameplate = store.getComponent(dogRef, Nameplate.getComponentType());
-      if (nameplate != null) {
-        Nameplate updatedNameplate = (Nameplate) nameplate.clone();
-        updatedNameplate.setText("[ATK] " + nameComponent.getName());
-        commandBuffer.putComponent(dogRef, Nameplate.getComponentType(), updatedNameplate);
-      }
-    }
-
-    NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
-    if (npcEntity != null && npcEntity.getRole() != null) {
-      npcEntity.getRole().getMarkedEntitySupport().setMarkedEntity("LockedTarget", targetRef);
-      npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", "Attacking", commandBuffer);
+      DogCombatUtils.engageTarget(dogRef, attackerRef, store, commandBuffer);
 
       LOGGER.at(Level.FINE).log(
           "Dog %s activated defense mode and is attacking aggressor",

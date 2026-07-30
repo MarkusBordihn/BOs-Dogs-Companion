@@ -153,8 +153,7 @@ public class BuilderSensorOwnerPlayer extends BuilderSensorBase {
               (sensorOwnerPlayer, playerRef, lambdaRole, playerStore) -> {
                 UUIDComponent uuidComponent =
                     playerStore.getComponent(playerRef, UUIDComponent.getComponentType());
-                if (uuidComponent != null
-                    && resolvedOwnerUuid.equals(uuidComponent.getUuid())) {
+                if (uuidComponent != null && resolvedOwnerUuid.equals(uuidComponent.getUuid())) {
                   foundOwner.set(playerRef);
                   return true;
                 }

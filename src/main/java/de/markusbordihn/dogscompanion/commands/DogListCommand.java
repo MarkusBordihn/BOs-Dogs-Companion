@@ -37,69 +37,103 @@ final class DogListCommand extends DogCommand {
     super("list", "Lists all your dogs with name, UUID and position");
   }
 
+  @Nonnull
+  private static String getDogName(@Nonnull DogDataEntry dogData) {
+    if (dogData.name() != null && !dogData.name().isEmpty()) {
+      return dogData.name();
+    }
+
+    return Message.translation("dogs_companion.commands.list.unnamed").getRawText();
+  }
+
+  @Nonnull
+  private static String getStatusIndicator(
+      @Nonnull DogsManager dogsManager,
+      @Nonnull DogDataEntry dogData,
+      @Nonnull Store<EntityStore> store) {
+    String statusKey =
+        dogsManager.getDogByUuid(dogData.uuid(), store) == null
+            ? "despawned"
+            : dogsManager.isDogAliveInWorld(dogData.uuid(), store) ? "alive" : "dead";
+
+    return Message.translation("dogs_companion.commands.list.status." + statusKey).getRawText();
+  }
+
+  @Nonnull
+  private static String getPositionText(@Nonnull DogDataEntry dogData) {
+    if (dogData.position() == null) {
+      return Message.translation("dogs_companion.commands.list.no_position").getRawText();
+    }
+
+    return String.format(
+        "(%d,%d,%d)", dogData.position().x, dogData.position().y, dogData.position().z);
+  }
+
   @Override
   protected void execute(
       @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
     if (!context.isPlayer()) {
       context.sendMessage(
-          Message.raw("This command can only be used by players").color(Constants.COLOR_ERROR));
+          Message.translation("dogs_companion.commands.error.player_only")
+              .color(Constants.COLOR_ERROR));
       return;
     }
 
     UUID playerUuid = context.sender().getUuid();
     if (playerUuid == null) {
-      context.sendMessage(Message.raw("Unable to get player UUID").color(Constants.COLOR_ERROR));
+      context.sendMessage(
+          Message.translation("dogs_companion.commands.error.no_uuid")
+              .color(Constants.COLOR_ERROR));
       return;
     }
 
     DogsManager dogsManager = DogsManager.getInstance();
     Collection<DogDataEntry> playerDogs = dogsManager.getDogDataByOwner(playerUuid, store);
 
-    int currentCount = playerDogs.size();
     int limit = getDogLimit(context);
-    String limitText = limit == -1 ? "unlimited" : String.valueOf(limit);
+    String limitText =
+        limit == -1
+            ? Message.translation("dogs_companion.commands.list.unlimited").getRawText()
+            : String.valueOf(limit);
+
+    context.sendMessage(
+        Message.translation("dogs_companion.commands.list.header")
+            .param("count", String.valueOf(playerDogs.size()))
+            .param("limit", limitText)
+            .color(Constants.COLOR_GOLD));
 
     if (playerDogs.isEmpty()) {
-      context.sendMessage(Message.raw("=== Your Dogs (0/" + limitText + ") ===").color("#FFD700"));
-      context.sendMessage(Message.raw("You don't have any dogs yet.").color(Constants.COLOR_GRAY));
       context.sendMessage(
-          Message.raw("Tip: Tame a wild dog by giving it bones or meat!")
+          Message.translation("dogs_companion.commands.list.empty").color(Constants.COLOR_GRAY));
+      context.sendMessage(
+          Message.translation("dogs_companion.commands.list.empty.hint")
               .color(Constants.COLOR_INFO));
       return;
     }
 
-    context.sendMessage(
-        Message.raw("=== Your Dogs (" + currentCount + "/" + limitText + ") ===").color("#FFD700"));
-
     int index = 1;
     for (DogDataEntry dogData : playerDogs) {
-      String dogName =
-          dogData.name() != null && !dogData.name().isEmpty() ? dogData.name() : "Unnamed Dog";
-      String statusIndicator =
-          dogsManager.getDogByUuid(dogData.uuid(), store) == null
-              ? "[DESPAWNED]"
-              : dogsManager.isDogAliveInWorld(dogData.uuid(), store) ? "[ALIVE]" : "[DEAD]";
-      String positionStr =
-          dogData.position() != null
-              ? String.format(
-                  "(%d,%d,%d)", dogData.position().x, dogData.position().y, dogData.position().z)
-              : "(no position)";
       context.sendMessage(
-          Message.raw(index + ". " + dogName + " " + statusIndicator + " " + positionStr)
-              .color("#00FFFF"));
+          Message.translation("dogs_companion.commands.list.entry")
+              .param("index", String.valueOf(index))
+              .param("name", getDogName(dogData))
+              .param("status", getStatusIndicator(dogsManager, dogData, store))
+              .param("position", getPositionText(dogData))
+              .color(Constants.COLOR_CYAN));
       context.sendMessage(
-          Message.raw("   Type: " + dogData.dogType() + " | State: " + dogData.state())
+          Message.translation("dogs_companion.commands.list.entry.details")
+              .param("type", String.valueOf(dogData.dogType()))
+              .param("state", String.valueOf(dogData.state()))
               .color(Constants.COLOR_GRAY));
       context.sendMessage(
-          Message.raw("   UUID: " + dogData.uuid().toString().substring(0, 8) + "...")
+          Message.translation("dogs_companion.commands.list.entry.uuid")
+              .param("uuid", dogData.uuid().toString().substring(0, 8) + "...")
               .color(Constants.COLOR_GRAY));
 
       index++;
     }
 
-    context.sendMessage(Message.raw(""));
     context.sendMessage(
-        Message.raw("Tip: Use /dog info while looking at a dog for more details")
-            .color(Constants.COLOR_INFO));
+        Message.translation("dogs_companion.commands.list.hint").color(Constants.COLOR_INFO));
   }
 }

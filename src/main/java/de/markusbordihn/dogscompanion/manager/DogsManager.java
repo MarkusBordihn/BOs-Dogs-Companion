@@ -40,6 +40,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogMoodParticles;
+import de.markusbordihn.dogscompanion.actions.BuilderActionDogSearchReturn;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
@@ -50,11 +51,11 @@ import de.markusbordihn.dogscompanion.data.DogType;
 import de.markusbordihn.dogscompanion.utils.DogNameplateUtils;
 import de.markusbordihn.dogscompanion.world.storage.DogsCompanionDataResource;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,7 +67,7 @@ public class DogsManager extends RefSystem<EntityStore> {
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
   private static DogsManager instance;
   private final ComponentType<EntityStore, DogStateComponent> componentType;
-  private final Map<UUID, Ref<EntityStore>> dogRefCache = new HashMap<>();
+  private final Map<UUID, Ref<EntityStore>> dogRefCache = new ConcurrentHashMap<>();
 
   public DogsManager(ComponentType<EntityStore, DogStateComponent> componentType) {
     this.componentType = componentType;
@@ -149,16 +150,20 @@ public class DogsManager extends RefSystem<EntityStore> {
       @Nonnull CommandBuffer<EntityStore> commandBuffer) {
     UUID entityUuid = getUuid(ref, store);
     if (entityUuid != null) {
-      dogRefCache.remove(entityUuid);
+      this.dogRefCache.remove(entityUuid);
       BuilderActionDogMoodParticles.ActionDogMoodParticles.clearEntity(ref);
+      BuilderActionDogSearchReturn.ActionDogSearchReturn.resetSearch(ref);
+
       DogsCompanionDataResource resource =
           store.getResource(DogsCompanionDataResource.getResourceType());
       if (resource != null) {
         DogDataEntry dogData = resource.getDog(entityUuid);
-        if (dogData != null && reason == RemoveReason.REMOVE) {
-          if (dogData.status() == DogStatus.SPAWNED) {
-            resource.updateDog(entityUuid, dogData.withStatus(DogStatus.DESPAWNED));
+        if (dogData != null) {
+          DogDataEntry updatedData = dogData.withPosition(getPosition(ref, store));
+          if (reason == RemoveReason.REMOVE && dogData.status() == DogStatus.SPAWNED) {
+            updatedData = updatedData.withStatus(DogStatus.DESPAWNED);
           }
+          resource.updateDog(entityUuid, updatedData);
         }
       }
     }
@@ -275,6 +280,7 @@ public class DogsManager extends RefSystem<EntityStore> {
               .withOwner(ownerUuid, ownerName)
               .withName(dogName)
               .withState(dogState)
+              .withPosition(getPosition(dogRef, store))
               .withStatus(DogStatus.SPAWNED));
     } else {
       DogDataEntry newEntry =
@@ -410,18 +416,10 @@ public class DogsManager extends RefSystem<EntityStore> {
 
     NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
     if (npcEntity != null && npcEntity.getRole() != null) {
-      String npcState =
-          switch (dogState) {
-            case SITTING -> "Sitting";
-            case SLEEPING -> "Sleeping";
-            case WAITING -> "Waiting";
-            case SEARCHING -> "Searching";
-            case DEFENSE -> "Defense";
-            case OFFENSE -> "Offense";
-            case ATTACKING, STRIKING -> "Attacking";
-            case FOLLOWING, WANDERING, PLAYING -> "Default";
-          };
-      npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", npcState, store);
+      npcEntity
+          .getRole()
+          .getStateSupport()
+          .setState(dogRef, "Pet", dogState.getNpcSubstate(), store);
     }
   }
 

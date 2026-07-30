@@ -87,13 +87,12 @@ public final class DogNameInputPage
 
   public static final class NameInputEventData {
     public static final BuilderCodec<NameInputEventData> CODEC =
-        ((BuilderCodec.Builder<NameInputEventData>)
-                BuilderCodec.builder(NameInputEventData.class, NameInputEventData::new)
-                    .append(
-                        new KeyedCodec(KEY_NAME_INPUT, Codec.STRING),
-                        (data, value) -> data.nameInput = value,
-                        data -> data.nameInput)
-                    .add())
+        BuilderCodec.builder(NameInputEventData.class, NameInputEventData::new)
+            .append(
+                new KeyedCodec<>(KEY_NAME_INPUT, Codec.STRING),
+                (data, value) -> data.nameInput = value,
+                data -> data.nameInput)
+            .add()
             .build();
 
     private String nameInput;

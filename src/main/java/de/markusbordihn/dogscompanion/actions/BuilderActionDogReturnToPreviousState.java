@@ -110,8 +110,8 @@ public class BuilderActionDogReturnToPreviousState extends BuilderActionBase {
         return false;
       }
 
-      DogState previousState = stateComponent.getData().getStateOrPrevious();
-      String substateName = getSubstateName(previousState);
+      DogState previousState = stateComponent.getData().previousStateOrDefault();
+      String substateName = previousState.getNpcSubstate();
 
       DogsManager.getInstance().updateDogState(entityRef, previousState, store);
 
@@ -133,23 +133,6 @@ public class BuilderActionDogReturnToPreviousState extends BuilderActionBase {
       }
 
       return true;
-    }
-
-    @Nonnull
-    private String getSubstateName(@Nonnull DogState state) {
-      return switch (state) {
-        case SITTING -> "Sitting";
-        case SLEEPING -> "Sleeping";
-        case PLAYING -> "Playing";
-        case WAITING -> "Waiting";
-        case WANDERING -> "Wandering";
-        case SEARCHING -> "Searching";
-        case DEFENSE -> "Defense";
-        case OFFENSE -> "Offense";
-        case ATTACKING -> "Attacking";
-        case STRIKING -> "Attacking";
-        case FOLLOWING -> "Default";
-      };
     }
   }
 }

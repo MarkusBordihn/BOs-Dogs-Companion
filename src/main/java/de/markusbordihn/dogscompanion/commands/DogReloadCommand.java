@@ -35,19 +35,24 @@ final class DogReloadCommand extends DogCommand {
 
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
+  private static final String RELOAD_PERMISSION = "markusbordihn.dogs.command.dog.reload";
+
   public DogReloadCommand() {
     super("reload", "Reloads the dogs configuration files");
+  }
+
+  @Override
+  protected boolean requiresOp() {
+    return true;
   }
 
   @Override
   protected void execute(
       @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
 
-    try {
-      PermissionManager.checkPermissionAlways(context, "dogs.admin.reload");
-    } catch (Exception e) {
+    if (!PermissionManager.hasPermission(context, RELOAD_PERMISSION)) {
       context.sendMessage(
-          Message.raw("You don't have permission to reload the configuration.")
+          Message.translation("dogs_companion.commands.error.no_permission")
               .color(Constants.COLOR_ERROR));
       return;
     }

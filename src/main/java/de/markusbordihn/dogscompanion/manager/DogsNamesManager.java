@@ -61,7 +61,7 @@ public class DogsNamesManager {
       initialized = true;
       LOGGER.at(Level.INFO).log("DogNamesManager initialized with %d names", dogNames.size());
     } catch (IOException e) {
-      LOGGER.at(Level.SEVERE).log("Failed to initialize DogNamesManager", e);
+      LOGGER.at(Level.SEVERE).withCause(e).log("Failed to initialize DogNamesManager");
       loadDefaultNames();
       initialized = true;
     }
@@ -120,7 +120,8 @@ public class DogsNamesManager {
   }
 
   private static void loadNamesFromFile() throws IOException {
-    dogNames.clear();
+    // Parse into a local list first so a failed read leaves the current names intact.
+    List<String> parsedNames = new ArrayList<>();
     int skippedCount = 0;
 
     for (String line : Files.readAllLines(CONFIG_FILE_PATH, StandardCharsets.UTF_8)) {
@@ -130,7 +131,7 @@ public class DogsNamesManager {
       }
 
       if (isValidDogName(trimmed)) {
-        dogNames.add(trimmed);
+        parsedNames.add(trimmed);
       } else {
         skippedCount++;
         LOGGER.at(Level.WARNING).log(
@@ -143,10 +144,15 @@ public class DogsNamesManager {
       LOGGER.at(Level.WARNING).log("Skipped %d invalid dog names from config", skippedCount);
     }
 
-    if (dogNames.isEmpty()) {
+    if (parsedNames.isEmpty()) {
       LOGGER.at(Level.WARNING).log("No valid dog names found in config, using defaults");
+      dogNames.clear();
       loadDefaultNames();
+      return;
     }
+
+    dogNames.clear();
+    dogNames.addAll(parsedNames);
   }
 
   private static boolean isValidDogName(String name) {
@@ -202,7 +208,7 @@ public class DogsNamesManager {
       loadNamesFromFile();
       LOGGER.at(Level.INFO).log("Dog names reloaded (%d names)", dogNames.size());
     } catch (IOException e) {
-      LOGGER.at(Level.SEVERE).log("Failed to reload dog names", e);
+      LOGGER.at(Level.SEVERE).withCause(e).log("Failed to reload dog names");
     }
   }
 

@@ -22,7 +22,6 @@ package de.markusbordihn.dogscompanion.sensors;
 import com.google.gson.JsonElement;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderDescriptorState;
 import com.hypixel.hytale.server.npc.asset.builder.BuilderSupport;
@@ -31,12 +30,10 @@ import com.hypixel.hytale.server.npc.corecomponents.builders.BuilderSensorBase;
 import com.hypixel.hytale.server.npc.instructions.Sensor;
 import com.hypixel.hytale.server.npc.role.Role;
 import com.hypixel.hytale.server.npc.sensorinfo.InfoProvider;
-import java.util.logging.Level;
 import javax.annotation.Nonnull;
 
 public class BuilderSensorOwnerAttacked extends BuilderSensorBase {
   public static final String BUILDER_ID = "OwnerAttacked";
-  private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
   @Nonnull
   @Override
@@ -84,8 +81,8 @@ public class BuilderSensorOwnerAttacked extends BuilderSensorBase {
         return false;
       }
 
-      // Owner damage detection not yet implemented - waiting for Hytale API damage events
-      LOGGER.at(Level.FINE).log("OwnerAttacked sensor not yet implemented");
+      // Owner damage detection is handled by DogDefenseSystem, which hooks the damage event
+      // directly; this sensor is kept only so existing role JSONs referencing it keep loading.
       return false;
     }
 

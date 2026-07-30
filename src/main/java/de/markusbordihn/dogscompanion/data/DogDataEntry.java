@@ -43,18 +43,6 @@ public record DogDataEntry(
     @Nullable Vector3i position,
     @Nonnull DogStatus status) {
 
-  private static final String UUID_TAG = "UUID";
-  private static final String OWNER_UUID_TAG = "OwnerUUID";
-  private static final String OWNER_NAME_TAG = "OwnerName";
-  private static final String TYPE_TAG = "Type";
-  private static final String NAME_TAG = "Name";
-  private static final String STATE_TAG = "State";
-  private static final String POSITION_TAG = "Position";
-  private static final String STATUS_TAG = "Status";
-
-  private static final UUIDBinaryCodec UUID_CODEC = new UUIDBinaryCodec();
-  private static final StringCodec STRING_CODEC = new StringCodec();
-
   public static final Codec<DogDataEntry> CODEC =
       new Codec<>() {
         @Override
@@ -101,6 +89,16 @@ public record DogDataEntry(
           return Schema.anyOf();
         }
       };
+  private static final String UUID_TAG = "UUID";
+  private static final String OWNER_UUID_TAG = "OwnerUUID";
+  private static final String OWNER_NAME_TAG = "OwnerName";
+  private static final String TYPE_TAG = "Type";
+  private static final String NAME_TAG = "Name";
+  private static final String STATE_TAG = "State";
+  private static final String POSITION_TAG = "Position";
+  private static final String STATUS_TAG = "Status";
+  private static final UUIDBinaryCodec UUID_CODEC = new UUIDBinaryCodec();
+  private static final StringCodec STRING_CODEC = new StringCodec();
 
   public static DogDataEntry empty() {
     return new DogDataEntry(

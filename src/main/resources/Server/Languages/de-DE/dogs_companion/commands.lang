@@ -16,7 +16,7 @@ sleep.success={name} schläft
 wait.success={name} wartet geduldig
 wander.success={name} wandert jetzt frei umher
 
-spawn.not_implemented=Spawn-Befehl ist noch nicht implementiert
+spawn.teleported=Der Hund {name} wurde zu dir teleportiert!
 spawn.no_match=Keine despawnten Hunde gefunden, die '{filter}' entsprechen
 spawn.no_despawned=Alle deine Hunde sind bereits gespawnt!
 spawn.success={count} Hund(e) erfolgreich gespawnt!
@@ -32,9 +32,6 @@ owner.info={name} gehört {owner}
 reload.success=Hunde-Konfiguration erfolgreich neu geladen!
 reload.failed=Fehler beim Neu-Laden der Hunde-Konfiguration.
 
-list.header=Deine Hunde:
-list.entry=- {name} ({state})
-list.none=Noch keine Hunde-Gefährten. Zähme einen wilden Hund um dein Rudel zu starten!
 
 error.not_owner={name} gehört {owner}
 error.no_dog=Kein Hund gefunden. Schaue einen Hund an und versuche es erneut.
@@ -43,3 +40,34 @@ error.player_only=Dieser Befehl kann nur von Spielern verwendet werden
 error.no_uuid=Spieler-UUID konnte nicht abgerufen werden
 error.player_pos_not_found=Deine Position konnte nicht gefunden werden
 error.release_failed=Freigabe des Hundebesitzes fehlgeschlagen
+error.no_permission=Du hast keine Berechtigung für diesen Befehl.
+list.header=== Deine Hunde ({count}/{limit}) ===
+list.empty=Du hast noch keine Hunde.
+list.empty.hint=Tipp: Zähme einen wilden Hund, indem du ihm Knochen oder Fleisch gibst!
+list.entry={index}. {name} {status} {position}
+list.entry.details=   Rasse: {type} | Zustand: {state}
+list.entry.uuid=   UUID: {uuid}
+list.hint=Tipp: Nutze /dog info, während du einen Hund ansiehst, für mehr Details
+list.unlimited=unbegrenzt
+list.unnamed=Namenloser Hund
+list.status.despawned=[DESPAWNED]
+list.status.alive=[LEBT]
+list.status.dead=[TOT]
+list.no_position=(keine Position)
+
+info.no_entity=Keine Entität im Blickfeld.
+info.no_entity.hint=Schaue einen Hund an und nutze: /dog info
+info.no_uuid=Hunde-UUID konnte nicht ermittelt werden (keine Hunde-Entität?)
+info.no_data=Keine Hundedaten für UUID gefunden: {uuid}
+info.name=Name: {name}
+info.unnamed=(namenlos)
+info.uuid=UUID: {uuid}
+info.type=Rasse: {type}
+info.status.tamed=Status: Gezähmt
+info.status.wild=Status: Wild
+info.owner=Besitzer: {owner}
+info.owner.unknown=Unbekannt
+info.state=Zustand: {state}
+info.spawn_status=Spawn-Status: {status}
+info.position=Letzte Position: {position}
+info.hint=Tipp: Nutze /dog name <Name>, um deinem Hund einen Namen zu geben

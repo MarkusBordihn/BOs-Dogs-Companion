@@ -53,68 +53,35 @@ public class LuckPermsCompat {
 
   private static void logLuckPermsEnabled() {
     LOGGER.at(Level.INFO).log(
-        "===============================================================================");
-    LOGGER.at(Level.INFO).log(
-        "| [Dogs Companion] LuckPerms detected! Permission checks are ENABLED.        |");
-    LOGGER.at(Level.INFO).log(
-        "|=============================================================================|");
-    LOGGER.at(Level.INFO).log(
-        "| IMPORTANT: Use wildcard permission to grant access to /dog command         |");
-    LOGGER.at(Level.INFO).log(
-        "| and all sub-commands (/dog list, /dog info, etc.)                          |");
-    LOGGER.at(Level.INFO).log(
-        "|                                                                             |");
-    LOGGER.at(Level.INFO).log(
-        "| Recommended: Grant wildcard to player or group:                            |");
-    LOGGER.at(Level.INFO).log(
-        "|   /lp user <player> permission set markusbordihn.dogs.command.dog.* true   |");
-    LOGGER.at(Level.INFO).log(
-        "|   /lp group default permission set markusbordihn.dogs.command.dog.* true   |");
-    LOGGER.at(Level.INFO).log(
-        "|                                                                             |");
-    LOGGER.at(Level.INFO).log(
-        "| Available permissions:                                                     |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog          - Base /dog command            |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.*        - Wildcard: all sub-commands   |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.attack   - /dog attack                  |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.despawn  - /dog despawn (admin)         |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.follow   - /dog follow                  |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.info     - /dog info                    |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.list     - /dog list                    |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.name     - /dog name                    |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.owner    - /dog owner (admin)           |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.play     - /dog play                    |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.release  - /dog release                 |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.search   - /dog search                  |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.sit      - /dog sit                     |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.sleep    - /dog sleep                   |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.spawn    - /dog spawn (admin)           |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.wait     - /dog wait                    |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.command.dog.wander   - /dog wander                  |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.admin.bypass         - Bypass ownership checks      |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.limit.unlimited      - Unlimited dog ownership      |");
-    LOGGER.at(Level.INFO).log(
-        "|   - markusbordihn.dogs.limit.{number}       - Limit to N dogs (e.g. .8-32) |");
-    LOGGER.at(Level.INFO).log(
-        "===============================================================================");
+        """
+        [Dogs Companion] LuckPerms detected! Permission checks are ENABLED.
+
+        Grant the wildcard to a player or group to allow /dog and all sub-commands:
+          /lp user <player> permission set markusbordihn.dogs.command.dog.* true
+          /lp group default permission set markusbordihn.dogs.command.dog.* true
+
+        Available permissions:
+          markusbordihn.dogs.command.dog           Base /dog command
+          markusbordihn.dogs.command.dog.*         Wildcard: all sub-commands
+          markusbordihn.dogs.command.dog.attack    /dog attack
+          markusbordihn.dogs.command.dog.despawn   /dog despawn
+          markusbordihn.dogs.command.dog.follow    /dog follow
+          markusbordihn.dogs.command.dog.info      /dog info
+          markusbordihn.dogs.command.dog.list      /dog list
+          markusbordihn.dogs.command.dog.name      /dog name
+          markusbordihn.dogs.command.dog.owner     /dog owner
+          markusbordihn.dogs.command.dog.play      /dog play
+          markusbordihn.dogs.command.dog.release   /dog release
+          markusbordihn.dogs.command.dog.search    /dog search
+          markusbordihn.dogs.command.dog.sit       /dog sit
+          markusbordihn.dogs.command.dog.sleep     /dog sleep
+          markusbordihn.dogs.command.dog.spawn     /dog spawn
+          markusbordihn.dogs.command.dog.wait      /dog wait
+          markusbordihn.dogs.command.dog.wander    /dog wander
+          markusbordihn.dogs.command.dog.reload    /dog reload (operators only)
+          markusbordihn.dogs.admin.bypass          Bypass ownership checks
+          markusbordihn.dogs.limit.unlimited       Unlimited dog ownership
+          markusbordihn.dogs.limit.{number}        Limit to N dogs (1-32)\
+        """);
   }
 }

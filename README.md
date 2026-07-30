@@ -25,7 +25,9 @@ modes.
 
 ## ✅ Features
 
-* 3 breeds: Generic Dog, German Shepherd, Shiba Inu (more planned)
+* 4 breeds: Generic Dog, German Shepherd, Shiba Inu, Australian Shepherd (Blue Merle)
+  (more planned)
+* Natural spawning of wild dogs in Zone 1-3 biomes (plains, forests, mountains, savanna, tundra)
 * Taming with raw or cooked meat, success screen with name input
 * **Action Wheel** to control your dog (follow, sit, sleep, play, wander, combat mode, search, pet,
   rename)
@@ -47,15 +49,16 @@ modes.
 /npc spawn DogsCompanion_Wild
 /npc spawn DogsCompanion_GermanShepherd_Wild
 /npc spawn DogsCompanion_ShibaInu_Wild
+/npc spawn DogsCompanion_AustralianShepherd_BlueMerle_Wild
 ```
 
-**Spawn Eggs:** Each breed has a spawn egg:
+**Spawn Eggs:** Most breeds have a spawn egg:
 
-* `Egg_Spawner_DogsCompanion` – Generic Dog
-* `Egg_Spawner_DogsCompanion_GermanShepherd` – German Shepherd
-* `Egg_Spawner_DogsCompanion_ShibaInu` – Shiba Inu
+* `DogsSpawnEgg_GermanShepherd` – German Shepherd
+* `DogsSpawnEgg_ShibaInu` – Shiba Inu
+* `DogsSpawnEgg_AustralianShepherd_BlueMerle` – Australian Shepherd (Blue Merle)
 
-> **Note:** Natural spawning is planned for a future update.
+> **Note:** The generic dog has no spawn egg; use `/npc spawn DogsCompanion_Wild` instead.
 
 ### How to Tame a Dog
 
@@ -103,8 +106,7 @@ Press F on your tamed dog to open the Action Wheel:
 
 #### Combat Modes
 
-Switch modes via the Action Wheel or with commands.
-The current mode is shown on the nameplate.
+Switch modes via the Action Wheel or with commands. The current mode is shown on the nameplate.
 
 **Defense [DEF]** – Dog auto-defends you when something attacks you (20 block radius)
 
@@ -112,15 +114,15 @@ The current mode is shown on the nameplate.
 
 **Attack [ATK]** – Look at a target and use `/dog attack` to send your dog after it
 
-Dogs return to following after defeating a target in Defense/Offense mode.
-Set them to Sit to keep them out of combat.
+Dogs return to following after defeating a target in Defense/Offense mode. Set them to Sit to keep
+them out of combat.
 
 #### Loyalty Defense
 
 Dogs in active states (Following, Searching, Wandering, Playing, Returning) will automatically
-defend you if your HP drops below 75% — even without Defense mode enabled. This reflects the
-dog's instinct to protect someone they're close to. Dogs set to Sit, Sleep, or Wait stay put and
-will not react.
+defend you if your HP drops below 75% — even without Defense mode enabled. This reflects the dog's
+instinct to protect someone they're close to. Dogs set to Sit, Sleep, or Wait stay put and will not
+react.
 
 ### Commands
 
@@ -135,22 +137,18 @@ change owner (admin) | `reload` – reload config (admin)
 
 ## 🔐 Permissions
 
-Supports Hytale permissions and LuckPerms. Default limit is 16 dogs per player.
-Adjust with `markusbordihn.dogs.limit.8` or `markusbordihn.dogs.limit.unlimited`.
+Supports Hytale permissions and LuckPerms. Default limit is 16 dogs per player. Adjust with
+`markusbordihn.dogs.limit.8` or `markusbordihn.dogs.limit.unlimited`.
 
 ## ⚠️ Known Limitations
 
 ### Important Notes
 
-* **Natural spawning**
-  Wild dogs do not yet spawn naturally in the world. Use spawn commands or spawn eggs.
-
 * **Limited breed variety**
-  Currently only 3 dog breeds are available. More breeds are planned for future updates.
+  Currently only 4 dog breeds are available. More breeds are planned for future updates.
 
 ## 🚧 Planned
 
-* Natural spawning in different biomes
 * More breeds (Husky, Golden Retriever, Border Collie, ...)
 * Breeding and puppies
 * Collars, armor, beds, toys

@@ -26,7 +26,6 @@ import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
-import com.hypixel.hytale.server.core.modules.entity.component.DisplayNameComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
@@ -34,11 +33,11 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
+import de.markusbordihn.dogscompanion.utils.DogEntityNameUtils;
 import javax.annotation.Nonnull;
 
 final class DogAttackCommand extends DogCommand {
@@ -122,7 +121,7 @@ final class DogAttackCommand extends DogCommand {
               store,
               Message.translation("dogs_companion.combat.attacking")
                   .param("dog", getDogDisplayName(dogRef, store))
-                  .param("target", getTargetName(targetRef, store))
+                  .param("target", DogEntityNameUtils.getEntityName(targetRef, store))
                   .color(Constants.COLOR_INFO));
 
       context.sendMessage(
@@ -133,41 +132,5 @@ final class DogAttackCommand extends DogCommand {
       context.sendMessage(
           Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_INFO));
     }
-  }
-
-  @Nonnull
-  private String getTargetName(
-      @Nonnull Ref<EntityStore> targetRef, @Nonnull Store<EntityStore> store) {
-
-    if (!targetRef.isValid()) {
-      return "target";
-    }
-
-    DogNameComponent dogNameComponent =
-        store.getComponent(targetRef, DogNameComponent.getComponentType());
-    if (dogNameComponent != null
-        && dogNameComponent.getName() != null
-        && !dogNameComponent.getName().isEmpty()) {
-      return dogNameComponent.getName();
-    }
-
-    DisplayNameComponent displayNameComponent =
-        store.getComponent(targetRef, DisplayNameComponent.getComponentType());
-    if (displayNameComponent != null && displayNameComponent.getDisplayName() != null) {
-      String displayName = displayNameComponent.getDisplayName().getRawText();
-      if (displayName != null && !displayName.isEmpty()) {
-        return displayName;
-      }
-    }
-
-    NPCEntity npcEntity = store.getComponent(targetRef, NPCEntity.getComponentType());
-    if (npcEntity != null && npcEntity.getRole() != null) {
-      String roleName = npcEntity.getRole().getRoleName();
-      if (roleName != null && !roleName.isEmpty()) {
-        return roleName;
-      }
-    }
-
-    return "target";
   }
 }

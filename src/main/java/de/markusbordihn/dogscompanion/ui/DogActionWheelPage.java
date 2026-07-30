@@ -51,9 +51,6 @@ public final class DogActionWheelPage
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
   private static final long PAGE_CONFLICT_THRESHOLD_MS = 100;
 
-  private static final String[] SLOT_IDS = {
-    "follow", "sit", "sleep_wakeup", "play", "wander_return", "cycle_combat", "search", "pet"
-  };
   private static final String KEY_CMD = "CommandId";
   private static final String UI_WHEEL = "#DogsActionMenuWheel";
   private static final String UI_TITLE = "#DogsActionMenuTitle";
@@ -145,37 +142,27 @@ public final class DogActionWheelPage
       return;
     }
 
+    // Rename opens a follow-up page and therefore must not close the wheel.
+    if ("rename".equals(data.commandId)) {
+      DogNameInputPage namePage =
+          new DogNameInputPage(this.playerRef, this.dogRef, getDogDisplayName(store));
+      this.player.getPageManager().openCustomPage(this.playerEntityRef, store, namePage);
+      return;
+    }
+
     switch (data.commandId) {
-      case "stop" -> {
-        DogActionHelper.stop(this.dogRef, store);
-        this.close();
-      }
-      case "follow" -> {
-        DogActionHelper.follow(this.dogRef, store);
-        this.close();
-      }
-      case "sit" -> {
-        DogActionHelper.sit(this.dogRef, store);
-        this.close();
-      }
-      case "pet" -> {
-        NPCEntity npc = store.getComponent(this.dogRef, NPCEntity.getComponentType());
-        if (npc != null && npc.getRole() != null) {
-          InteractionOwner.pet(this.dogRef, npc.getRole(), store, this.player);
-        }
-        this.close();
-      }
-      case "play" -> {
-        DogActionHelper.play(this.dogRef, store);
-        this.close();
-      }
+      case "stop" -> DogActionHelper.stop(this.dogRef, store);
+      case "follow" -> DogActionHelper.follow(this.dogRef, store);
+      case "sit" -> DogActionHelper.sit(this.dogRef, store);
+      case "play" -> DogActionHelper.play(this.dogRef, store);
+      case "search" -> DogActionHelper.search(this.dogRef, store);
+      case "cycle_combat" -> DogActionHelper.cycleCombatMode(this.dogRef, this.currentState, store);
       case "sleep_wakeup" -> {
         if (this.currentState == DogState.SLEEPING) {
           DogActionHelper.stop(this.dogRef, store);
         } else {
           DogActionHelper.sleep(this.dogRef, store);
         }
-        this.close();
       }
       case "wander_return" -> {
         if (this.currentState == DogState.WANDERING) {
@@ -183,23 +170,17 @@ public final class DogActionWheelPage
         } else {
           DogActionHelper.wander(this.dogRef, store);
         }
-        this.close();
       }
-      case "cycle_combat" -> {
-        DogActionHelper.cycleCombatMode(this.dogRef, this.currentState, store);
-        this.close();
+      case "pet" -> {
+        NPCEntity npc = store.getComponent(this.dogRef, NPCEntity.getComponentType());
+        if (npc != null && npc.getRole() != null) {
+          InteractionOwner.pet(this.dogRef, npc.getRole(), store, this.player);
+        }
       }
-      case "search" -> {
-        DogActionHelper.search(this.dogRef, store);
-        this.close();
-      }
-      case "rename" -> {
-        String currentName = getDogDisplayName(store);
-        DogNameInputPage namePage = new DogNameInputPage(this.playerRef, this.dogRef, currentName);
-        this.player.getPageManager().openCustomPage(this.playerEntityRef, store, namePage);
-      }
-      default -> this.close();
+      default -> LOGGER.at(Level.FINE).log("Unknown wheel command: %s", data.commandId);
     }
+
+    this.close();
   }
 
   @Override
@@ -214,43 +195,21 @@ public final class DogActionWheelPage
 
   private void buildCommandButtons(
       @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
-    for (int i = 0; i < 8; i++) {
+    WheelSlot[] slots = WheelSlot.values();
+    for (int i = 0; i < slots.length; i++) {
       String buttonId = UI_BUTTON_PREFIX + i;
       String labelId = UI_LABEL_PREFIX + i;
 
       commandBuilder.set(buttonId + ".Visible", true);
       commandBuilder.set(buttonId + ".Text", "");
       commandBuilder.set(labelId + ".Visible", true);
-      commandBuilder.set(labelId + ".Text", resolveSlotLabel(i));
+      commandBuilder.set(labelId + ".Text", slots[i].resolveLabel(this.currentState));
       eventBuilder.addEventBinding(
-          CustomUIEventBindingType.Activating, buttonId, EventData.of(KEY_CMD, SLOT_IDS[i]), false);
+          CustomUIEventBindingType.Activating,
+          buttonId,
+          EventData.of(KEY_CMD, slots[i].getCommandId()),
+          false);
     }
-  }
-
-  @Nonnull
-  private Message resolveSlotLabel(int slot) {
-    return switch (slot) {
-      case 0 -> Message.translation("dogs_companion.ui.wheel.slot.follow");
-      case 1 -> Message.translation("dogs_companion.ui.wheel.slot.sit");
-      case 2 ->
-          this.currentState == DogState.SLEEPING
-              ? Message.translation("dogs_companion.ui.wheel.slot.wakeup")
-              : Message.translation("dogs_companion.ui.wheel.slot.sleep");
-      case 3 -> Message.translation("dogs_companion.ui.wheel.slot.play");
-      case 4 ->
-          this.currentState == DogState.WANDERING
-              ? Message.translation("dogs_companion.ui.wheel.slot.return")
-              : Message.translation("dogs_companion.ui.wheel.slot.wander");
-      case 5 ->
-          this.currentState == DogState.DEFENSE
-              ? Message.translation("dogs_companion.ui.wheel.slot.defense")
-              : this.currentState == DogState.OFFENSE
-                  ? Message.translation("dogs_companion.ui.wheel.slot.offense")
-                  : Message.translation("dogs_companion.ui.wheel.slot.normal");
-      case 6 -> Message.translation("dogs_companion.ui.wheel.slot.search");
-      case 7 -> Message.translation("dogs_companion.ui.wheel.slot.pet");
-      default -> Message.raw("");
-    };
   }
 
   @Nonnull
@@ -282,15 +241,67 @@ public final class DogActionWheelPage
     return "Dog";
   }
 
+  /** Slot order defines the button index in the wheel UI, so entries must not be reordered. */
+  private enum WheelSlot {
+    FOLLOW("follow", "follow"),
+    SIT("sit", "sit"),
+    SLEEP("sleep_wakeup", "sleep") {
+      @Override
+      String resolveLabelKey(@Nonnull DogState currentState) {
+        return currentState == DogState.SLEEPING ? "wakeup" : "sleep";
+      }
+    },
+    PLAY("play", "play"),
+    WANDER("wander_return", "wander") {
+      @Override
+      String resolveLabelKey(@Nonnull DogState currentState) {
+        return currentState == DogState.WANDERING ? "return" : "wander";
+      }
+    },
+    COMBAT("cycle_combat", "normal") {
+      @Override
+      String resolveLabelKey(@Nonnull DogState currentState) {
+        return switch (currentState) {
+          case DEFENSE -> "defense";
+          case OFFENSE -> "offense";
+          default -> "normal";
+        };
+      }
+    },
+    SEARCH("search", "search"),
+    PET("pet", "pet");
+
+    private final String commandId;
+    private final String labelKey;
+
+    WheelSlot(String commandId, String labelKey) {
+      this.commandId = commandId;
+      this.labelKey = labelKey;
+    }
+
+    String getCommandId() {
+      return this.commandId;
+    }
+
+    String resolveLabelKey(@Nonnull DogState currentState) {
+      return this.labelKey;
+    }
+
+    @Nonnull
+    Message resolveLabel(@Nonnull DogState currentState) {
+      return Message.translation(
+          "dogs_companion.ui.wheel.slot." + this.resolveLabelKey(currentState));
+    }
+  }
+
   public static final class WheelEventData {
     public static final BuilderCodec<WheelEventData> CODEC =
-        ((BuilderCodec.Builder<WheelEventData>)
-                BuilderCodec.builder(WheelEventData.class, WheelEventData::new)
-                    .append(
-                        new KeyedCodec(KEY_CMD, Codec.STRING),
-                        (data, value) -> data.commandId = value,
-                        data -> data.commandId)
-                    .add())
+        BuilderCodec.builder(WheelEventData.class, WheelEventData::new)
+            .append(
+                new KeyedCodec<>(KEY_CMD, Codec.STRING),
+                (data, value) -> data.commandId = value,
+                data -> data.commandId)
+            .add()
             .build();
 
     private String commandId;

@@ -76,20 +76,15 @@ public class BuilderActionDogInteractionOwner extends BuilderActionDogInteractio
         double deltaTime,
         Store<EntityStore> store) {
       if (!isDogTamed(entityRef, store)) {
-        LOGGER.at(Level.FINE).log("Dog is not tamed");
         return false;
       }
+
       Player player = getPlayerFromInfoProvider(role, infoProvider, store);
       if (player == null) {
-        LOGGER.at(Level.FINE).log("No player found");
         return false;
       }
-      if (!isOwner(entityRef, getPlayerUUID(player, store), store)) {
-        LOGGER.at(Level.FINE).log("Player is not the owner");
-        return false;
-      }
-      LOGGER.at(Level.FINE).log("Owner can interact with dog");
-      return true;
+
+      return isOwner(entityRef, getPlayerUUID(player, store), store);
     }
 
     @Override

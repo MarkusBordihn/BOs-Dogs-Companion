@@ -19,13 +19,20 @@
 
 package de.markusbordihn.dogscompanion.utils;
 
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
-import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
+import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntityStatTypes;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import de.markusbordihn.dogscompanion.component.DogNameComponent;
+import de.markusbordihn.dogscompanion.component.DogStateComponent;
+import de.markusbordihn.dogscompanion.data.DogState;
+import de.markusbordihn.dogscompanion.data.DogStateData;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class DogCombatUtils {
@@ -49,19 +56,6 @@ public class DogCombatUtils {
     return (targetRef != null && targetRef.isValid()) ? targetRef : null;
   }
 
-  public static boolean hasTarget(Ref<EntityStore> dogRef, Store<EntityStore> store) {
-    return getCurrentTarget(dogRef, store) != null;
-  }
-
-  public static boolean isAttackingTarget(
-      Ref<EntityStore> dogRef, Ref<EntityStore> targetRef, Store<EntityStore> store) {
-    if (targetRef == null || !targetRef.isValid()) {
-      return false;
-    }
-    Ref<EntityStore> currentTarget = getCurrentTarget(dogRef, store);
-    return currentTarget != null && currentTarget.equals(targetRef);
-  }
-
   public static boolean isTargetAlive(Ref<EntityStore> targetRef, Store<EntityStore> store) {
     if (targetRef == null || !targetRef.isValid()) {
       return false;
@@ -72,17 +66,51 @@ public class DogCombatUtils {
       return true;
     }
 
-    int healthIndex = EntityStatType.getAssetMap().getIndex("Health");
-    if (healthIndex < 0) {
-      return true;
+    EntityStatValue health = targetStats.get(DefaultEntityStatTypes.getHealth());
+    return health == null || health.get() > 0;
+  }
+
+  public static void engageTarget(
+      @Nonnull Ref<EntityStore> dogRef,
+      @Nonnull Ref<EntityStore> targetRef,
+      @Nonnull Store<EntityStore> store,
+      @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+    NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
+    if (npcEntity == null || npcEntity.getRole() == null) {
+      return;
     }
 
-    EntityStatValue health = targetStats.get(healthIndex);
-    if (health == null) {
-      return true;
+    String currentNpcState = npcEntity.getRole().getStateSupport().getStateName();
+    if (currentNpcState != null && currentNpcState.contains(DogState.ATTACKING.getNpcSubstate())) {
+      return;
     }
 
-    return health.get() > 0;
+    DogStateComponent stateComponent =
+        store.getComponent(dogRef, DogStateComponent.getComponentType());
+    DogStateData engagedData =
+        stateComponent != null
+            ? stateComponent.getData().withState(DogState.ATTACKING)
+            : DogStateData.of(DogState.ATTACKING);
+
+    // don't modify store during event processing
+    DogStateComponent engagedComponent = new DogStateComponent(engagedData);
+    commandBuffer.putComponent(dogRef, DogStateComponent.getComponentType(), engagedComponent);
+
+    DogNameComponent nameComponent =
+        store.getComponent(dogRef, DogNameComponent.getComponentType());
+    Nameplate nameplate = store.getComponent(dogRef, Nameplate.getComponentType());
+    if (nameComponent != null && nameplate != null) {
+      Nameplate updatedNameplate = (Nameplate) nameplate.clone();
+      updatedNameplate.setText(
+          DogNameplateUtils.getStateSymbol(DogState.ATTACKING) + " " + nameComponent.getName());
+      commandBuffer.putComponent(dogRef, Nameplate.getComponentType(), updatedNameplate);
+    }
+
+    npcEntity.getRole().getMarkedEntitySupport().setMarkedEntity(LOCKED_TARGET_SLOT, targetRef);
+    npcEntity
+        .getRole()
+        .getStateSupport()
+        .setState(dogRef, "Pet", DogState.ATTACKING.getNpcSubstate(), commandBuffer);
   }
 
   public static void clearTarget(Ref<EntityStore> dogRef, Store<EntityStore> store) {

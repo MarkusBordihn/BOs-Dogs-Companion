@@ -20,6 +20,8 @@
 package de.markusbordihn.dogscompanion;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Constants {
 
@@ -31,6 +33,11 @@ public final class Constants {
   public static final String COLOR_WARNING = "#FFAA00";
   public static final String COLOR_INFO = "#FFFF00";
   public static final String COLOR_GRAY = "#808080";
+  public static final String COLOR_GOLD = "#FFD700";
+  public static final String COLOR_CYAN = "#00FFFF";
+  public static final String COLOR_ORANGE = "#FFA500";
+  public static final String COLOR_HEAL = "#66FF66";
+  public static final String COLOR_HINT = "#FFAA66";
 
   public static final int DEFAULT_DOG_LIMIT = 16;
 
@@ -38,22 +45,21 @@ public final class Constants {
   public static final int DOG_WHISTLE_COOLDOWN_MS = 1500;
   public static final double DOG_WHISTLE_DOG_RANGE = 64.0;
 
-  public static final Set<String> DOG_FOOD_ITEMS =
+  public static final Set<String> DOG_FOOD_ITEMS_RAW =
       Set.of(
-          "Item_Bone",
-          "Bone",
-          "Food_Meat_Raw",
-          "Food_Meat_Cooked",
           "Food_Beef_Raw",
-          "Food_Beef_Cooked",
           "Food_Pork_Raw",
-          "Food_Pork_Cooked",
           "Food_Chicken_Raw",
-          "Food_Chicken_Cooked",
-          "Food_Mutton_Raw",
-          "Food_Mutton_Cooked",
           "Food_Wildmeat_Raw",
-          "Food_Wildmeat_Cooked");
+          "Food_Fish_Raw",
+          "Ingredient_Bone_Fragment");
+
+  public static final Set<String> DOG_FOOD_ITEMS_COOKED =
+      Set.of("Food_Wildmeat_Cooked", "Food_Fish_Grilled", "Food_Kebab_Meat", "Food_Pie_Meat");
+
+  public static final Set<String> DOG_FOOD_ITEMS =
+      Stream.concat(DOG_FOOD_ITEMS_RAW.stream(), DOG_FOOD_ITEMS_COOKED.stream())
+          .collect(Collectors.toUnmodifiableSet());
 
   public static final String UI_PATH = "Dogs/";
   public static final String UI_ACTION_WHEEL = UI_PATH + "DogsActionWheel.ui";

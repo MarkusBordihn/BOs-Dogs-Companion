@@ -64,6 +64,15 @@ public class PermissionManager {
     }
   }
 
+  public static boolean hasPermission(@Nonnull CommandContext context, @Nonnull String permission) {
+    if (!context.isPlayer()) {
+      return true;
+    }
+
+    return context.sender() instanceof PermissionHolder permissionHolder
+        && permissionHolder.hasPermission(permission, false);
+  }
+
   public static boolean hasAdminBypass(@Nonnull CommandContext context) {
     if (!context.isPlayer()) {
       return true;

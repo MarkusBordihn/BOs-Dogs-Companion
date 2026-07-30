@@ -31,6 +31,7 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntitySta
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
+import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.inventory.InventoryHelper;
 import java.util.logging.Level;
@@ -51,13 +52,11 @@ public class InteractionFeeding {
       boolean isOwner) {
     String itemName = heldItem != null ? heldItem.getItemId() : null;
 
-    LOGGER.at(Level.INFO).log(
+    LOGGER.at(Level.FINE).log(
         "%s - Dog fed with %s by player %s",
         isOwner ? "FEEDING: By Owner" : "FEEDING: By Stranger",
         itemName,
-        player != null
-            ? store.getComponent(player.getReference(), PlayerRef.getComponentType()).getUsername()
-            : "unknown");
+        getUsername(player, store));
 
     if (itemName != null) {
       healDog(entityRef, store, player, getHealAmount(itemName));
@@ -69,10 +68,17 @@ public class InteractionFeeding {
     return false;
   }
 
+  private static String getUsername(Player player, Store<EntityStore> store) {
+    if (player == null) {
+      return "unknown";
+    }
+
+    PlayerRef playerRef = store.getComponent(player.getReference(), PlayerRef.getComponentType());
+    return playerRef != null ? playerRef.getUsername() : "unknown";
+  }
+
   private static float getHealAmount(String itemName) {
-    return itemName.contains("Cooked") || itemName.contains("_Cooked")
-        ? COOKED_FOOD_HEAL
-        : RAW_FOOD_HEAL;
+    return Constants.DOG_FOOD_ITEMS_COOKED.contains(itemName) ? COOKED_FOOD_HEAL : RAW_FOOD_HEAL;
   }
 
   private static void healDog(
@@ -110,20 +116,20 @@ public class InteractionFeeding {
               Message.translation("dogs_companion.interactions.healing")
                   .param("dogName", dogName)
                   .param("amount", String.format("%.1f", actualHealAmount))
-                  .color("#66FF66"));
+                  .color(Constants.COLOR_HEAL));
 
-          LOGGER.at(Level.INFO).log(
+          LOGGER.at(Level.FINE).log(
               "Dog healed: %s (+%.1f HP, now %.1f/%.1f)",
               dogName, actualHealAmount, newHealth, maxHealth);
         } else if (playerRef != null) {
           playerRef.sendMessage(
               Message.translation("dogs_companion.interactions.already_full_health")
                   .param("dogName", dogName)
-                  .color("#FFAA66"));
+                  .color(Constants.COLOR_HINT));
         }
       }
     } catch (Exception e) {
-      LOGGER.at(Level.WARNING).log("Failed to heal dog: %s", e.getMessage());
+      LOGGER.at(Level.WARNING).withCause(e).log("Failed to heal dog");
     }
   }
 }

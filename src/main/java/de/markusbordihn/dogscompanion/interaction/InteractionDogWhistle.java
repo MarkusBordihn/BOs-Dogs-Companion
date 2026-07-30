@@ -47,6 +47,8 @@ import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import de.markusbordihn.dogscompanion.ui.DogActionHelper;
 import de.markusbordihn.dogscompanion.utils.DogCombatUtils;
+import de.markusbordihn.dogscompanion.utils.DogEntityNameUtils;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -155,31 +157,23 @@ public class InteractionDogWhistle extends SimpleInteraction {
     return true;
   }
 
+  private static void pruneExpiredCooldowns(long now) {
+    cooldownMap
+        .values()
+        .removeIf(lastUsed -> (now - lastUsed) >= Constants.DOG_WHISTLE_COOLDOWN_MS);
+  }
+
   @Nonnull
   private static String getEntityDisplayName(
       @Nonnull Ref<EntityStore> entityRef, @Nonnull Store<EntityStore> store) {
-    Nameplate nameplate = store.getComponent(entityRef, Nameplate.getComponentType());
-    if (nameplate != null && nameplate.getText() != null && !nameplate.getText().isEmpty()) {
-      return nameplate.getText();
-    }
-    NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
-    if (npcEntity != null && npcEntity.getRole() != null) {
-      String roleName = npcEntity.getRole().getRoleName();
-      if (roleName != null && !roleName.isEmpty()) {
-        return roleName;
-      }
-    }
-    return "target";
+    return DogEntityNameUtils.getNameplateName(
+        entityRef, store, DogEntityNameUtils.FALLBACK_TARGET);
   }
 
   @Nonnull
   private static String getDogDisplayName(
       @Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    Nameplate nameplate = store.getComponent(dogRef, Nameplate.getComponentType());
-    if (nameplate != null && nameplate.getText() != null && !nameplate.getText().isEmpty()) {
-      return nameplate.getText();
-    }
-    return "Dog";
+    return DogEntityNameUtils.getDogName(dogRef, store, DogEntityNameUtils.FALLBACK_DOG);
   }
 
   public static boolean handleOnDog(
@@ -255,6 +249,8 @@ public class InteractionDogWhistle extends SimpleInteraction {
     UUID playerUUID = uuidComponent.getUuid();
 
     long now = System.currentTimeMillis();
+    pruneExpiredCooldowns(now);
+
     Long lastUsed = cooldownMap.get(playerUUID);
     if (lastUsed != null && (now - lastUsed) < Constants.DOG_WHISTLE_COOLDOWN_MS) {
       PlayerRef playerRefComponent =
@@ -274,14 +270,13 @@ public class InteractionDogWhistle extends SimpleInteraction {
     Vector3d playerPos = playerTransform != null ? playerTransform.getPosition() : null;
 
     @Nullable Ref<EntityStore> targetRef = context.getTargetEntity();
-    cooldownMap.put(playerUUID, now);
 
     commandBuffer.run(
         store -> {
           Set<Ref<EntityStore>> allOwnedDogs =
               DogsManager.getInstance().getDogsByOwner(playerUUID, store);
 
-          Set<Ref<EntityStore>> nearbyDogs = ConcurrentHashMap.newKeySet();
+          Set<Ref<EntityStore>> nearbyDogs = new HashSet<>();
           if (playerPos != null) {
             double rangeSquared = Constants.DOG_WHISTLE_DOG_RANGE * Constants.DOG_WHISTLE_DOG_RANGE;
             for (Ref<EntityStore> dogRef : allOwnedDogs) {
@@ -314,6 +309,9 @@ public class InteractionDogWhistle extends SimpleInteraction {
             }
             return;
           }
+
+          // Only start the cooldown once the whistle actually reached a dog.
+          cooldownMap.put(playerUUID, now);
 
           if (targetRef != null
               && targetRef.isValid()

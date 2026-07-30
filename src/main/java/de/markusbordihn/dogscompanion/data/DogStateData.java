@@ -49,7 +49,7 @@ public record DogStateData(@Nonnull DogState state, @Nullable DogState previousS
   }
 
   @Nonnull
-  public DogState getStateOrPrevious() {
-    return previousState != null ? previousState : DogState.FOLLOWING;
+  public DogState previousStateOrDefault() {
+    return this.previousState != null ? this.previousState : DogState.FOLLOWING;
   }
 }

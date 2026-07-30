@@ -31,49 +31,48 @@ public final class DogActionHelper {
 
   private DogActionHelper() {}
 
+  public static void applyState(
+      @Nonnull Ref<EntityStore> dogRef,
+      @Nonnull DogState state,
+      @Nonnull Store<EntityStore> store) {
+    DogsManager.getInstance().updateDogState(dogRef, state, store);
+    setNpcState(dogRef, store, state.getNpcSubstate());
+  }
+
   public static void follow(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.FOLLOWING, store);
-    setNpcState(dogRef, store, "Default");
+    applyState(dogRef, DogState.FOLLOWING, store);
   }
 
   public static void sit(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.SITTING, store);
-    setNpcState(dogRef, store, "Sitting");
+    applyState(dogRef, DogState.SITTING, store);
   }
 
   public static void sleep(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.SLEEPING, store);
-    setNpcState(dogRef, store, "Sleeping");
+    applyState(dogRef, DogState.SLEEPING, store);
   }
 
   public static void play(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.PLAYING, store);
-    setNpcState(dogRef, store, "Playing");
+    applyState(dogRef, DogState.PLAYING, store);
   }
 
   public static void wander(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.WANDERING, store);
-    setNpcState(dogRef, store, "Wandering");
+    applyState(dogRef, DogState.WANDERING, store);
   }
 
   public static void stop(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.WAITING, store);
-    setNpcState(dogRef, store, "Waiting");
+    applyState(dogRef, DogState.WAITING, store);
   }
 
   public static void attack(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.OFFENSE, store);
-    setNpcState(dogRef, store, "Default");
+    applyState(dogRef, DogState.OFFENSE, store);
   }
 
   public static void defense(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.DEFENSE, store);
-    setNpcState(dogRef, store, "Defense");
+    applyState(dogRef, DogState.DEFENSE, store);
   }
 
   public static void search(@Nonnull Ref<EntityStore> dogRef, @Nonnull Store<EntityStore> store) {
-    DogsManager.getInstance().updateDogState(dogRef, DogState.SEARCHING, store);
-    setNpcState(dogRef, store, "Searching");
+    applyState(dogRef, DogState.SEARCHING, store);
   }
 
   public static void cycleCombatMode(
@@ -81,8 +80,8 @@ public final class DogActionHelper {
       @Nonnull DogState currentState,
       @Nonnull Store<EntityStore> store) {
     switch (currentState) {
-      case DogState.DEFENSE -> attack(dogRef, store);
-      case DogState.OFFENSE -> stop(dogRef, store);
+      case DEFENSE -> attack(dogRef, store);
+      case OFFENSE -> stop(dogRef, store);
       default -> defense(dogRef, store);
     }
   }

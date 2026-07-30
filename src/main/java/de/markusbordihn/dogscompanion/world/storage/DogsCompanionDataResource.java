@@ -42,7 +42,6 @@ import javax.annotation.Nullable;
 public class DogsCompanionDataResource implements Resource<EntityStore> {
 
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-
   public static final BuilderCodec<DogsCompanionDataResource> CODEC =
       BuilderCodec.builder(DogsCompanionDataResource.class, DogsCompanionDataResource::new)
           .append(

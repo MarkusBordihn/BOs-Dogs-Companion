@@ -27,16 +27,15 @@ import com.hypixel.hytale.component.query.AnyQuery;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
-import com.hypixel.hytale.server.core.entity.nameplate.Nameplate;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
+import de.markusbordihn.dogscompanion.utils.DogCombatUtils;
 import java.util.Set;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -80,6 +79,16 @@ public class DogOffenseSystem extends DamageEventSystem {
       return;
     }
 
+    // Only owners can have dogs, so skip every non-player attacker before any lookup.
+    if (store.getComponent(attackerRef, PlayerRef.getComponentType()) == null) {
+      return;
+    }
+
+    // Never let a dog assist against another dog.
+    if (store.getComponent(victimRef, DogStateComponent.getComponentType()) != null) {
+      return;
+    }
+
     UUIDComponent attackerUUID = store.getComponent(attackerRef, UUIDComponent.getComponentType());
     if (attackerUUID == null) {
       return;
@@ -91,12 +100,6 @@ public class DogOffenseSystem extends DamageEventSystem {
       return;
     }
     Vector3d attackerPos = attackerTransform.getPosition();
-
-    DogStateComponent victimDogState =
-        store.getComponent(victimRef, DogStateComponent.getComponentType());
-    if (victimDogState != null) {
-      return;
-    }
 
     Set<Ref<EntityStore>> ownedDogs =
         DogsManager.getInstance().getDogsByOwner(attackerUUID.getUuid(), store);
@@ -110,14 +113,6 @@ public class DogOffenseSystem extends DamageEventSystem {
           store.getComponent(dogRef, DogStateComponent.getComponentType());
       if (stateComponent == null || stateComponent.getState() != DogState.OFFENSE) {
         continue;
-      }
-
-      NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
-      if (npcEntity != null && npcEntity.getRole() != null) {
-        String currentState = npcEntity.getRole().getStateSupport().getStateName();
-        if (currentState != null && currentState.contains("Attacking")) {
-          continue;
-        }
       }
 
       TransformComponent dogTransform =
@@ -136,34 +131,7 @@ public class DogOffenseSystem extends DamageEventSystem {
         continue;
       }
 
-      activateDogAssist(dogRef, victimRef, store, commandBuffer);
-    }
-  }
-
-  private void activateDogAssist(
-      @Nonnull Ref<EntityStore> dogRef,
-      @Nonnull Ref<EntityStore> targetRef,
-      @Nonnull Store<EntityStore> store,
-      @Nonnull CommandBuffer<EntityStore> commandBuffer) {
-
-    DogStateComponent newStateComponent = new DogStateComponent(DogState.ATTACKING);
-    commandBuffer.putComponent(dogRef, DogStateComponent.getComponentType(), newStateComponent);
-
-    DogNameComponent nameComponent =
-        store.getComponent(dogRef, DogNameComponent.getComponentType());
-    if (nameComponent != null) {
-      Nameplate nameplate = store.getComponent(dogRef, Nameplate.getComponentType());
-      if (nameplate != null) {
-        Nameplate updatedNameplate = (Nameplate) nameplate.clone();
-        updatedNameplate.setText("[ATK] " + nameComponent.getName());
-        commandBuffer.putComponent(dogRef, Nameplate.getComponentType(), updatedNameplate);
-      }
-    }
-
-    NPCEntity npcEntity = store.getComponent(dogRef, NPCEntity.getComponentType());
-    if (npcEntity != null && npcEntity.getRole() != null) {
-      npcEntity.getRole().getMarkedEntitySupport().setMarkedEntity("LockedTarget", targetRef);
-      npcEntity.getRole().getStateSupport().setState(dogRef, "Pet", "Attacking", commandBuffer);
+      DogCombatUtils.engageTarget(dogRef, victimRef, store, commandBuffer);
 
       LOGGER.at(Level.FINE).log(
           "Dog %s assisting owner in combat", DogsManager.getInstance().getUuid(dogRef, store));

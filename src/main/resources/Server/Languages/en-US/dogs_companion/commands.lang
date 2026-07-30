@@ -16,7 +16,7 @@ sleep.success={name} is sleeping
 wait.success={name} waits patiently
 wander.success={name} is now wandering freely
 
-spawn.not_implemented=Spawn command is not yet implemented
+spawn.teleported=The dog {name} has been teleported to you!
 spawn.no_match=No despawned dogs found matching '{filter}'
 spawn.no_despawned=All your dogs are already spawned!
 spawn.success=Successfully spawned {count} dog(s)!
@@ -32,9 +32,6 @@ owner.info={name} belongs to {owner}
 reload.success=Dogs configuration reloaded successfully!
 reload.failed=Failed to reload dogs configuration.
 
-list.header=Your dogs:
-list.entry=- {name} ({state})
-list.none=No canine companions yet. Tame a wild dog to start your pack!
 
 error.not_owner={name} belongs to {owner}
 error.no_dog=No dog found. Look at a dog and try again.
@@ -43,3 +40,34 @@ error.player_only=This command can only be used by players
 error.no_uuid=Unable to get player UUID
 error.player_pos_not_found=Unable to find your position
 error.release_failed=Failed to release dog ownership
+error.no_permission=You do not have permission to use this command.
+list.header==== Your Dogs ({count}/{limit}) ===
+list.empty=You don't have any dogs yet.
+list.empty.hint=Tip: Tame a wild dog by giving it bones or meat!
+list.entry={index}. {name} {status} {position}
+list.entry.details=   Type: {type} | State: {state}
+list.entry.uuid=   UUID: {uuid}
+list.hint=Tip: Use /dog info while looking at a dog for more details
+list.unlimited=unlimited
+list.unnamed=Unnamed Dog
+list.status.despawned=[DESPAWNED]
+list.status.alive=[ALIVE]
+list.status.dead=[DEAD]
+list.no_position=(no position)
+
+info.no_entity=No entity in view.
+info.no_entity.hint=Look at a dog and use: /dog info
+info.no_uuid=Unable to get dog UUID (not a dog entity?)
+info.no_data=Dog data not found for UUID: {uuid}
+info.name=Name: {name}
+info.unnamed=(unnamed)
+info.uuid=UUID: {uuid}
+info.type=Type: {type}
+info.status.tamed=Status: Tamed
+info.status.wild=Status: Wild
+info.owner=Owner: {owner}
+info.owner.unknown=Unknown
+info.state=State: {state}
+info.spawn_status=Spawn Status: {status}
+info.position=Last Position: {position}
+info.hint=Tip: Use /dog name <name> to name your dog

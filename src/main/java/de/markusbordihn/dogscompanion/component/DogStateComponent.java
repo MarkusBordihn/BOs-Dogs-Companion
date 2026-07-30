@@ -50,7 +50,9 @@ public class DogStateComponent implements Component<EntityStore> {
           .append(
               new KeyedCodec<>(PREVIOUS_STATE_TAG, STATE_CODEC),
               (component, value) -> {
-                if (value != null) {
+                // A stored previous state equal to the current one would make
+                // DogReturnToPreviousState a no-op and leave the dog stuck.
+                if (value != null && value != component.data.state()) {
                   component.data = new DogStateData(component.data.state(), value);
                 }
               },
@@ -113,6 +115,7 @@ public class DogStateComponent implements Component<EntityStore> {
   public DogStateComponent clone() {
     DogStateComponent cloned = new DogStateComponent();
     cloned.data = this.data;
+    cloned.lastAttackTime = this.lastAttackTime;
     return cloned;
   }
 }

@@ -29,9 +29,9 @@ import com.hypixel.hytale.server.core.command.system.basecommands.AbstractWorldC
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import de.markusbordihn.dogscompanion.Constants;
-import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogOwnerComponent;
 import de.markusbordihn.dogscompanion.permission.PermissionManager;
+import de.markusbordihn.dogscompanion.utils.DogEntityNameUtils;
 import java.util.Optional;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -58,6 +58,10 @@ public abstract class DogCommand extends AbstractWorldCommand {
         store.getComponent(entityRef, DogOwnerComponent.getComponentType());
 
     if (ownerComponent == null || !ownerComponent.hasOwner()) {
+      return true;
+    }
+
+    if (PermissionManager.hasAdminBypass(context)) {
       return true;
     }
 
@@ -109,7 +113,7 @@ public abstract class DogCommand extends AbstractWorldCommand {
         return Optional.of(entityRef);
       }
     } catch (Exception e) {
-      // Entity not found or invalid argument
+      LOGGER.at(Level.FINE).withCause(e).log("Could not resolve entity argument");
     }
     return Optional.empty();
   }
@@ -117,16 +121,7 @@ public abstract class DogCommand extends AbstractWorldCommand {
   @Nonnull
   protected String getDogDisplayName(
       @Nonnull Ref<EntityStore> entityRef, @Nonnull Store<EntityStore> store) {
-    DogNameComponent nameComponent =
-        store.getComponent(entityRef, DogNameComponent.getComponentType());
-
-    if (nameComponent != null
-        && nameComponent.getName() != null
-        && !nameComponent.getName().isEmpty()) {
-      return nameComponent.getName();
-    }
-
-    return "Dog";
+    return DogEntityNameUtils.getDogName(entityRef, store, DogEntityNameUtils.FALLBACK_DOG);
   }
 
   protected int getDogLimit(@Nonnull CommandContext context) {

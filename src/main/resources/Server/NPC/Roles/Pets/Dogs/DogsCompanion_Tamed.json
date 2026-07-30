@@ -60,6 +60,19 @@
           ]
         },
         {
+          "$Comment": "Mood particles, runs alongside the Pet substates without claiming motion",
+          "Continue": true,
+          "Sensor": {
+            "Type": "State",
+            "State": "Pet"
+          },
+          "Actions": [
+            {
+              "Type": "DogMoodParticles"
+            }
+          ]
+        },
+        {
           "$Comment": "Pet substates",
           "Sensor": {
             "Type": "State",

@@ -34,6 +34,7 @@ import com.hypixel.hytale.server.npc.NPCPlugin;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.data.DogDataEntry;
+import de.markusbordihn.dogscompanion.data.DogStatus;
 import de.markusbordihn.dogscompanion.data.DogType;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
 import it.unimi.dsi.fastutil.Pair;
@@ -85,60 +86,28 @@ final class DogSpawnCommand extends DogCommand {
     DogsManager dogsManager = DogsManager.getInstance();
 
     String filter = this.filterArg.get(context);
-    if (filter != null && !filter.isEmpty()) {
-      String filterLower = filter.toLowerCase(java.util.Locale.ROOT);
+    boolean hasFilter = filter != null && !filter.isEmpty();
+    String filterLower = hasFilter ? filter.toLowerCase(Locale.ROOT) : null;
 
-      for (DogDataEntry dog : dogsManager.getDogDataByOwner(playerUuid, store)) {
-        Ref<EntityStore> dogInWorld = dogsManager.getDogByUuid(dog.uuid(), store);
-        if (dogInWorld != null
-            && dogsManager.isDogAliveInWorld(dog.uuid(), store)
-            && matchesFilter(dog, filterLower)
-            && dogInWorld.isValid()) {
-          TransformComponent dogTransform =
-              store.getComponent(dogInWorld, TransformComponent.getComponentType());
-          if (dogTransform != null) {
-            Ref<EntityStore> playerRef = store.getExternalData().getRefFromUUID(playerUuid);
-            if (playerRef != null && playerRef.isValid()) {
-              TransformComponent playerTransform =
-                  store.getComponent(playerRef, TransformComponent.getComponentType());
-              if (playerTransform != null) {
-                Vector3d playerPos = playerTransform.getPosition();
-                dogTransform.setPosition(playerPos);
-
-                String dogName = dog.name() != null ? dog.name() : "Dog";
-                context.sendMessage(
-                    Message.raw("The dog " + dogName + " has been teleported to you!")
-                        .color(Constants.COLOR_SUCCESS));
-                return;
-              }
-            }
-          }
-        }
-      }
+    if (hasFilter && tryTeleportExistingDog(context, store, dogsManager, playerUuid, filterLower)) {
+      return;
     }
 
+    // Only entries explicitly marked as despawned may be re-spawned; a dog whose chunk is
+    // merely unloaded still exists and would otherwise be duplicated.
     Collection<DogDataEntry> despawnedDogs =
         dogsManager.getDogDataByOwner(playerUuid, store).stream()
-            .filter(
-                dog -> {
-                  Ref<EntityStore> dogRef = dogsManager.getDogByUuid(dog.uuid(), store);
-                  return dogRef == null || !dogsManager.isDogAliveInWorld(dog.uuid(), store);
-                })
+            .filter(dog -> dog.status() == DogStatus.DESPAWNED)
+            .filter(dog -> !dogsManager.isDogAliveInWorld(dog.uuid(), store))
+            .filter(dog -> !hasFilter || matchesFilter(dog, filterLower))
             .toList();
 
-    if (filter != null && !filter.isEmpty()) {
-      despawnedDogs =
-          despawnedDogs.stream()
-              .filter(dog -> matchesFilter(dog, filter.toLowerCase(java.util.Locale.ROOT)))
-              .toList();
-
-      if (despawnedDogs.isEmpty()) {
-        context.sendMessage(
-            Message.translation("dogs_companion.commands.spawn.no_match")
-                .param("filter", filter)
-                .color(Constants.COLOR_WARNING));
-        return;
-      }
+    if (hasFilter && despawnedDogs.isEmpty()) {
+      context.sendMessage(
+          Message.translation("dogs_companion.commands.spawn.no_match")
+              .param("filter", filter)
+              .color(Constants.COLOR_WARNING));
+      return;
     }
 
     if (despawnedDogs.isEmpty()) {
@@ -260,5 +229,50 @@ final class DogSpawnCommand extends DogCommand {
       LOGGER.at(Level.WARNING).withCause(e).log("Failed to spawn dog: " + dogData.name());
       return false;
     }
+  }
+
+  private boolean tryTeleportExistingDog(
+      @Nonnull CommandContext context,
+      @Nonnull Store<EntityStore> store,
+      @Nonnull DogsManager dogsManager,
+      @Nonnull UUID playerUuid,
+      @Nonnull String filterLower) {
+
+    Ref<EntityStore> playerRef = store.getExternalData().getRefFromUUID(playerUuid);
+    if (playerRef == null || !playerRef.isValid()) {
+      return false;
+    }
+
+    TransformComponent playerTransform =
+        store.getComponent(playerRef, TransformComponent.getComponentType());
+    if (playerTransform == null) {
+      return false;
+    }
+
+    for (DogDataEntry dog : dogsManager.getDogDataByOwner(playerUuid, store)) {
+      if (!matchesFilter(dog, filterLower) || !dogsManager.isDogAliveInWorld(dog.uuid(), store)) {
+        continue;
+      }
+
+      Ref<EntityStore> dogInWorld = dogsManager.getDogByUuid(dog.uuid(), store);
+      if (dogInWorld == null || !dogInWorld.isValid()) {
+        continue;
+      }
+
+      TransformComponent dogTransform =
+          store.getComponent(dogInWorld, TransformComponent.getComponentType());
+      if (dogTransform == null) {
+        continue;
+      }
+
+      dogTransform.setPosition(playerTransform.getPosition());
+      context.sendMessage(
+          Message.translation("dogs_companion.commands.spawn.teleported")
+              .param("name", dog.name() != null ? dog.name() : "Dog")
+              .color(Constants.COLOR_SUCCESS));
+      return true;
+    }
+
+    return false;
   }
 }

@@ -36,7 +36,8 @@ import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.component.DogStateComponent;
 import de.markusbordihn.dogscompanion.data.SearchFindType;
 import de.markusbordihn.dogscompanion.manager.DogsManager;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -86,8 +87,10 @@ public class BuilderActionDogSearchReturn extends BuilderActionBase {
 
   public static class ActionDogSearchReturn extends ActionBase {
 
-    private static final HashMap<Ref<EntityStore>, Double> timerByEntity = new HashMap<>();
-    private static final HashMap<Ref<EntityStore>, String> foundItemByEntity = new HashMap<>();
+    private static final Map<Ref<EntityStore>, SearchTimer> timerByEntity =
+        new ConcurrentHashMap<>();
+    private static final Map<Ref<EntityStore>, String> foundItemByEntity =
+        new ConcurrentHashMap<>();
 
     public ActionDogSearchReturn(@Nonnull BuilderActionBase builder) {
       super(builder);
@@ -129,24 +132,17 @@ public class BuilderActionDogSearchReturn extends BuilderActionBase {
         return true;
       }
 
-      double elapsed =
+      SearchTimer timer =
           timerByEntity.compute(
               entityRef,
               (key, previous) ->
-                  previous == null
-                      ? ThreadLocalRandom.current().nextDouble(0, MAX_SEARCH_TIME)
-                      : previous + deltaTime);
+                  previous == null ? SearchTimer.started() : previous.advance(deltaTime));
 
-      if (elapsed < MIN_SEARCH_TIME) {
+      if (timer.elapsed() < timer.threshold()) {
         return true;
       }
 
-      double threshold = ThreadLocalRandom.current().nextDouble(MIN_SEARCH_TIME, MAX_SEARCH_TIME);
-      if (elapsed < threshold) {
-        return true;
-      }
-
-      timerByEntity.put(entityRef, 0.0);
+      timerByEntity.put(entityRef, SearchTimer.reset());
 
       SearchFindType findType = SearchFindType.random();
       String itemId = findType.getItemId();
@@ -167,6 +163,27 @@ public class BuilderActionDogSearchReturn extends BuilderActionBase {
       stateSupport.setState(entityRef, "Pet", "Returning", store);
 
       return true;
+    }
+
+    private record SearchTimer(double elapsed, double threshold) {
+
+      static SearchTimer started() {
+        // Stagger the first search so dogs spawned together do not fire in lockstep.
+        return new SearchTimer(
+            ThreadLocalRandom.current().nextDouble(0, MIN_SEARCH_TIME), nextThreshold());
+      }
+
+      static SearchTimer reset() {
+        return new SearchTimer(0, nextThreshold());
+      }
+
+      private static double nextThreshold() {
+        return ThreadLocalRandom.current().nextDouble(MIN_SEARCH_TIME, MAX_SEARCH_TIME);
+      }
+
+      SearchTimer advance(double deltaTime) {
+        return new SearchTimer(this.elapsed + deltaTime, this.threshold);
+      }
     }
   }
 }

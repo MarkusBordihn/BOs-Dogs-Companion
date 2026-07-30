@@ -32,13 +32,12 @@ import javax.annotation.Nullable;
 
 public class DogNameplateUtils {
 
+  public static final String SYMBOL_ATTACKING = "[ATK]";
   private static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
-
   private static final String SYMBOL_PASSIVE = "";
   private static final String SYMBOL_DEFENSE = "[DEF]";
   private static final String SYMBOL_OFFENSE = "[OFF]";
   private static final String SYMBOL_SITTING = "[SIT]";
-  private static final String SYMBOL_ATTACKING = "[ATK]";
   private static final String SYMBOL_SLEEPING = "[ZzZ]";
   private static final String SYMBOL_PLAYING = "[PLAY]";
   private static final String SYMBOL_WAITING = "[WAIT]";

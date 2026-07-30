@@ -26,6 +26,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.role.Role;
+import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.actions.BuilderActionDogSearchReturn;
 import de.markusbordihn.dogscompanion.component.DogNameComponent;
 import de.markusbordihn.dogscompanion.data.DogState;
@@ -58,7 +59,7 @@ public class InteractionOwner {
               Message.translation("dogs_companion.interactions.search.give")
                   .param("name", dogName)
                   .param("item", itemId)
-                  .color("#FFD700"));
+                  .color(Constants.COLOR_GOLD));
         }
 
         DogsManager.getInstance().updateDogState(entityRef, DogState.FOLLOWING, store);

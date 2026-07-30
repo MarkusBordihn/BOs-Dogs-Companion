@@ -19,58 +19,15 @@
 
 package de.markusbordihn.dogscompanion.commands;
 
-import com.hypixel.hytale.component.Ref;
-import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.command.system.CommandContext;
-import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
-import com.hypixel.hytale.server.core.command.system.arguments.types.EntityWrappedArg;
-import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
-import de.markusbordihn.dogscompanion.Constants;
 import de.markusbordihn.dogscompanion.data.DogState;
-import de.markusbordihn.dogscompanion.manager.DogsManager;
-import java.util.Optional;
-import javax.annotation.Nonnull;
 
-final class DogSleepCommand extends DogCommand {
-  @Nonnull private final EntityWrappedArg entityArg;
+final class DogSleepCommand extends DogStateCommand {
 
   public DogSleepCommand() {
-    super("sleep", "Makes your dog sleep");
-    this.entityArg = this.withOptionalArg("entity", "The dog entity", ArgTypes.ENTITY_ID);
-  }
-
-  @Override
-  protected void execute(
-      @Nonnull CommandContext context, @Nonnull World world, @Nonnull Store<EntityStore> store) {
-    Optional<Ref<EntityStore>> entityRefOpt = getEntityFromArgument(this.entityArg, store, context);
-
-    if (entityRefOpt.isPresent()) {
-      Ref<EntityStore> entityRef = entityRefOpt.get();
-
-      if (!checkOwnership(entityRef, store, context)) {
-        return;
-      }
-
-      DogsManager.getInstance().updateDogState(entityRef, DogState.SLEEPING, store);
-
-      NPCEntity npcEntity = store.getComponent(entityRef, NPCEntity.getComponentType());
-      if (npcEntity != null && npcEntity.getRole() != null) {
-        npcEntity.getRole().getStateSupport().setState(entityRef, "Pet", "Sleeping", store);
-        context.sendMessage(
-            Message.translation("dogs_companion.commands.sleep.success")
-                .param("name", getDogDisplayName(entityRef, store))
-                .color(Constants.COLOR_SUCCESS));
-      } else {
-        context.sendMessage(
-            Message.translation("dogs_companion.commands.error.no_dog")
-                .color(Constants.COLOR_INFO));
-      }
-    } else {
-      context.sendMessage(
-          Message.translation("dogs_companion.commands.error.no_dog").color(Constants.COLOR_ERROR));
-    }
+    super(
+        "sleep",
+        "Makes your dog sleep",
+        DogState.SLEEPING,
+        "dogs_companion.commands.sleep.success");
   }
 }
